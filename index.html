@@ -42,6 +42,9 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
 .prio-badge{font-size:10px;font-weight:700;background:#111;color:#fff;border-radius:5px;padding:2px 7px;flex-shrink:0;letter-spacing:.03em}
 .card.medium{border-left-color:var(--medium)}
 .card.complex{border-left-color:var(--complex)}
+.card-meta{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.card-owner{font-size:10px;color:var(--gray-400);margin-left:auto;white-space:nowrap}
+.card-owner-open{color:var(--complex);font-weight:600}
 .card-top{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px}
 .vbadge{font-size:11px;font-weight:600;color:#1a9e6e;background:#e4f7ee;border-radius:6px;padding:2px 7px;flex-shrink:0;white-space:nowrap}
 .vbadge-zero{color:#9c9b94;background:#f0efeb}
@@ -227,14 +230,19 @@ function render() {
 function mkcard(i) {
   var el = document.createElement('div');
   el.className = 'card ' + i.f;
+  if (i.prio) el.classList.add('prio');
   var tags = i.t.map(function(t){ return '<span class="tag t-'+t+'">'+TL[t]+'</span>'; }).join('');
   var vbadge = i.v === null ? '' : (i.v > 0 ? '<span class="vbadge">▲ '+i.v+'</span>' : '<span class="vbadge vbadge-zero">▲ 0</span>');
   var priobadge = i.prio ? '<span class="prio-badge">PRIO</span>' : '';
-  if (i.prio) el.classList.add('prio');
+  var status = i.status || 'idea';
+  var ownerText = i.owner ? '👤 ' + i.owner : '👤 offen';
+  var ownerCls = i.owner ? 'card-owner' : 'card-owner card-owner-open';
+  var nextStep = i.owner ? i.x : 'Verantwortlichen definieren — ' + i.x;
   el.innerHTML =
-    '<div class="card-top">'+priobadge+'<span class="card-emoji">'+i.e+'</span><span class="card-title">'+i.n+'</span>'+vbadge+'</div>'
-    +'<div class="card-next">'+i.x.substring(0,82)+'…</div>'
-    +'<div class="card-footer"><span class="status-badge status-'+i.status+'">'+SL[i.status]+'</span><div class="tags">'+tags+'</div></div>';
+    '<div class="card-meta">'+priobadge+'<span class="status-badge status-'+status+'">'+SL[status]+'</span><span class="'+ownerCls+'">'+ownerText+'</span></div>'
+    +'<div class="card-top"><span class="card-emoji">'+i.e+'</span><span class="card-title">'+i.n+'</span>'+vbadge+'</div>'
+    +'<div class="card-next">'+nextStep.substring(0,90)+'…</div>'
+    +'<div class="card-footer"><div class="tags">'+tags+'</div></div>';
   el.addEventListener('click', function(){ openModal(i); });
   return el;
 }
