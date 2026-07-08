@@ -258,7 +258,17 @@ function openModal(i) {
   var status = i.status || 'idea';
   st.textContent = SL[status];
   st.className = 'status-badge status-' + status;
-  document.getElementById('dn').textContent = i.owner ? i.x : 'Verantwortlichen definieren — ' + i.x;
+  var rawSteps = i.owner ? i.x : 'Verantwortlichen definieren. ' + i.x;
+  var steps = rawSteps.split(/\d+\.\s+/).filter(function(s){ return s.trim(); });
+  if (steps.length <= 1) steps = rawSteps.split(/\.\s+/).filter(function(s){ return s.trim(); });
+  var dnEl = document.getElementById('dn');
+  if (steps.length > 1) {
+    dnEl.innerHTML = '<ul style="padding-left:16px;margin:0;display:flex;flex-direction:column;gap:4px">'
+      + steps.map(function(s){ return '<li style="font-size:13px;color:var(--gray-600);line-height:1.5">'+s.trim().replace(/\.$/,'')+'</li>'; }).join('')
+      + '</ul>';
+  } else {
+    dnEl.textContent = rawSteps;
+  }
   var bw = document.getElementById('m-bisher-wrap');
   if (i.bisher) { bw.style.display = ''; document.getElementById('m-bisher').textContent = i.bisher; }
   else { bw.style.display = 'none'; }
