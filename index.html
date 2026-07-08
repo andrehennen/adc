@@ -92,7 +92,7 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
       <div class="hs">Ideen &amp; Initiativen · Stand Juni 2025</div>
     </div>
   </div>
-  <div class="hdate" id="hdate"></div>
+  <div style="display:flex;align-items:center;gap:12px"><div class="hdate" id="hdate"></div><button id="save-btn" onclick="saveToGitHub('Dashboard Update')" style="padding:6px 14px;border-radius:6px;border:none;background:#fff;color:#111;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 Speichern & Deployen</button></div>
 </header>
 
 <div class="stats-bar">
@@ -139,7 +139,7 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
     <div class="m-section"><div class="m-label">Nächster Schritt</div><div class="m-body" id="dn"></div></div>
     <div class="m-section"><div class="m-label">Aufwand</div><div id="def"></div></div>
     <div class="m-section"><div class="m-label">Originalidee(n)</div><div class="m-orig" id="dor"></div></div>
-    <div class="m-section"><div class="m-label">Verantwortliche:r</div><div id="m-owner" style="font-size:13px;font-weight:600;color:#111;margin-bottom:8px"></div><a class="trello-link" href="https://trello.com/b/EaBYHKMA/adc-hamburg-ideen-initiativen" target="_blank" rel="noopener">In Trello eintragen & verfolgen ↗</a></div>
+    <div class="m-section"><div class="m-label">Verantwortliche:r</div><input id="m-owner-input" placeholder="Name eintragen…" style="width:100%;border:1px solid #e2e1db;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;color:#111;margin-bottom:8px;display:block" /><a class="trello-link" href="https://trello.com/b/EaBYHKMA/adc-hamburg-ideen-initiativen" target="_blank" rel="noopener">In Trello eintragen & verfolgen ↗</a></div>
   </div>
 </div>
 
@@ -240,7 +240,14 @@ function openModal(i) {
   document.getElementById('dn').textContent = i.x;
   document.getElementById('def').innerHTML = '<span class="m-effort ef-'+i.f+'">'+FL[i.f]+'</span>';
   document.getElementById('dor').textContent = i.orig;
-  var oel=document.getElementById('m-owner'); if(oel) oel.textContent=i.owner?'👤 '+i.owner:'';
+  var oinput=document.getElementById('m-owner-input');
+  if(oinput){
+    oinput.value = i.owner||'';
+    oinput.oninput = function(){
+      i.owner = this.value;
+      render();
+    };
+  }
   document.getElementById('ov').classList.add('open');
 }
 
@@ -256,6 +263,57 @@ document.getElementById('frow').addEventListener('click', function(e){
 });
 
 render();
+
+// ── GitHub Sync ──
+var GH_TOKEN = localStorage.getItem("gh_token") || "";
+var GH_REPO  = "andrehennen/adc";
+var GH_FILE  = "index.html";
+
+function saveToGitHub(statusMsg) {
+  if (!GH_TOKEN) {
+    var t = prompt('GitHub Token eingeben (wird nur lokal gespeichert):');
+    if (!t) return;
+    GH_TOKEN = t.trim();
+    localStorage.setItem('gh_token', GH_TOKEN);
+  }
+  var btn = document.getElementById('save-btn');
+  btn.textContent = '⏳ Speichern…';
+  btn.disabled = true;
+
+  // Get current SHA first
+  fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
+    headers: { 'Authorization': 'token ' + GH_TOKEN }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(meta) {
+    // Build updated HTML with new owner data baked in
+    var updatedHtml = document.documentElement.outerHTML;
+    var encoded = btoa(unescape(encodeURIComponent(updatedHtml)));
+    return fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + GH_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: statusMsg || 'Dashboard update',
+        content: encoded,
+        sha: meta.sha
+      })
+    });
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result) {
+    btn.textContent = '✅ Gespeichert';
+    btn.disabled = false;
+    setTimeout(function(){ btn.textContent = '💾 Speichern & Deployen'; }, 3000);
+  })
+  .catch(function(err) {
+    btn.textContent = '❌ Fehler – nochmal versuchen';
+    btn.disabled = false;
+    console.error(err);
+  });
+}
 
 }); // DOMContentLoaded
 </script>
