@@ -149,7 +149,7 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
     <div class="m-section" id="m-bisher-wrap" style="display:none"><div class="m-label">Bisher passiert</div><div class="m-body" id="m-bisher"></div></div>
     <div class="m-section"><div class="m-label">Aufwand</div><div id="def"></div></div>
     <div class="m-section"><div class="m-label">Originalidee(n)</div><div class="m-orig" id="dor"></div></div>
-    <div class="m-section"><div class="m-label">Verantwortliche:r</div><div class="m-body" id="m-owner-display" style="font-weight:600;color:#111"></div></div>
+
   </div>
 </div>
 
@@ -254,10 +254,16 @@ function openModal(i) {
   var ds = document.getElementById('ds');
   ds.textContent = i.s === 'hh' ? '📍 Hamburg intern' : '🏛️ Gesamtverein / JHV';
   ds.className = 'm-scope ' + (i.s === 'hh' ? 'hh' : 'jhv');
-  document.getElementById('dn').textContent = i.x;
+  var st = document.getElementById('m-status');
+  var status = i.status || 'idea';
+  st.textContent = SL[status];
+  st.className = 'status-badge status-' + status;
+  document.getElementById('dn').textContent = i.owner ? i.x : 'Verantwortlichen definieren — ' + i.x;
+  var bw = document.getElementById('m-bisher-wrap');
+  if (i.bisher) { bw.style.display = ''; document.getElementById('m-bisher').textContent = i.bisher; }
+  else { bw.style.display = 'none'; }
   document.getElementById('def').innerHTML = '<span class="m-effort ef-'+i.f+'">'+FL[i.f]+'</span>';
   document.getElementById('dor').textContent = i.orig;
-
   document.getElementById('ov').classList.add('open');
 }
 
