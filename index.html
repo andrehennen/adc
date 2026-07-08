@@ -13,9 +13,10 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
 .ht{font-size:14px;font-weight:600}
 .hs{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
 .hdate{font-size:11px;color:rgba(255,255,255,.35)}
-.stats-bar{background:var(--white);border-bottom:1px solid var(--gray-200);display:grid;grid-template-columns:repeat(4,1fr)}
-.stat{padding:14px 22px;border-right:1px solid var(--gray-200)}
-.stat:last-child{border-right:none}
+.quicklink{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--black);background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:7px 14px;text-decoration:none;transition:background .1s}
+.quicklink:hover{background:var(--gray-200)}
+.quicklink-green{background:#e8f5ee;color:#0d6644;border-color:#a8dbbe}
+.quicklink-green:hover{background:#d0eddf}
 .stat-num{font-size:26px;font-weight:700;line-height:1;letter-spacing:-1px}
 .c-hh{color:var(--hh-text)}.c-jhv{color:var(--jhv-text)}.c-easy{color:var(--easy)}
 .stat-label{font-size:11px;color:var(--gray-400);margin-top:3px}
@@ -103,11 +104,17 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
   <div style="display:flex;align-items:center;gap:14px"><div class="hdate" id="hdate"></div><a href="https://trello.com/b/EaBYHKMA/adc-hamburg-ideen-initiativen" target="_blank" rel="noopener" style="font-size:11px;color:rgba(255,255,255,.5);text-decoration:none;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:3px 9px">Trello Board ↗</a></div>
 </header>
 
-<div class="stats-bar">
-  <div class="stat"><div class="stat-num" id="s-total">—</div><div class="stat-label">Ideen gesamt</div></div>
-  <div class="stat"><div class="stat-num c-hh" id="s-hh">—</div><div class="stat-label">📍 Hamburg intern</div></div>
-  <div class="stat"><div class="stat-num c-jhv" id="s-jhv">—</div><div class="stat-label">🏛️ Gesamtverein / JHV</div></div>
-  <div class="stat"><div class="stat-num c-easy" id="s-easy">—</div><div class="stat-label">✅ Leicht umsetzbar</div></div>
+<div style="background:var(--white);border-bottom:1px solid var(--gray-200);padding:10px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+  <a href="https://trello.com/b/EaBYHKMA/adc-hamburg-ideen-initiativen" target="_blank" rel="noopener" class="quicklink">
+    <span style="font-size:15px">📋</span> Trello Board
+  </a>
+  <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener" class="quicklink">
+    <span style="font-size:15px">🗳️</span> Sli.do Ideenumfrage
+  </a>
+  <a href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener" class="quicklink quicklink-green">
+    <span style="font-size:15px">💬</span> ADC WhatsApp Gruppe
+  </a>
+  <span style="margin-left:auto;font-size:11px;color:var(--gray-400)" id="s-total-label"></span>
 </div>
 
 <div class="filter-bar" id="frow">
@@ -216,10 +223,8 @@ function render() {
   var v = filtered();
   var hh = v.filter(function(i){ return i.s === 'hh'; });
   var jhv = v.filter(function(i){ return i.s === 'jhv'; });
-  document.getElementById('s-total').textContent = v.length;
-  document.getElementById('s-hh').textContent = hh.length;
-  document.getElementById('s-jhv').textContent = jhv.length;
-  document.getElementById('s-easy').textContent = v.filter(function(i){ return i.f === 'easy'; }).length;
+  var tl = document.getElementById('s-total-label');
+  if (tl) tl.textContent = v.length + ' Ideen';
   document.getElementById('hc').textContent = hh.length + ' Ideen';
   document.getElementById('jc').textContent = jhv.length + ' Ideen';
   var chh = document.getElementById('chh');
