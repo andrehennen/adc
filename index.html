@@ -264,14 +264,17 @@ document.getElementById('frow').addEventListener('click', function(e){
 
 render();
 
-// ── GitHub Sync ──
+}); // DOMContentLoaded
+</script>
+
+<script>
 var GH_TOKEN = localStorage.getItem("gh_token") || "";
 var GH_REPO  = "andrehennen/adc";
 var GH_FILE  = "index.html";
 
 function saveToGitHub(statusMsg) {
   if (!GH_TOKEN) {
-    var t = prompt('GitHub Token eingeben (wird nur lokal gespeichert):');
+    var t = prompt('GitHub Token eingeben (wird lokal gespeichert, nie wieder nötig):');
     if (!t) return;
     GH_TOKEN = t.trim();
     localStorage.setItem('gh_token', GH_TOKEN);
@@ -280,13 +283,11 @@ function saveToGitHub(statusMsg) {
   btn.textContent = '⏳ Speichern…';
   btn.disabled = true;
 
-  // Get current SHA first
   fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
     headers: { 'Authorization': 'token ' + GH_TOKEN }
   })
   .then(function(r){ return r.json(); })
   .then(function(meta) {
-    // Build updated HTML with new owner data baked in
     var updatedHtml = document.documentElement.outerHTML;
     var encoded = btoa(unescape(encodeURIComponent(updatedHtml)));
     return fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
@@ -304,18 +305,27 @@ function saveToGitHub(statusMsg) {
   })
   .then(function(r){ return r.json(); })
   .then(function(result) {
-    btn.textContent = '✅ Gespeichert';
-    btn.disabled = false;
-    setTimeout(function(){ btn.textContent = '💾 Speichern & Deployen'; }, 3000);
+    if (result.commit) {
+      var btn = document.getElementById('save-btn');
+      btn.textContent = '✅ Gespeichert – live in ~30 Sek';
+      btn.disabled = false;
+      setTimeout(function(){ btn.textContent = '💾 Speichern & Deployen'; }, 4000);
+    } else {
+      throw new Error(result.message);
+    }
   })
   .catch(function(err) {
+    var btn = document.getElementById('save-btn');
     btn.textContent = '❌ Fehler – nochmal versuchen';
     btn.disabled = false;
+    // Reset token if auth error
+    if (err.message && err.message.indexOf('401') > -1) {
+      GH_TOKEN = '';
+      localStorage.removeItem('gh_token');
+    }
     console.error(err);
   });
 }
-
-}); // DOMContentLoaded
 </script>
 </body>
 </html>
