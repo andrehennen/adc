@@ -144,8 +144,6 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
 var D = [
   {s:"hh",e:"🎟️",n:"Promotioncodes: 10 % auf Hamburger Museen für Mitglieder",v:2,t:["members"],f:"easy",x:"Kooperationsanfragen an 3–5 Hamburger Museen vorbereiten; Vorschlag ins nächste Sektionstreffen bringen.",orig:"Promocodes für Mitglieder. 10% auf alle Museen in HH etc"},
   {s:"hh",e:"👋",n:"Kennenlernhilfe bei Treffen (Foto & Name im Loop)",v:0,t:["events","network"],f:"easy",x:"Template erstellen, beim nächsten Treffen testen; Einladungstext anpassen damit Mitglieder ihr Foto vorab einpflegen.",orig:"Kennenlernhilfe bei Treffen: GoogleSlides mit Foto und Namen laufen bei Treffen im Loop durch oder werden per Whatsapp rumgeschickt, damit man bei Interesse auch mal neue Leute kennenlernt."},
@@ -178,6 +176,9 @@ var D = [
   {s:"hh",e:"🧭",n:"ADC Navigationssystem: Wer, wo, was – und wie mitmachen",v:null,t:["members","network"],f:"easy",prio:true,owner:"André",x:"Strukturierte Übersicht aller ADC-Bereiche: Sektionen, Fachbereiche, Events, Initiativen, Talents, Aktionen, PR, Sponsorings, Merch, Büro – mit klaren Einstiegspunkten für neue und bestehende Mitglieder.",orig:"ADC Navigationssystem für: Sektionen, Fachbereiche, Events, Initiativen, Talents, Aktionen, PR, Sponsorings, Merch, Büro. Wer, wo, was – und wie man mitmachen kann."},
   {s:"hh",e:"🛠️",n:"Gemeinsames Orga- & Arbeitstool finden und etablieren",v:null,t:["members","network"],f:"easy",prio:true,owner:"",x:"Etablierte Tools: Claude Dashboard (https://adc-hh-dashboard.vercel.app/) + Trello Board (https://trello.com/b/EaBYHKMA/adc-hamburg-ideen-initiativen). Berlin ist ebenfalls interessiert. Noch offen: gemeinsamer Chat für das Präsidium.",orig:"Gemeinsames Orga und Arbeitstool finden und etablieren (z.B. Trello, Miro, Figjam, Google, …)\n\nStatus: Claude Dashboard live unter https://adc-hh-dashboard.vercel.app/ | Trello Board aktiv | Berlin interessiert | Präsidium-Chat noch offen"},
 ];
+
+document.addEventListener('DOMContentLoaded', function() {
+
 
 var active = 'all';
 var cur = null;
@@ -262,7 +263,14 @@ document.getElementById('frow').addEventListener('click', function(e){
   render();
 });
 
-render();
+// Load saved owners from GitHub on startup
+fetch('https://raw.githubusercontent.com/andrehennen/adc/main/owners.json?t=' + Date.now())
+  .then(function(r){ return r.ok ? r.json() : {}; })
+  .then(function(saved) {
+    D.forEach(function(i){ if (saved[i.n]) i.owner = saved[i.n]; });
+    render();
+  })
+  .catch(function(){ render(); });
 
 }); // DOMContentLoaded
 </script>
@@ -272,14 +280,6 @@ var GH_TOKEN = localStorage.getItem("gh_token") || "";
 var GH_REPO  = "andrehennen/adc";
 var GH_FILE  = "index.html";
 
-// Load saved owners from GitHub on startup
-fetch('https://raw.githubusercontent.com/' + GH_REPO + '/main/owners.json')
-  .then(function(r){ return r.ok ? r.json() : {}; })
-  .then(function(saved) {
-    D.forEach(function(i){ if (saved[i.n]) i.owner = saved[i.n]; });
-    render();
-  })
-  .catch(function(){}); // silent fail if no owners.json yet
 
 function saveToGitHub(statusMsg) {
   if (!GH_TOKEN) {
