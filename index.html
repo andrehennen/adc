@@ -101,12 +101,12 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
       <div class="hs" id="last-update"></div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:14px"><div class="hdate" id="hdate"></div></div>
+  <div style="display:flex;align-items:center;gap:14px"></div>
 </header>
 
 <div style="background:var(--white);border-bottom:1px solid var(--gray-200);padding:10px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
   <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener" class="quicklink">
-    <span style="font-size:15px">🗳️</span> Sli.do Ideenumfrage
+    <span style="font-size:15px">💡</span> Offene Ideensammlung
   </a>
   <a href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener" class="quicklink quicklink-green">
     <span style="font-size:15px">💬</span> ADC WhatsApp Gruppe
@@ -201,7 +201,6 @@ var FL = {easy:"Leicht umsetzbar",medium:"Mittlerer Aufwand",complex:"Komplex / 
 var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",done:"✅ Abgeschlossen"};
 
 var d = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'});
-document.getElementById('hdate').textContent = d;
 var lu = document.getElementById('last-update'); if(lu) lu.textContent = 'Letztes Update: ' + d;
 
 function filtered() {
