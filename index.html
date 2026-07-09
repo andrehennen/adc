@@ -206,7 +206,7 @@ var lu = document.getElementById('last-update'); if(lu) lu.textContent = 'Letzte
 
 function filtered() {
   var result = active === 'all' ? D.slice() : D.filter(function(i){ return i.t.indexOf(active) >= 0; });
-  var sw = {active:3, planned:2, idea:1, done:0};
+  var sw = {done:5, live:4, active:3, planned:2, idea:1};
   return result.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
     if (!a.prio && b.prio) return 1;
