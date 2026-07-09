@@ -87,6 +87,7 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
 .status-planned{background:#e4f0fc;color:#1558a0}
 .status-active{background:#faeeda;color:#7a4a08}
 .status-done{background:#e8f5ee;color:#0d6644}
+.status-live{background:#e8f5ee;color:#0d6644;border:1px solid #5DCAA5}
 @media(max-width:700px){.board{grid-template-columns:1fr}.col{border-right:none;border-bottom:1px solid var(--gray-200)}.stats-bar{grid-template-columns:repeat(2,1fr)}.col-head{top:58px}}
 @media(prefers-reduced-motion:reduce){.card{transition:none}}
 </style>
@@ -187,7 +188,7 @@ var D = [
    x:"Modell entwickeln: gestaffelte Beiträge nach Einkommensform (Freelancer vs. Festangestellt) → Antrag JHV.",
    orig:"Ich würde ein neues Beitragssystem für Freelancer überlegen."},
   {s:"jhv",e:"🗳️",n:"Alle Wahlen digital (remote, nachvollziehbar, dokumentierbar)",v:2,t:["members"],f:"medium",status:"active",owner:"André & Oliver Griep",x:"1. Signup-Funktion für das Tool entwickeln (Oliver Griep). 2. Juristischen Check durch Klaus abwarten. 3. Antrag bei der JHV einreichen. 4. Tool offiziell präsentieren. 5. Abstimmung JHV über Einführung.",bisher:"Oliver Griep hat das Abstimmungstool gebaut: https://adc-vote.vercel.app/ | Klaus macht juristischen Check | JHV-Antrag erforderlich für offiziellen Einsatz.",orig:"Alle Wahlen sollten digital sein. (einfacher nachvollziehbar, keine Zettelwirtschaft, remote möglich, besser dokumentierbar)"},
-  {s:"hh",e:"🗺️",n:"ADC Vereinskompass – Schnelle Orientierung im Verein",v:null,t:["members","network"],f:"medium",status:"active",prio:true,owner:"André",x:"1. Kontakte zu allen Initiativen integrieren. 2. Direkt-Kontakt Button (ADC E-Mail) pro Initiative einbauen. 3. Weitere Sektionen und Fachbereiche ergänzen. 4. Iterieren auf Basis Feedback.",bisher:"v1 live unter https://adc-compass.vercel.app/ | Als Button im Dashboard integriert.",orig:"ADC Navigationssystem für: Sektionen, Fachbereiche, Events, Initiativen, Talents, Aktionen, PR, Sponsorings, Merch, Büro. Wer, wo, was – und wie man mitmachen kann."},
+  {s:"hh",e:"🗺️",n:"ADC Vereinskompass – Schnelle Orientierung im Verein",v:null,t:["members","network"],f:"medium",status:"live",prio:true,owner:"André",x:"1. Kontakte zu allen Initiativen integrieren. 2. Direkt-Kontakt Button (ADC E-Mail) pro Initiative einbauen. 3. Weitere Sektionen und Fachbereiche ergänzen. 4. Iterieren auf Basis Feedback.",bisher:"v1 live unter https://adc-compass.vercel.app/ | Als Button im Dashboard integriert.",orig:"ADC Navigationssystem für: Sektionen, Fachbereiche, Events, Initiativen, Talents, Aktionen, PR, Sponsorings, Merch, Büro. Wer, wo, was – und wie man mitmachen kann."},
   {s:"hh",e:"🛠️",n:"Gemeinsames Orga- & Arbeitstool",v:null,t:["members","network"],f:"easy",status:"active",prio:true,owner:"André",x:"1. Onboarding mit Sektion Berlin und ADC Büro durchführen. 2. Präsidium-Chat in WhatsApp einrichten. 3. Dashboard-URL beim nächsten Sektionstreffen offiziell kommunizieren. 4. Feedback-Runde nach 4 Wochen: Was funktioniert, was nicht? 5. Mittelfristig: Trello oder bessere CoWorking-Option prüfen.",bisher:"✅ Claude Dashboard eingerichtet: https://adc-hh-dashboard.vercel.app/ | Trello Board aktiv | Berlin interessiert",orig:"Gemeinsames Orga und Arbeitstool finden und etablieren (z.B. Trello, Miro, Figjam, Google, …)"},
 ];
 
@@ -198,7 +199,7 @@ var active = 'all';
 var cur = null;
 var TL = {events:"🎤 Events",network:"🔗 Netzwerk",members:"👥 Mitglieder",jury:"⚖️ Jury"};
 var FL = {easy:"Leicht umsetzbar",medium:"Mittlerer Aufwand",complex:"Komplex / langfristig"};
-var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",done:"✅ Abgeschlossen"};
+var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",live:"🟢 Live, wird getestet",done:"✅ Abgeschlossen"};
 
 var d = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'});
 var lu = document.getElementById('last-update'); if(lu) lu.textContent = 'Letztes Update: ' + d;
