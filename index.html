@@ -149,10 +149,10 @@ header{background:var(--black);color:var(--white);padding:0 28px;display:flex;al
     </div>
     <div class="m-scope" id="ds"></div>
     <div class="m-section" style="display:flex;gap:8px;align-items:center"><div class="m-label" style="margin:0">Status:</div><span id="m-status" class="status-badge"></span></div>
-    <div class="m-section"><div class="m-label">Nächster Schritt</div><div class="m-body" id="dn"></div></div>
-    <div class="m-section" id="m-bisher-wrap" style="display:none"><div class="m-label">Bisher passiert</div><div class="m-body" id="m-bisher"></div></div>
-    <div class="m-section"><div class="m-label">Aufwand</div><div id="def"></div></div>
-    <div class="m-section"><div class="m-label">Originalidee(n)</div><div class="m-orig" id="dor"></div></div>
+    <div class="m-section"><div class="m-label">👉 Nächste Schritte</div><div class="m-body" id="dn"></div></div>
+    <div class="m-section" id="m-bisher-wrap" style="display:none"><div class="m-label">✅ Bisher passiert</div><div class="m-body" id="m-bisher"></div></div>
+    <div class="m-section"><div class="m-label">⏱️ Aufwand</div><div id="def"></div></div>
+    <div class="m-section"><div class="m-label">💬 Originalidee(n)</div><div class="m-orig" id="dor"></div></div>
 
   </div>
 </div>
@@ -278,8 +278,18 @@ function openModal(i) {
     dnEl.textContent = rawSteps;
   }
   var bw = document.getElementById('m-bisher-wrap');
-  if (i.bisher) { bw.style.display = ''; document.getElementById('m-bisher').textContent = i.bisher; }
-  else { bw.style.display = 'none'; }
+  if (i.bisher) {
+    bw.style.display = '';
+    var bItems = i.bisher.split(' | ').filter(function(s){ return s.trim(); });
+    var bEl = document.getElementById('m-bisher');
+    if (bItems.length > 1) {
+      bEl.innerHTML = '<ul style="padding-left:16px;margin:0;display:flex;flex-direction:column;gap:4px">'
+        + bItems.map(function(s){ return '<li style="font-size:13px;color:var(--gray-600);line-height:1.5">'+s.trim()+'</li>'; }).join('')
+        + '</ul>';
+    } else {
+      bEl.textContent = i.bisher;
+    }
+  } else { bw.style.display = 'none'; }
   document.getElementById('def').innerHTML = '<span class="m-effort ef-'+i.f+'">'+FL[i.f]+'</span>';
   document.getElementById('dor').textContent = i.orig;
   document.getElementById('ov').classList.add('open');
