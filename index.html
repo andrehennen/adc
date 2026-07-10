@@ -112,7 +112,6 @@ header{background:#111;color:var(--white);padding:0 28px;display:flex;align-item
   <a href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener" class="quicklink quicklink-green">
     <span style="font-size:15px">💬</span> WhatsApp Gruppe
   </a>
-  <span style="margin-left:auto;font-size:11px;color:var(--gray-400)" id="s-total-label"></span>
 </div>
 
 <div class="filter-bar" id="frow">
@@ -223,8 +222,6 @@ function render() {
   var v = filtered();
   var hh = v.filter(function(i){ return i.s === 'hh'; });
   var jhv = v.filter(function(i){ return i.s === 'jhv'; });
-  var tl = document.getElementById('s-total-label');
-  if (tl) tl.textContent = v.length + ' Ideen';
   document.getElementById('hc').textContent = hh.length + ' Ideen';
   document.getElementById('jc').textContent = jhv.length + ' Ideen';
   var chh = document.getElementById('chh');
