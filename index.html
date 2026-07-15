@@ -148,6 +148,7 @@ header{background:#000;color:#fff;padding:0 28px;display:flex;align-items:center
   <button class="fb" data-t="network">🔗 Netzwerk</button>
   <button class="fb" data-t="members">👥 Mitglieder</button>
   <button class="fb" data-t="jury">⚖️ Jury</button>
+  <button class="fb" data-t="antrag">📄 JHV-Antrag</button>
 </div>
 
 <div class="legend">
@@ -238,7 +239,9 @@ var d = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'
 var lu = document.getElementById('last-update'); if(lu) lu.textContent = 'Letztes Update: ' + d;
 
 function filtered() {
-  var result = active === 'all' ? D.slice() : D.filter(function(i){ return i.t.indexOf(active) >= 0; });
+  var result = active === 'all' ? D.slice() :
+               active === 'antrag' ? D.filter(function(i){ return !!i.antrag; }) :
+               D.filter(function(i){ return i.t.indexOf(active) >= 0; });
   var sw = {done:5, live:4, active:3, planned:2, idea:1};
   return result.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
@@ -278,11 +281,12 @@ function mkcard(i) {
   var ownerText = i.owner ? '👤 ' + i.owner : '👤 offen';
   var ownerCls = i.owner ? 'card-owner' : 'card-owner card-owner-open';
   var nextStep = i.owner ? i.x : 'Verantwortlichen definieren — ' + i.x;
+  var antragTag = i.antrag ? '<span class="tag" style="background:rgba(80,150,255,.1);color:#7aabff">📄 Antrag</span>' : '';
   el.innerHTML =
     '<div class="card-meta">'+priobadge+'<span class="status-badge status-'+status+'">'+SL[status]+'</span><span class="'+ownerCls+'">'+ownerText+'</span></div>'
     +'<div class="card-top"><span class="card-emoji">'+i.e+'</span><span class="card-title">'+i.n+'</span>'+vbadge+'</div>'
     +'<div class="card-next">'+nextStep.substring(0,90)+'…</div>'
-    +'<div class="card-footer"><div class="tags">'+tags+'</div></div>';
+    +'<div class="card-footer"><div class="tags">'+antragTag+tags+'</div></div>';
   el.addEventListener('click', function(){ openModal(i); });
   return el;
 }
