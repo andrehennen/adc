@@ -93,6 +93,8 @@ header{background:#000;color:#fff;padding:0 28px;display:flex;align-items:center
 .status-done{background:rgba(62,207,142,.1);color:var(--easy)}
 .status-live{background:rgba(62,207,142,.15);color:var(--easy);border:1px solid rgba(62,207,142,.3)}
 .status-draft{background:rgba(122,168,240,.12);color:#7aa8f0}
+.pdf-btn{font-size:9px;font-weight:600;font-family:var(--mono);background:rgba(255,255,255,.1);color:var(--jhv-text);border:1px solid rgba(232,168,74,.3);border-radius:4px;padding:2px 7px;text-decoration:none;margin-left:8px;white-space:nowrap;letter-spacing:.02em;transition:background .12s}
+.pdf-btn:hover{background:rgba(255,255,255,.2)}
 
 .empty{padding:32px;text-align:center;color:var(--text-muted);font-size:13px;font-family:var(--mono)}
 
@@ -167,7 +169,7 @@ header{background:#000;color:#fff;padding:0 28px;display:flex;align-items:center
     <div class="cards" id="chh"></div>
   </div>
   <div class="col">
-    <div class="col-head jhv">🏛️ Gesamtverein / Präsidium / JHV <span class="col-count" id="jc"></span></div>
+    <div class="col-head jhv">🏛️ Gesamtverein / Präsidium / JHV <a href="/antraege-jhv.pdf" target="_blank" rel="noopener" class="pdf-btn">📄 Anträge JHV.pdf</a><span class="col-count" id="jc"></span></div>
     <div class="cards" id="cjhv"></div>
   </div>
 </div>
