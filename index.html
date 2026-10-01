@@ -376,6 +376,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen."],
   ["2.4", "1. Okt. 2026", "Hinweis beim ersten Besuch: Dashboard auf den Homescreen legen oder als Lesezeichen speichern."],
   ["2.3", "1. Okt. 2026", "Kontaktdaten hinterlegen (nur für Mitglieder sichtbar), Kontakt zu Zuständigen direkt per Mail oder WhatsApp, Nächste Schritte online bearbeitbar, Filter auf dem Handy übersichtlicher."],
   ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Tickets und auf der Seite gestrafft."],
@@ -701,6 +702,8 @@ function openFromHash(){
   render();
   var el = document.getElementById(id);
   if (el) setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+  // Anker wieder aus der URL nehmen, sonst startet das Ticket bei Reload, Lesezeichen oder Homescreen-App immer aufgeklappt
+  if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
 }
 
 function renderSugg(){
