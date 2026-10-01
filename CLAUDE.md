@@ -9,17 +9,27 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - **Standardregel: Jede Änderung am Dashboard wird committed und gepusht**, ohne nachzufragen. Danach kurz sagen, was sich geändert hat.
 - Ändern sich Anträge, wird auch `antraege-jhv.pdf` neu gebaut und gepusht (siehe unten).
 - Der Kompass ist ein separates Repo: `andrehennen/adc-compass` → https://adc-compass.vercel.app/
-- **Niemals** Tokens oder Zugangsdaten in `index.html` schreiben (GitHub Secret Scanning blockt das, und die Seite ist öffentlich).
+- **Niemals** Tokens oder Zugangsdaten in `index.html` schreiben (GitHub Secret Scanning blockt das, und die Seite ist öffentlich). Einzige Ausnahme: der Supabase **Publishable/anon Key** (`SB_KEY`), der ist dafür gemacht. Den `service_role`/Secret Key und den Mitglieder-Code nie ins Repo.
 
 ## Grundsätze (wichtig, hart erarbeitet)
 
 - **Das Dashboard ist die Single Source of Truth.** Trello wird nicht mehr genutzt.
-- **Kein Freitext, keine Auswahlfelder, keine Speicherfunktion auf der Seite.** Persistenz aus dem Browser funktioniert nicht. Status, Verantwortliche und Inhalte ändert nur Claude im Code, auf Andrés Anweisung.
+- **Ticket-Inhalte** (Status, Owner, Next Steps, Leitlinien, Anträge) ändert nur Claude im Code, auf Andrés Anweisung.
+- **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können auf der Seite Ideen vorschlagen, sich bei Tickets als „Mach mit“ eintragen/austragen und Notizen/Kommentare schreiben. Siehe Abschnitt „Speicher (Supabase)“.
 - Vor jeder Änderung logisch und auf UX prüfen. Bei Unklarheit **erst fragen**, dann bauen.
 - Nach jeder Änderung prüfen, ob `var D = [...]` noch parst (z. B. mit Node per Regex extrahieren und `eval`) und ob die Seite ohne JS-Fehler rendert.
 - Beim Entfernen von Tickets auf verwaiste Kommas achten (`,\s*,`).
 - **Leitlinien** (`rahmen`) sind getroffene Entscheidungen und Ziele, keine nächsten Schritte.
 - Anträge nicht zusammenlegen, wenn André es nicht ausdrücklich sagt.
+
+## Speicher (Supabase)
+
+- Konfiguration oben im Script: `SB_URL`, `SB_KEY`. Sind beide leer, ist die Speicherfunktion aus (Button verlinkt dann auf Sli.do, „Melde dich“ auf WhatsApp).
+- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`). Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
+- Name und Code merkt sich der Browser (`localStorage` `adc-me`).
+- Verknüpfung über die Ticket-ID (Slug aus `n`). **Wird ein Titel umbenannt, die alte ID als `id:"alter-slug"` am Ticket festhalten**, sonst verlieren Mitmachende und Kommentare ihre Zuordnung.
+- Moderation (Spam, falsche Einträge löschen) im Supabase Table Editor. Neue Vorschläge sichtet André und übernimmt sie bei Bedarf als Ticket in `D`.
+- Mitmachende ohne Code-Owner: Die Karte zeigt dann nicht mehr „Noch offen“, und das Ticket sortiert wie eines mit Owner.
 
 ## Datenmodell (in `index.html`, `var D = [...]`)
 
@@ -30,7 +40,8 @@ Jedes Ticket ist ein Objekt:
 | `s` | `"hh"` = Sektionen (linke Spalte), `"jhv"` = Gesamtverein / Präsidium / JHV (rechte Spalte) |
 | `sektion` | `"Hamburg"` / `"Berlin"` (optional, für den Sektionsfilter) |
 | `e` | Emoji |
-| `n` | Titel (aus ihm wird auch die Ticket-ID für Deep-Links `#slug` gebildet) |
+| `n` | Titel (aus ihm wird auch die Ticket-ID für Deep-Links `#slug` und Speicher gebildet) |
+| `id` | Optional: feste Ticket-ID, wenn der Titel geändert wurde |
 | `v` | Stimmen aus der Sli.do-Sammlung (Zahl oder `null`) |
 | `t` | Tags: `events`, `network`, `members`, `jury` |
 | `f` | Aufwand: `easy`, `medium`, `complex` |
@@ -53,14 +64,14 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 ## Design (seit Okt. 2026)
 
 - Hell, orientiert an adc.de: weißer Hintergrund, schwarze Typo, Inter, große fette Headlines, ADC-Logo schwarz (als base64 eingebettet).
-- **Mindestschriftgröße 14 px**, Fließtext 17 px, Ticket-Titel 19 px.
+- Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
 - „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit.
 
 Feste Links:
 - 🧭 ADC Kompass: https://adc-compass.vercel.app/
-- 💡 Idee vorschlagen!: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls
+- 💡 Idee vorschlagen: öffnet das Vorschlagsfeld auf der Seite (Fallback ohne Supabase: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls)
 - 💬 WhatsApp Gruppe: https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
 - 📄 Anträge JHV.pdf: https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf (der relative Pfad funktionierte auf Vercel nicht)
 - Footer: „Stand Juli 2026 · Erstellt und verantwortlich André Hennen, Curious Company“
