@@ -24,7 +24,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 ## Speicher (Supabase)
 
-- Konfiguration oben im Script: `SB_URL`, `SB_KEY`. Sind beide leer, ist die Speicherfunktion aus (Button verlinkt dann auf Sli.do, „Melde dich“ auf WhatsApp).
+- Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben im Script bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
 - Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`). Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`).
 - Verknüpfung über die Ticket-ID (Slug aus `n`). **Wird ein Titel umbenannt, die alte ID als `id:"alter-slug"` am Ticket festhalten**, sonst verlieren Mitmachende und Kommentare ihre Zuordnung.
