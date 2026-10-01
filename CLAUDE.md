@@ -15,7 +15,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 - **Das Dashboard ist die Single Source of Truth.** Trello wird nicht mehr genutzt.
 - **Ticket-Inhalte** (Status, Owner, Leitlinien, Anträge) ändert nur Claude im Code, auf Andrés Anweisung. Ausnahme: **Nächste Schritte** können Mitglieder online bearbeiten (siehe Speicher).
-- **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können auf der Seite Ideen vorschlagen, sich bei Tickets als „Mach mit“ eintragen/austragen und Notizen/Kommentare schreiben. Siehe Abschnitt „Speicher (Supabase)“.
+- **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können online Tickets anlegen/bearbeiten/löschen, Tickets hochvoten, sich als „Mach mit“ eintragen, Kontaktdaten hinterlegen, Nächste Schritte bearbeiten und kommentieren. Siehe Abschnitt „Speicher (Supabase)“.
 - Vor jeder Änderung logisch und auf UX prüfen. Bei Unklarheit **erst fragen**, dann bauen.
 - Nach jeder Änderung prüfen, ob `var D = [...]` noch parst (z. B. mit Node per Regex extrahieren und `eval`) und ob die Seite ohne JS-Fehler rendert.
 - Beim Entfernen von Tickets auf verwaiste Kommas achten (`,\s*,`).
@@ -25,12 +25,15 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 ## Speicher (Supabase)
 
 - Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben im Script bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
-- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) und `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
+- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`) und `supabase/003_tickets_votes.sql` (`tickets`, `votes`). Die Tabelle `suggestions` ist abgelöst (Inhalte wurden zu Tickets). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`, dazu `token` für die eigenen Kontaktdaten).
 - **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Beim Hovern bzw. Antippen eines Namens erscheinen ✉️/💬-Icons direkt im Namens-Chip. Zuordnung über den vollen Namen, akzent- und großschreibungsunabhängig (André = Andre), sonst über einen eindeutigen Vornamen. Der Login-Dialog verlangt Vor- und Nachnamen.
 - **Nächste Schritte online** (`step_edits`): Die neueste Bearbeitung gilt nur, solange `base` gleich dem `x` im Code ist. **Bevor Claude `x` im Code ändert, die neueste Bearbeitung lesen** (öffentlich: `GET /rest/v1/step_edits?ticket=eq.<id>&order=created_at.desc&limit=1` mit Publishable Key von `/api/config`) und in den neuen Text übernehmen, sonst geht sie verloren.
 - Verknüpfung über die Ticket-ID (Slug aus `n`). **Wird ein Titel umbenannt, die alte ID als `id:"alter-slug"` am Ticket festhalten**, sonst verlieren Mitmachende und Kommentare ihre Zuordnung.
-- Moderation (Spam, falsche Einträge löschen) im Supabase Table Editor. Neue Vorschläge sichtet André und übernimmt sie bei Bedarf als Ticket in `D`.
+- **Online-Tickets** (`tickets`): „💡 Neues Ticket“ ersetzt „Idee vorschlagen“. Alle mit Code dürfen anlegen, bearbeiten, löschen (Löschen = `deleted=true`, endgültig nur im Table Editor). Im Board erscheinen sie mit ID `neu-<id>`, Status `idea`, ohne Aufwand, mit Badge „🆕 Neu“ (14 Tage). Für sie gibt es keinen separaten „Nächste Schritte bearbeiten“-Button, das läuft über „Ticket bearbeiten“.
+- **Übernahme ins feste Board:** Soll ein Online-Ticket in `D`, dort mit `id:"neu-<id>"` anlegen (sonst verliert es Stimmen, Kommentare, Mitmachende) und das Online-Ticket löschen (André über die Seite oder Table Editor).
+- **Upvotes** (`votes`): eine Stimme pro Person (Name) und Ticket, per `toggle_vote` an/aus. Angezeigt wird `v` (Sli.do) + Online-Stimmen; danach wird auch sortiert.
+- Moderation (Spam, falsche Einträge löschen) im Supabase Table Editor.
 - Mitmachende ohne Code-Owner: Die Karte zeigt dann nicht mehr „Noch offen“, und das Ticket sortiert wie eines mit Owner.
 
 ## Datenmodell (in `index.html`, `var D = [...]`)
@@ -44,7 +47,7 @@ Jedes Ticket ist ein Objekt:
 | `e` | Emoji |
 | `n` | Titel (aus ihm wird auch die Ticket-ID für Deep-Links `#slug` und Speicher gebildet) |
 | `id` | Optional: feste Ticket-ID, wenn der Titel geändert wurde |
-| `v` | Stimmen aus der Sli.do-Sammlung (Zahl oder `null`) |
+| `v` | Stimmen aus der Sli.do-Sammlung (Zahl oder `null`); Online-Stimmen kommen dazu |
 | `t` | Tags: `events`, `network`, `members`, `jury` |
 | `f` | Aufwand: `easy`, `medium`, `complex` |
 | `status` | `idea`, `planned`, `active`, `draft`, `checked`, `doing`, `live`, `done` |

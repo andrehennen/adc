@@ -92,13 +92,13 @@ header{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0
 .cards{display:flex;flex-direction:column;gap:8px}
 
 /* Card */
-.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s;scroll-margin-top:120px}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s;scroll-margin-top:120px}
 .card:hover{border-color:var(--line-strong);box-shadow:0 4px 18px rgba(0,0,0,.06)}
 .card.open{border-color:var(--ink);box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .card.prio{border-color:var(--ink);border-width:1.5px}
 .chead{display:block;width:100%;text-align:left;background:none;border:none;padding:12px 14px;cursor:pointer;color:inherit;border-radius:var(--radius)}
 .chead:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-.badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding-right:58px;min-height:22px}
 .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;line-height:1.35}
 .pill-prio{background:var(--ink);color:#fff;letter-spacing:.06em}
 .pill-antrag{background:var(--violet-bg);color:var(--violet)}
@@ -167,10 +167,6 @@ footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color
 .msg{font-size:13px;color:var(--ink-3)}
 .msg.err{color:var(--open);font-weight:600}
 .msg.ok{color:var(--green);font-weight:600}
-.slist{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
-.slist li{background:var(--soft);border-radius:8px;padding:8px 10px;font-size:14px}
-.slist b{font-weight:700}
-.slist p{color:var(--ink-2);margin-top:2px;white-space:pre-wrap}
 .by{font-size:12px;color:var(--ink-3)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;background:var(--green-bg);color:var(--green);border-radius:999px;padding:3px 10px}
@@ -188,10 +184,22 @@ dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
 dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 #inst-txt{line-height:1.55;margin-bottom:0}
 .chip.own{background:var(--ink);color:#fff}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{position:relative;cursor:pointer}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:inline-block;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--ink-2);background:#fff}
+.opt input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.opt input:focus-visible+span{outline:2px solid var(--blue);outline-offset:1px}
+.form input.emo{width:52px;text-align:center;font-size:18px;padding:6px}
+.vote{position:absolute;top:10px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;line-height:1.35}
+.vote:hover{border-color:var(--ink);color:var(--ink)}
+.vote.on{background:var(--ink);border-color:var(--ink);color:#fff}
+span.vote{cursor:default;border-color:transparent;background:var(--soft)}
+.pill-new{background:var(--blue-bg);color:var(--blue)}
 .chip.hasc{cursor:pointer;outline:none}
 .chip.hasc:focus-visible{box-shadow:0 0 0 2px var(--blue)}
-.chip .cis{display:none;gap:3px;margin-left:4px}
-.chip.hasc:hover .cis,.chip.hasc:focus-within .cis{display:inline-flex}
+.chip .cis{display:inline-flex;gap:3px;margin-left:4px;visibility:hidden}
+.chip.hasc:hover .cis,.chip.hasc:focus-within .cis{visibility:visible}
 .chip .ci{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;text-decoration:none;font-size:13px;line-height:1}
 .chip .ci:hover{transform:scale(1.12)}
 .linkbtn{background:none;border:none;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:13px;padding:0}
@@ -265,15 +273,30 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
     </form>
   </div>
   <div class="panel" id="suggest" hidden>
-    <h2>💡 Idee vorschlagen</h2>
+    <h2 id="s-head">💡 Neues Ticket</h2>
     <form class="form" id="sform">
-      <input id="s-title" maxlength="140" placeholder="Deine Idee in einem Satz" required>
-      <textarea id="s-body" maxlength="2000" placeholder="Details (optional): was, warum, wer hilft mit?"></textarea>
-      <div class="form-row"><button class="btn btn-dark" type="submit">Vorschlag speichern</button><span class="msg" id="s-msg"></span></div>
+      <div class="form-row"><input id="s-emoji" class="emo" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" maxlength="140" placeholder="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
+      <textarea id="s-body" maxlength="2000" placeholder="Beschreibung (optional): was, warum, für wen?"></textarea>
+      <textarea id="s-x" maxlength="3000" placeholder="Nächste Schritte (optional), einer pro Zeile"></textarea>
+      <div class="opts" role="radiogroup" aria-label="Wer setzt um?">
+        <label class="opt"><input type="radio" name="s-s" value="hh" checked><span>📍 Sektionen</span></label>
+        <label class="opt"><input type="radio" name="s-s" value="jhv"><span>🏛️ Gesamtverein / JHV</span></label>
+      </div>
+      <div class="opts" role="radiogroup" aria-label="Sektion">
+        <label class="opt"><input type="radio" name="s-sek" value="" checked><span>Keine Sektion</span></label>
+        <label class="opt"><input type="radio" name="s-sek" value="Hamburg"><span>📍 Hamburg</span></label>
+        <label class="opt"><input type="radio" name="s-sek" value="Berlin"><span>📍 Berlin</span></label>
+      </div>
+      <div class="opts" aria-label="Themen">
+        <label class="opt"><input type="checkbox" name="s-t" value="events"><span>🎤 Events</span></label>
+        <label class="opt"><input type="checkbox" name="s-t" value="network"><span>🔗 Netzwerk</span></label>
+        <label class="opt"><input type="checkbox" name="s-t" value="members"><span>👥 Mitglieder</span></label>
+        <label class="opt"><input type="checkbox" name="s-t" value="jury"><span>⚖️ Jury</span></label>
+      </div>
+      <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Ticket speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Ticket löschen</button><span class="msg" id="s-msg"></span></div>
     </form>
     <div class="whoami" id="whoami"></div>
-    <p class="by" style="margin-top:12px">Ältere Ideen aus der ersten Sammlung: <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">Sli.do</a></p>
-    <ul class="slist" id="slist"></ul>
+    <p class="by" style="margin-top:8px">Ältere Ideen aus der ersten Sammlung: <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">Sli.do</a></p>
   </div>
 </section>
 
@@ -381,6 +404,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.9", "1. Okt. 2026", "Neue Tickets direkt anlegen, bearbeiten und löschen (ersetzt „Idee vorschlagen“). Alle Tickets hochvoten, eine Stimme pro Person. Kontakt-Icons springen nicht mehr."],
   ["2.8", "1. Okt. 2026", "Kontakt einfacher: Beim Darüberfahren oder Antippen eines Namens erscheinen Mail- und WhatsApp-Icons direkt am Namen."],
   ["2.7", "1. Okt. 2026", "Kontakte werden auch bei nur eingetragenem Vornamen zugeordnet. Wer sich nur mit Vornamen angemeldet hat, wird einmal nach dem Nachnamen gefragt."],
   ["2.6", "1. Okt. 2026", "Namen antippen, um Zuständige per Mail oder WhatsApp zu erreichen. Namen werden robuster erkannt (André = Andre), alle Zuständigen mit vollem Namen. Homescreen-Anleitung auch für Chrome auf dem iPhone."],
@@ -422,7 +446,7 @@ D.forEach(function(i){ i.id = i.id || slug(i.n); });
 
 // --- Speicher ---
 var SB_ON = false; // erst an, wenn der Speicher erreichbar ist
-var HELP = {}, COMM = {}, SUGG = [], STEPS = {}, CONTACTS = null;
+var HELP = {}, COMM = {}, STEPS = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
 var ME = {};
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -449,15 +473,20 @@ function load(){
   return Promise.all([
     sbFetch('helpers?select=ticket,name,created_at&order=created_at'),
     sbFetch('comments?select=ticket,name,body,created_at&order=created_at'),
-    sbFetch('suggestions?select=name,title,body,created_at&order=created_at.desc&limit=200'),
+    sbFetch('tickets?select=*&order=created_at').catch(function(){ return []; }),
     sbFetch('step_edits?select=ticket,body,base,name,created_at&order=created_at.desc').catch(function(){ return []; }),
-    ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null)
+    ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null),
+    sbFetch('votes?select=ticket,name').catch(function(){ return []; })
   ]).then(function(r){
-    HELP = group(r[0]); COMM = group(r[1]); SUGG = r[2];
+    HELP = group(r[0]); COMM = group(r[1]); VOTES = group(r[5]);
+    ONLINE = r[2].map(function(t){
+      return {s:t.s, sektion:t.sektion, e:t.emoji || '💡', n:t.title, v:null, t:t.tags || [], status:'idea', x:t.x || '', body:t.body, id:'neu-'+t.id, online:t};
+    });
     STEPS = {}; r[3].forEach(function(e){ if (!STEPS[e.ticket]) STEPS[e.ticket] = e; });
     CONTACTS = r[4];
     if (!SB_ON) { SB_ON = true; initStore(); }
     render(); renderSugg();
+    if (pendingOpen) { var po = pendingOpen; pendingOpen = null; openTicket(po); }
     return true;
   }).catch(function(e){ console.warn('Speicher nicht erreichbar', e); return false; });
 }
@@ -517,11 +546,14 @@ fetch('https://api.github.com/repos/andrehennen/adc/commits?per_page=1')
     document.getElementById('last-update').textContent = 'Letztes Update: ' + d.toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
   }).catch(function(){});
 
+function all(){ return D.concat(ONLINE); }
+function votes(i){ return (i.v || 0) + (VOTES[i.id] || []).length; }
 function filtered(){
-  var r = active === 'all' ? D.slice() :
-          active === 'antrag' ? D.filter(function(i){ return !!i.antrag; }) :
-          (active === 'Hamburg' || active === 'Berlin') ? D.filter(function(i){ return i.sektion === active; }) :
-          D.filter(function(i){ return i.t.indexOf(active) >= 0; });
+  var A = all();
+  var r = active === 'all' ? A :
+          active === 'antrag' ? A.filter(function(i){ return !!i.antrag; }) :
+          (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return i.sektion === active; }) :
+          A.filter(function(i){ return i.t.indexOf(active) >= 0; });
   return r.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
     if (!a.prio && b.prio) return 1;
@@ -529,7 +561,7 @@ function filtered(){
     if (sa !== sb) return sb - sa;
     var oa = (a.owner || (HELP[a.id]||[]).length)?1:0, ob = (b.owner || (HELP[b.id]||[]).length)?1:0;
     if (oa !== ob) return ob - oa;
-    return (b.v||0)-(a.v||0);
+    return votes(b) - votes(a);
   });
 }
 
@@ -549,7 +581,12 @@ function mkcard(i){
   var badges = (i.prio ? '<span class="pill pill-prio">PRIO</span>' : '')
     + '<span class="pill st-'+st+'">'+SL[st]+'</span>'
     + (i.antrag ? '<span class="pill pill-antrag">📄 Antrag</span>' : '')
-    + (i.v === null || i.v === undefined ? '' : '<span class="pill pill-votes" title="Stimmen aus der Ideensammlung">▲ '+i.v+'</span>');
+    + (i.online && Date.now() - new Date(i.online.created_at) < 14*864e5 ? '<span class="pill pill-new">🆕 Neu</span>' : '');
+  var vl = VOTES[i.id] || [], myVote = vl.some(function(x){ return norm(x.name) === norm(ME.name); }), vn = votes(i);
+  var vtitle = (i.v ? i.v+' aus der Sli.do-Sammlung' : '') + (i.v && vl.length ? ' + ' : '') + (vl.length ? vl.length+' online' : '') || 'Noch keine Stimmen';
+  var vote = SB_ON
+    ? '<button class="vote'+(myVote ? ' on' : '')+'" data-vote="1" title="'+esc(vtitle)+(myVote ? ' · Klick nimmt deine Stimme zurück' : ' · Hochvoten')+'" aria-pressed="'+myVote+'">▲ '+vn+'</button>'
+    : (vn ? '<span class="vote" title="'+esc(vtitle)+'">▲ '+vn+'</span>' : '');
   var hl = HELP[i.id] || [], cl = COMM[i.id] || [];
   var owner = i.owner ? '<span>👤 '+esc(i.owner)+'</span>' : (hl.length ? '' : '<span class="owner-open">👤 Noch offen</span>');
   if (hl.length) owner += '<span>🙋 '+esc(hl.map(function(h){ return h.name; }).join(', '))+'</span>';
@@ -573,16 +610,21 @@ function mkcard(i){
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
   var steps = se ? se.body : i.x;
-  body += '<div class="sec" data-steps="1"><div class="lbl-row"><div class="lbl">👉 Nächste Schritte</div>'+(SB_ON ? '<button class="copy" data-edit="1">✏️ Bearbeiten</button>' : '')+'</div><div class="txt">'+bullets(steps)+'</div>'
+  if (i.body) body += '<div class="sec"><div class="lbl">📝 Beschreibung</div><div class="txt"><p style="white-space:pre-wrap">'+linkify(esc(i.body))+'</p></div></div>';
+  body += '<div class="sec" data-steps="1"><div class="lbl-row"><div class="lbl">👉 Nächste Schritte</div>'+(SB_ON && !i.online ? '<button class="copy" data-edit="1">✏️ Bearbeiten</button>' : '')+'</div><div class="txt">'
+    + (steps ? bullets(steps) : '<p class="by">Noch keine. Ergänze sie über „Ticket bearbeiten“.</p>')+'</div>'
     + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
   if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag">'+esc(i.antrag)+'</div></div>';
-  body += '<div class="sec"><div class="lbl">⏱️ Aufwand</div><span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>'+(tags ? '<span class="txt" style="margin-left:10px;font-size:13px">'+tags+'</span>' : '')+'</div>';
+  if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
   if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote">'+linkify(esc(i.orig))+'</div></div>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
     + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
+  if (i.online) body += '<div class="sec edited">Angelegt von '+esc(i.online.created_by)+' · '+fmtDate(i.online.created_at)
+    + (i.online.updated_by ? ' · zuletzt bearbeitet von '+esc(i.online.updated_by)+' · '+fmtDate(i.online.updated_at) : '')
+    + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Ticket bearbeiten</button>' : '') + '</div>';
   body += '<button class="permalink" data-link="1">🔗 Link zu dieser Idee kopieren</button>';
 
   el.innerHTML =
@@ -591,6 +633,7 @@ function mkcard(i){
       + '<div class="ctitle"><span class="cemoji">'+i.e+'</span><span class="cname">'+esc(i.n)+'</span><span class="chev">'+CHEV+'</span></div>'
       + '<div class="cmeta">'+owner+sek+'</div>'
     + '</button>'
+    + vote
     + '<div class="cbody">'+body+'</div>';
 
   el.querySelector('.chead').addEventListener('click', function(){
@@ -613,6 +656,12 @@ function mkcard(i){
     if (!confirm('Bei „'+i.n+'“ austragen?')) return;
     api('remove_helper', {p_ticket:i.id, p_name:ME.name}).then(load, alertErr);
   });
+  var vb = el.querySelector('[data-vote]');
+  if (vb) vb.addEventListener('click', function(){
+    whoami(function(){ vb.disabled = true; api('toggle_vote', {p_ticket:i.id, p_name:ME.name}).then(load, function(err){ vb.disabled = false; alertErr(err); }); });
+  });
+  var te = el.querySelector('[data-tedit]');
+  if (te) te.addEventListener('click', function(){ openForm(i); });
   var ub = el.querySelector('[data-unlock]');
   if (ub) ub.addEventListener('click', function(){ whoami(load); });
   var eb = el.querySelector('[data-edit]');
@@ -717,9 +766,12 @@ document.getElementById('frow').addEventListener('click', function(e){
 
 function openFromHash(){
   var id = decodeURIComponent(location.hash.slice(1));
-  if (!id) return;
-  var t = D.filter(function(i){ return i.id === id; })[0];
-  if (!t) return;
+  if (!id || id === 'vorschlag') return;
+  openTicket(id);
+}
+function openTicket(id){
+  var t = all().filter(function(i){ return i.id === id; })[0];
+  if (!t) { if (/^neu-/.test(id)) pendingOpen = id; return; }
   openSet[id] = 1;
   render();
   var el = document.getElementById(id);
@@ -729,16 +781,33 @@ function openFromHash(){
 }
 
 function renderSugg(){
-  var ul = document.getElementById('slist');
-  ul.innerHTML = SUGG.length ? SUGG.map(function(x){
-    return '<li><b>'+esc(x.title)+'</b>'+(x.body ? '<p>'+linkify(esc(x.body))+'</p>' : '')+'<div class="by">'+esc(x.name)+' · '+fmtDate(x.created_at)+'</div></li>';
-  }).join('') : '<li class="by">Noch keine Vorschläge.</li>';
   var sb = document.getElementById('suggest-btn');
-  if (SB_ON) sb.textContent = '💡 Idee vorschlagen' + (SUGG.length ? ' ('+SUGG.length+')' : '');
+  if (SB_ON) sb.textContent = '💡 Neues Ticket';
   var w = document.getElementById('whoami');
   w.innerHTML = ME.name ? 'Du schreibst als <b>'+esc(ME.name)+'</b> · <button type="button" id="w-reset">Nicht du?</button>' : '';
   var rb = document.getElementById('w-reset');
   if (rb) rb.addEventListener('click', function(){ ME = {}; saveMe(); renderSugg(); render(); });
+}
+
+// Formular für neues bzw. bestehendes Online-Ticket öffnen
+var editing = null;
+function openForm(t){
+  editing = t;
+  var f = document.getElementById('sform'), p = document.getElementById('suggest');
+  f.reset();
+  document.getElementById('s-head').textContent = t ? '✏️ Ticket bearbeiten' : '💡 Neues Ticket';
+  document.getElementById('s-del').hidden = !t;
+  document.getElementById('s-msg').textContent = '';
+  document.getElementById('s-emoji').value = t ? t.e : '💡';
+  document.getElementById('s-title').value = t ? t.n : '';
+  document.getElementById('s-body').value = t && t.body || '';
+  document.getElementById('s-x').value = t && t.x || '';
+  f.querySelector('[name=s-s][value="'+(t ? t.s : 'hh')+'"]').checked = true;
+  f.querySelector('[name=s-sek][value="'+(t && t.sektion || '')+'"]').checked = true;
+  Array.prototype.forEach.call(f.querySelectorAll('[name=s-t]'), function(c){ c.checked = !!t && t.t.indexOf(c.value) >= 0; });
+  p.hidden = false;
+  p.scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('s-title').focus({preventScroll:true});
 }
 
 function initStore(){
@@ -747,19 +816,45 @@ function initStore(){
   sbtn.addEventListener('click', function(e){
     e.preventDefault();
     var p = document.getElementById('suggest');
-    p.hidden = !p.hidden;
-    if (!p.hidden) document.getElementById('s-title').focus();
+    if (!p.hidden && !editing) { p.hidden = true; return; }
+    openForm(null);
   });
+  document.getElementById('s-cancel').addEventListener('click', function(){ document.getElementById('suggest').hidden = true; editing = null; });
   document.getElementById('sform').addEventListener('submit', function(e){
     e.preventDefault();
-    var t = document.getElementById('s-title'), b = document.getElementById('s-body'), m = document.getElementById('s-msg');
-    if (t.value.trim().length < 3) { m.className = 'msg err'; m.textContent = 'Bitte etwas ausführlicher.'; return; }
+    var f = document.getElementById('sform'), m = document.getElementById('s-msg');
+    var title = document.getElementById('s-title').value.trim();
+    if (title.length < 3) { m.className = 'msg err'; m.textContent = 'Bitte einen Titel mit mindestens 3 Zeichen.'; return; }
+    var args = {
+      p_s: f.querySelector('[name=s-s]:checked').value,
+      p_sektion: f.querySelector('[name=s-sek]:checked').value,
+      p_emoji: document.getElementById('s-emoji').value,
+      p_title: title,
+      p_body: document.getElementById('s-body').value,
+      p_x: document.getElementById('s-x').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean).join('\n'),
+      p_tags: Array.prototype.map.call(f.querySelectorAll('[name=s-t]:checked'), function(c){ return c.value; })
+    };
     whoami(function(){
+      args.p_name = ME.name;
       m.className = 'msg'; m.textContent = 'Speichere …';
-      api('add_suggestion', {p_name:ME.name, p_title:t.value, p_body:b.value}).then(function(){
-        t.value = ''; b.value = ''; m.className = 'msg ok'; m.textContent = '✓ Danke! Dein Vorschlag ist gespeichert.';
-        load();
+      var isEdit = !!editing;
+      if (isEdit) args.p_id = editing.online.id;
+      api(isEdit ? 'update_ticket' : 'create_ticket', args).then(function(newId){
+        var id = isEdit ? editing.id : 'neu-' + newId;
+        editing = null;
+        document.getElementById('suggest').hidden = true;
+        m.textContent = '';
+        return load().then(function(){ openTicket(id); });
       }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
+    });
+  });
+  document.getElementById('s-del').addEventListener('click', function(){
+    if (!editing || !confirm('Ticket „'+editing.n+'“ wirklich löschen?')) return;
+    var t = editing;
+    whoami(function(){
+      api('delete_ticket', {p_name:ME.name, p_id:t.online.id}).then(function(){
+        editing = null; document.getElementById('suggest').hidden = true; load();
+      }, alertErr);
     });
   });
   var pb = document.getElementById('profile-btn');
@@ -814,7 +909,7 @@ function initStore(){
     }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
   });
   document.getElementById('w-cancel').addEventListener('click', function(){ whoCb = null; document.getElementById('who').close(); });
-  if (location.hash === '#vorschlag') document.getElementById('suggest').hidden = false;
+  if (location.hash === '#vorschlag') openForm(null);
 }
 
 document.getElementById('cl-sum').textContent = 'Version ' + CL[0][0] + ' · Changelog';
