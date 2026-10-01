@@ -40,6 +40,7 @@
   --radius:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -185,6 +186,7 @@ dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;
 dialog.who::backdrop{background:rgba(0,0,0,.35)}
 dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
 dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
+#inst-txt{line-height:1.55;margin-bottom:0}
 .chip.own{background:var(--ink);color:#fff}
 .chip a{text-decoration:none;font-size:13px;line-height:1}
 .linkbtn{background:none;border:none;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:13px;padding:0}
@@ -269,6 +271,16 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
     <ul class="slist" id="slist"></ul>
   </div>
 </section>
+
+<dialog class="who" id="install" aria-labelledby="inst-h">
+  <h2 id="inst-h">📲 Dashboard immer griffbereit</h2>
+  <p id="inst-txt"></p>
+  <div class="form-row" style="margin-top:12px">
+    <button class="btn btn-dark" type="button" id="inst-go" hidden>Jetzt installieren</button>
+    <button class="btn btn-light" type="button" id="inst-done">Hab ich gemacht</button>
+    <button class="linkbtn" type="button" id="inst-later">Später</button>
+  </div>
+</dialog>
 
 <dialog class="who" id="who">
   <form class="form" id="wform" method="dialog">
@@ -364,6 +376,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.4", "1. Okt. 2026", "Hinweis beim ersten Besuch: Dashboard auf den Homescreen legen oder als Lesezeichen speichern."],
   ["2.3", "1. Okt. 2026", "Kontaktdaten hinterlegen (nur für Mitglieder sichtbar), Kontakt zu Zuständigen direkt per Mail oder WhatsApp, Nächste Schritte online bearbeitbar, Filter auf dem Handy übersichtlicher."],
   ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Tickets und auf der Seite gestrafft."],
   ["2.1", "1. Okt. 2026", "Ideen direkt hier vorschlagen, bei Tickets mitmachen, Notizen und Kommentare (mit Mitglieder-Code). Kompakteres Design."],
@@ -783,6 +796,48 @@ openFromHash();
   if (c && c.url && c.key) { SB_URL = c.url; SB_KEY = c.key; }
 }).catch(function(){})).then(load);
 window.addEventListener('hashchange', openFromHash);
+
+// Hinweis: auf den Homescreen legen / Lesezeichen setzen. Nur beim ersten Besuch;
+// nicht in der installierten App. "Später" fragt nach 14 Tagen erneut.
+(function(){
+  var KEY = 'adc-install', st;
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) { return; }
+  function save(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e) {} }
+  if (standalone) { if (!st || st.s !== 'installed') save({s:'installed'}); return; }
+  window.addEventListener('appinstalled', function(){ save({s:'installed'}); var d = document.getElementById('install'); if (d.open) d.close(); });
+  if (st && (st.s === 'installed' || st.s === 'done' || (st.s === 'later' && Date.now() - st.t < 14*864e5))) return;
+
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; });
+
+  var ua = navigator.userAgent;
+  var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var android = /Android/.test(ua);
+  var mac = /Mac/.test(navigator.platform);
+  var dlg = document.getElementById('install');
+
+  function show(){
+    if (document.querySelector('dialog[open]')) return setTimeout(show, 5000);
+    var t;
+    if (deferred) t = 'Installiere das Dashboard als App: ein Tipp auf dem Homescreen, und du siehst sofort, was im ADC läuft.';
+    else if (ios) t = 'Leg das Dashboard auf deinen Homescreen: Tippe in Safari unten auf <b>Teilen</b> (□↑) und dann auf <b>„Zum Home-Bildschirm“</b>.';
+    else if (android) t = 'Leg das Dashboard auf deinen Startbildschirm: Tippe oben rechts auf <b>⋮</b> und dann auf <b>„Zum Startbildschirm hinzufügen“</b>.';
+    else t = 'Setz dir ein Lesezeichen, damit du schnell wieder hier bist: <b>' + (mac ? '⌘ + D' : 'Strg + D') + '</b>.';
+    document.getElementById('inst-txt').innerHTML = t;
+    document.getElementById('inst-go').hidden = !deferred;
+    dlg.showModal();
+  }
+  document.getElementById('inst-go').addEventListener('click', function(){
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(c){ save({s: c.outcome === 'accepted' ? 'installed' : 'later', t: Date.now()}); deferred = null; dlg.close(); });
+  });
+  document.getElementById('inst-done').addEventListener('click', function(){ save({s:'done'}); dlg.close(); });
+  document.getElementById('inst-later').addEventListener('click', function(){ save({s:'later', t:Date.now()}); dlg.close(); });
+  dlg.addEventListener('cancel', function(){ save({s:'later', t:Date.now()}); });
+  setTimeout(show, 4000);
+})();
 
 // Homescreen-App: beim Zurückkehren nach >2 Min automatisch neu laden
 var hiddenAt = Date.now();
