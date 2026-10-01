@@ -379,6 +379,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.7", "1. Okt. 2026", "Kontakte werden auch bei nur eingetragenem Vornamen zugeordnet. Wer sich nur mit Vornamen angemeldet hat, wird einmal nach dem Nachnamen gefragt."],
   ["2.6", "1. Okt. 2026", "Namen antippen, um Zuständige per Mail oder WhatsApp zu erreichen. Namen werden robuster erkannt (André = Andre), alle Zuständigen mit vollem Namen. Homescreen-Anleitung auch für Chrome auf dem iPhone."],
   ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen."],
   ["2.4", "1. Okt. 2026", "Hinweis beim ersten Besuch: Dashboard auf den Homescreen legen oder als Lesezeichen speichern."],
@@ -465,7 +466,11 @@ function contactFor(name){
   if (!CONTACTS) return null;
   var k = norm(name);
   var hit = CONTACTS.filter(function(c){ return norm(c.name) === k; });
-  if (!hit.length && k.indexOf(' ') < 0) hit = CONTACTS.filter(function(c){ return norm(c.name).split(' ')[0] === k; });
+  // Fallback: nur Vorname auf einer Seite, z. B. Owner „André“ ↔ Kontakt „André Hennen“ oder umgekehrt
+  if (!hit.length) hit = CONTACTS.filter(function(c){
+    var cn = norm(c.name);
+    return k.indexOf(' ') < 0 ? cn.split(' ')[0] === k : cn.indexOf(' ') < 0 && k.split(' ')[0] === cn;
+  });
   return hit.length === 1 ? hit[0] : null;
 }
 function waLink(p){
@@ -492,12 +497,15 @@ function ownerNames(o){
 
 // Name + Mitglieder-Code einmalig abfragen
 var whoCb = null;
+function fullName(n){ return String(n||'').trim().split(/\s+/).length >= 2; }
 function whoami(cb){
-  if (ME.name && ME.code) return cb();
+  if (fullName(ME.name) && ME.code) return cb();
   whoCb = cb;
   document.getElementById('w-name').value = ME.name || '';
-  document.getElementById('w-code').value = '';
-  document.getElementById('w-msg').textContent = '';
+  document.getElementById('w-code').value = ME.code || '';
+  var wm = document.getElementById('w-msg');
+  wm.className = 'msg' + (ME.name ? ' err' : '');
+  wm.textContent = ME.name ? 'Bitte ergänze deinen Nachnamen.' : '';
   document.getElementById('who').showModal();
 }
 
@@ -773,7 +781,8 @@ function initStore(){
       var p = document.getElementById('profile');
       p.hidden = !p.hidden;
       if (p.hidden) return;
-      var c = CONTACTS && CONTACTS.filter(function(x){ return x.name.toLowerCase() === ME.name.toLowerCase(); })[0];
+      var c = CONTACTS && (CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.name); })[0]
+                        || (ME.oldName && CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.oldName); })[0]));
       document.getElementById('p-email').value = c && c.email || '';
       document.getElementById('p-phone').value = c && c.phone || '';
       document.getElementById('p-del').hidden = !c;
@@ -788,7 +797,9 @@ function initStore(){
     if (!em && !ph) { m.className = 'msg err'; m.textContent = 'Bitte E-Mail oder WhatsApp-Nummer angeben.'; return; }
     if (!ME.token) { ME.token = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), function(b){ return ('0'+b.toString(16)).slice(-2); }).join(''); saveMe(); }
     m.className = 'msg'; m.textContent = 'Speichere …';
-    api('save_contact', {p_name:ME.name, p_email:em, p_phone:ph, p_token:ME.token}).then(function(){
+    var cleanup = ME.oldName ? api('delete_contact', {p_name:ME.oldName, p_token:ME.token}).catch(function(){}) : Promise.resolve();
+    cleanup.then(function(){ return api('save_contact', {p_name:ME.name, p_email:em, p_phone:ph, p_token:ME.token}); }).then(function(){
+      if (ME.oldName) { delete ME.oldName; saveMe(); }
       m.className = 'msg ok'; m.textContent = '✓ Gespeichert'; document.getElementById('p-del').hidden = false; load();
     }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
   });
@@ -805,7 +816,9 @@ function initStore(){
     if (n.split(/\s+/).length < 2) { m.className = 'msg err'; m.textContent = 'Bitte Vor- und Nachnamen eingeben.'; return; }
     m.className = 'msg'; m.textContent = 'Prüfe …';
     sbFetch('rpc/verify_code', {method:'POST', body:JSON.stringify({p_code:c})}).then(function(){
-      ME = {name:n, code:c}; saveMe();
+      // Token behalten; alten Namen merken, damit Kontaktdaten beim nächsten Speichern umziehen
+      var old = ME.name && norm(ME.name) !== norm(n) ? ME.name : ME.oldName;
+      ME = {name:n, code:c, token:ME.token, oldName:old}; saveMe();
       document.getElementById('who').close();
       renderSugg(); render();
       var cb = whoCb; whoCb = null;
