@@ -74,7 +74,14 @@ Feste Links:
 - 💡 Idee vorschlagen: öffnet das Vorschlagsfeld auf der Seite (Fallback ohne Supabase: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls). Im ausgeklappten Feld steht ein Hinweis mit Link auf die alte Sli.do-Sammlung.
 - 💬 WhatsApp Gruppe: https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
 - 📄 Anträge JHV.pdf: https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf (der relative Pfad funktionierte auf Vercel nicht)
-- Footer: „Stand Juli 2026 · Erstellt und verantwortlich André Hennen, Curious Company“
+- Footer: „Version x.y · Changelog“ (aufklappbar) und „Erstellt und verantwortlich: André Hennen, Curious Company“
+
+## Changelog & Versionen
+
+- Liste `var CL = [...]` oben im Script, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.
+- Bei jeder für Nutzer:innen sichtbaren Änderung (Funktion, Design, größere Inhaltsrunde) einen Eintrag ergänzen. Mehrere Änderungen am selben Tag dürfen in einen Eintrag.
+- Neue Funktion oder größere Überarbeitung: Minor (2.2 → 2.3). Komplett neues Design/Konzept: Major (→ 3.0). Reine Ticket-Updates (Status, Owner, Next Steps) brauchen keinen Eintrag.
+- Texte knapp halten, keine unnötigen Zeilen. Anträge (`antrag`, `antragPdf`) und Originalideen (`orig`) bleiben wörtlich.
 
 ## JHV-Anträge & PDF (`antraege-jhv.pdf`)
 
