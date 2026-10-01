@@ -185,6 +185,13 @@ dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;
 dialog.who::backdrop{background:rgba(0,0,0,.35)}
 dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
 dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
+.chip.own{background:var(--ink);color:#fff}
+.chip a{text-decoration:none;font-size:13px;line-height:1}
+.linkbtn{background:none;border:none;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:13px;padding:0}
+.linkbtn:hover{color:var(--ink)}
+.edited{font-size:12px;color:var(--ink-3);margin-top:4px}
+.sform textarea{width:100%;font:inherit;font-size:14px;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;min-height:110px;resize:vertical}
+.sform .form-row{margin-top:6px}
 .whoami{font-size:12px;color:var(--ink-3);margin-top:6px}
 .whoami button{background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:12px;padding:0}
 
@@ -197,17 +204,24 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
   .brand img{height:30px}
   .brand-txt{display:none}
   .btn{font-size:14px;padding:8px 13px}
-  .filters{top:56px}
+  .filters{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .frow{flex-wrap:wrap;overflow:visible;gap:6px;padding-top:12px;padding-bottom:12px}
+  .fsep{display:none}
+  .toggle-all{margin-left:0;padding:6px 4px}
   .hero{padding-top:22px;padding-bottom:16px}
   .hero h1{font-size:30px}
   .hero p{font-size:15px}
-  .cta .btn{flex:1;justify-content:center}
+  .cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cta .btn{justify-content:center;padding:8px 10px}
+  .cta .btn:first-child{grid-column:1/-1}
+  .fb{padding:5px 10px}
+  .panel{padding:14px}
   .col-title{font-size:20px}
   .chead{padding:12px}
   .cmeta{padding-left:0}
   .cbody{padding:0 12px 14px}
   .cname{font-size:16px}
-  .card{scroll-margin-top:110px}
+  .card{scroll-margin-top:68px}
   .cform{flex-direction:column;align-items:stretch}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -227,11 +241,21 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 <main>
 <section class="wrap hero">
   <h1>Dein ADC Dashboard</h1>
-  <p>Alle Ideen auf einen Blick: was läuft, wer sich kümmert, was als Nächstes passiert. Tippe auf eine Idee für Details.</p>
+  <p>Alle Ideen und Initiativen im ADC auf einen Blick: was läuft, wer sich kümmert, was als Nächstes passiert. Schnapp dir ein offenes Ticket oder mach bei einem mit.</p>
   <div class="updated" id="last-update"></div>
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
+    <button class="btn btn-light" id="profile-btn" type="button" hidden>📇 Mein Kontakt</button>
     <a class="btn btn-light" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">💬 WhatsApp Gruppe</a>
+  </div>
+  <div class="panel" id="profile" hidden>
+    <h2>📇 Meine Kontaktdaten</h2>
+    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Tickets erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich.</p>
+    <form class="form" id="pform">
+      <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">
+      <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" autocomplete="tel">
+      <div class="form-row"><button class="btn btn-dark" type="submit">Speichern</button><button class="btn btn-light" type="button" id="p-del" hidden>Löschen</button><span class="msg" id="p-msg"></span></div>
+    </form>
   </div>
   <div class="panel" id="suggest" hidden>
     <h2>💡 Idee vorschlagen</h2>
@@ -340,6 +364,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.3", "1. Okt. 2026", "Kontaktdaten hinterlegen (nur für Mitglieder sichtbar), Kontakt zu Zuständigen direkt per Mail oder WhatsApp, Nächste Schritte online bearbeitbar, Filter auf dem Handy übersichtlicher."],
   ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Tickets und auf der Seite gestrafft."],
   ["2.1", "1. Okt. 2026", "Ideen direkt hier vorschlagen, bei Tickets mitmachen, Notizen und Kommentare (mit Mitglieder-Code). Kompakteres Design."],
   ["2.0", "1. Okt. 2026", "Neues helles Design nach adc.de, aufklappbare Tickets, Links zu einzelnen Ideen, als Homescreen-App nutzbar."],
@@ -375,7 +400,7 @@ D.forEach(function(i){ i.id = i.id || slug(i.n); });
 
 // --- Speicher ---
 var SB_ON = false; // erst an, wenn der Speicher erreichbar ist
-var HELP = {}, COMM = {}, SUGG = [];
+var HELP = {}, COMM = {}, SUGG = [], STEPS = {}, CONTACTS = null;
 var ME = {};
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -402,13 +427,40 @@ function load(){
   return Promise.all([
     sbFetch('helpers?select=ticket,name,created_at&order=created_at'),
     sbFetch('comments?select=ticket,name,body,created_at&order=created_at'),
-    sbFetch('suggestions?select=name,title,body,created_at&order=created_at.desc&limit=200')
+    sbFetch('suggestions?select=name,title,body,created_at&order=created_at.desc&limit=200'),
+    sbFetch('step_edits?select=ticket,body,base,name,created_at&order=created_at.desc').catch(function(){ return []; }),
+    ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null)
   ]).then(function(r){
     HELP = group(r[0]); COMM = group(r[1]); SUGG = r[2];
+    STEPS = {}; r[3].forEach(function(e){ if (!STEPS[e.ticket]) STEPS[e.ticket] = e; });
+    CONTACTS = r[4];
     if (!SB_ON) { SB_ON = true; initStore(); }
     render(); renderSugg();
     return true;
   }).catch(function(e){ console.warn('Speicher nicht erreichbar', e); return false; });
+}
+
+// Kontakt zu einem Namen finden: exakter Name, sonst eindeutiger Vorname
+function contactFor(name){
+  if (!CONTACTS) return null;
+  var k = name.trim().toLowerCase();
+  var hit = CONTACTS.filter(function(c){ return c.name.trim().toLowerCase() === k; });
+  if (!hit.length && k.indexOf(' ') < 0) hit = CONTACTS.filter(function(c){ return c.name.trim().toLowerCase().split(/\s+/)[0] === k; });
+  return hit.length === 1 ? hit[0] : null;
+}
+function waLink(p){
+  var d = p.replace(/[^0-9+]/g,'');
+  d = d.indexOf('+') === 0 ? d.slice(1) : d.indexOf('00') === 0 ? d.slice(2) : d.indexOf('0') === 0 ? '49' + d.slice(1) : d;
+  return 'https://wa.me/' + d.replace(/\D/g,'');
+}
+function contactIcons(name){
+  var c = contactFor(name);
+  if (!c) return '';
+  return (c.email ? ' <a href="mailto:'+esc(c.email)+'" title="E-Mail an '+esc(c.name)+'">✉️</a>' : '')
+       + (c.phone ? ' <a href="'+esc(waLink(c.phone))+'" target="_blank" rel="noopener" title="WhatsApp an '+esc(c.name)+'">💬</a>' : '');
+}
+function ownerNames(o){
+  return (o || '').replace(/\([^)]*\)/g,'').split(/\s*(?:&|,|\bund\b)\s*/).map(function(x){ return x.trim(); }).filter(Boolean);
 }
 
 // Name + Mitglieder-Code einmalig abfragen
@@ -449,7 +501,7 @@ function filtered(){
 }
 
 function bullets(text, splitter){
-  var items = splitter === '|' ? text.split(' | ') : text.split(/\d+\.\s+/);
+  var items = splitter === '|' ? text.split(' | ') : text.indexOf('\n') >= 0 ? text.split('\n').map(function(l){ return l.replace(/^\s*(\d+\.|[-•*])\s*/,''); }) : text.split(/\d+\.\s+/);
   items = items.map(function(s){ return s.trim().replace(/[;,]$/,''); }).filter(Boolean);
   if (splitter !== '|' && items.length <= 1) items = text.split(/;\s+/).map(function(s){ return s.trim(); }).filter(Boolean);
   if (items.length <= 1) return '<p>'+linkify(esc(text))+'</p>';
@@ -477,11 +529,16 @@ function mkcard(i){
   else if (SB_ON) {
     var me = (ME.name||'').toLowerCase();
     var mine = hl.some(function(h){ return h.name.toLowerCase() === me; });
-    body += '<div class="sec"><div class="lbl">🙋 Machen mit</div><div class="chips">'
-      + hl.map(function(h){ return '<span class="chip">'+esc(h.name)+(h.name.toLowerCase() === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : '')+'</span>'; }).join('')
-      + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>') + '</div></div>';
+    body += '<div class="sec"><div class="lbl">🙋 Wer kümmert sich</div><div class="chips">'
+      + ownerNames(i.owner).map(function(n){ return '<span class="chip own" title="Verantwortlich">'+esc(n)+contactIcons(n)+'</span>'; }).join('')
+      + hl.map(function(h){ return '<span class="chip">'+esc(h.name)+contactIcons(h.name)+(h.name.toLowerCase() === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : '')+'</span>'; }).join('')
+      + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
+      + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div></div>';
   }
-  body += '<div class="sec"><div class="lbl">👉 Nächste Schritte</div><div class="txt">'+bullets(i.x)+'</div></div>';
+  var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
+  var steps = se ? se.body : i.x;
+  body += '<div class="sec" data-steps="1"><div class="lbl-row"><div class="lbl">👉 Nächste Schritte</div>'+(SB_ON ? '<button class="copy" data-edit="1">✏️ Bearbeiten</button>' : '')+'</div><div class="txt">'+bullets(steps)+'</div>'
+    + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
   if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag">'+esc(i.antrag)+'</div></div>';
@@ -520,6 +577,25 @@ function mkcard(i){
     if (!confirm('Bei „'+i.n+'“ austragen?')) return;
     api('remove_helper', {p_ticket:i.id, p_name:ME.name}).then(load, alertErr);
   });
+  var ub = el.querySelector('[data-unlock]');
+  if (ub) ub.addEventListener('click', function(){ whoami(load); });
+  var eb = el.querySelector('[data-edit]');
+  if (eb) eb.addEventListener('click', function(){
+    var sec = el.querySelector('[data-steps]');
+    var cur = bulletsPlain(steps);
+    sec.innerHTML = '<div class="lbl">👉 Nächste Schritte bearbeiten</div><form class="sform"><textarea maxlength="3000" placeholder="Ein Schritt pro Zeile"></textarea>'
+      + '<div class="form-row"><button class="minibtn" type="submit">Speichern</button><button class="linkbtn" type="button" data-cancel="1">Abbrechen</button><span class="msg">Ein Schritt pro Zeile</span></div></form>';
+    var ta = sec.querySelector('textarea'); ta.value = cur; ta.focus();
+    sec.querySelector('[data-cancel]').addEventListener('click', render);
+    sec.querySelector('form').addEventListener('submit', function(e){
+      e.preventDefault();
+      var v = ta.value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean).join('\n');
+      if (v.length < 3) return;
+      whoami(function(){
+        api('set_next_steps', {p_ticket:i.id, p_name:ME.name, p_body:v, p_base:i.x}).then(load, alertErr);
+      });
+    });
+  });
   var cf = el.querySelector('[data-cform]');
   if (cf) cf.addEventListener('submit', function(e){
     e.preventDefault();
@@ -535,6 +611,14 @@ function mkcard(i){
     copy(location.origin + location.pathname + '#' + i.id, pl, '🔗 Link zu dieser Idee kopieren');
   });
   return el;
+}
+
+// Text der Nächsten Schritte als eine Zeile pro Schritt (für das Bearbeitungsfeld)
+function bulletsPlain(text){
+  var items = text.indexOf('\n') >= 0 ? text.split('\n') : text.split(/\d+\.\s+/);
+  items = items.map(function(s){ return s.trim().replace(/[;,]$/,''); }).filter(Boolean);
+  if (items.length <= 1) items = text.split(/;\s+/).map(function(s){ return s.trim(); }).filter(Boolean);
+  return items.join('\n');
 }
 
 function copy(text, btn, label){
@@ -640,6 +724,39 @@ function initStore(){
       }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
     });
   });
+  var pb = document.getElementById('profile-btn');
+  pb.hidden = false;
+  pb.addEventListener('click', function(){
+    whoami(function(){
+      var p = document.getElementById('profile');
+      p.hidden = !p.hidden;
+      if (p.hidden) return;
+      var c = CONTACTS && CONTACTS.filter(function(x){ return x.name.toLowerCase() === ME.name.toLowerCase(); })[0];
+      document.getElementById('p-email').value = c && c.email || '';
+      document.getElementById('p-phone').value = c && c.phone || '';
+      document.getElementById('p-del').hidden = !c;
+      document.getElementById('p-msg').textContent = 'Gespeichert unter: ' + ME.name;
+      document.getElementById('p-msg').className = 'msg';
+    });
+  });
+  document.getElementById('pform').addEventListener('submit', function(e){
+    e.preventDefault();
+    var m = document.getElementById('p-msg');
+    var em = document.getElementById('p-email').value.trim(), ph = document.getElementById('p-phone').value.trim();
+    if (!em && !ph) { m.className = 'msg err'; m.textContent = 'Bitte E-Mail oder WhatsApp-Nummer angeben.'; return; }
+    if (!ME.token) { ME.token = Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), function(b){ return ('0'+b.toString(16)).slice(-2); }).join(''); saveMe(); }
+    m.className = 'msg'; m.textContent = 'Speichere …';
+    api('save_contact', {p_name:ME.name, p_email:em, p_phone:ph, p_token:ME.token}).then(function(){
+      m.className = 'msg ok'; m.textContent = '✓ Gespeichert'; document.getElementById('p-del').hidden = false; load();
+    }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
+  });
+  document.getElementById('p-del').addEventListener('click', function(){
+    if (!confirm('Deine Kontaktdaten löschen?')) return;
+    api('delete_contact', {p_name:ME.name, p_token:ME.token || ''}).then(function(){
+      document.getElementById('p-email').value = ''; document.getElementById('p-phone').value = '';
+      var m = document.getElementById('p-msg'); m.className = 'msg ok'; m.textContent = '✓ Gelöscht'; document.getElementById('p-del').hidden = true; load();
+    }, alertErr);
+  });
   document.getElementById('wform').addEventListener('submit', function(e){
     e.preventDefault();
     var n = document.getElementById('w-name').value.trim(), c = document.getElementById('w-code').value.trim(), m = document.getElementById('w-msg');
@@ -649,7 +766,8 @@ function initStore(){
       ME = {name:n, code:c}; saveMe();
       document.getElementById('who').close();
       renderSugg(); render();
-      var cb = whoCb; whoCb = null; if (cb) cb();
+      var cb = whoCb; whoCb = null;
+      load().then(function(){ if (cb) cb(); });
     }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
   });
   document.getElementById('w-cancel').addEventListener('click', function(){ whoCb = null; document.getElementById('who').close(); });
