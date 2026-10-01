@@ -74,6 +74,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
+- Hilfe-Button „?“ im Header öffnet das Modal `#help` mit den wichtigsten Funktionen. **Bei neuen Funktionen dort mitpflegen.**
 - Installations-Hinweis (Modal `#install`): nur beim ersten Besuch, je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
 - `[hidden]` ist global `display:none!important`, weil `.btn` sonst `hidden` überschreibt.
 - „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit.
