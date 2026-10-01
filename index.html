@@ -188,10 +188,12 @@ dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
 dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 #inst-txt{line-height:1.55;margin-bottom:0}
 .chip.own{background:var(--ink);color:#fff}
-.chip .cn{background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
-.cmenu{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--ink-2)}
-.cmenu a{font-weight:700;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:3px 11px;text-decoration:none}
-.cmenu a:hover{background:var(--ink);color:#fff}
+.chip.hasc{cursor:pointer;outline:none}
+.chip.hasc:focus-visible{box-shadow:0 0 0 2px var(--blue)}
+.chip .cis{display:none;gap:3px;margin-left:4px}
+.chip.hasc:hover .cis,.chip.hasc:focus-within .cis{display:inline-flex}
+.chip .ci{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;text-decoration:none;font-size:13px;line-height:1}
+.chip .ci:hover{transform:scale(1.12)}
 .linkbtn{background:none;border:none;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:13px;padding:0}
 .linkbtn:hover{color:var(--ink)}
 .edited{font-size:12px;color:var(--ink-3);margin-top:4px}
@@ -379,6 +381,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.8", "1. Okt. 2026", "Kontakt einfacher: Beim Darüberfahren oder Antippen eines Namens erscheinen Mail- und WhatsApp-Icons direkt am Namen."],
   ["2.7", "1. Okt. 2026", "Kontakte werden auch bei nur eingetragenem Vornamen zugeordnet. Wer sich nur mit Vornamen angemeldet hat, wird einmal nach dem Nachnamen gefragt."],
   ["2.6", "1. Okt. 2026", "Namen antippen, um Zuständige per Mail oder WhatsApp zu erreichen. Namen werden robuster erkannt (André = Andre), alle Zuständigen mit vollem Namen. Homescreen-Anleitung auch für Chrome auf dem iPhone."],
   ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen."],
@@ -478,18 +481,13 @@ function waLink(p){
   d = d.indexOf('+') === 0 ? d.slice(1) : d.indexOf('00') === 0 ? d.slice(2) : d.indexOf('0') === 0 ? '49' + d.slice(1) : d;
   return 'https://wa.me/' + d.replace(/\D/g,'');
 }
-function contactLinks(c){
-  return (c.email ? '<a href="mailto:'+esc(c.email)+'">✉️ Mail</a>' : '')
-       + (c.phone ? '<a href="'+esc(waLink(c.phone))+'" target="_blank" rel="noopener">💬 WhatsApp</a>' : '');
-}
-// Namens-Chip: mit Kontakt antippbar (ein Weg = direkter Link, zwei Wege = kleines Menü)
+// Namens-Chip: mit Kontakt klappen beim Hovern bzw. Antippen Mail- und WhatsApp-Icons auf
 function nameChip(name, cls, extra){
   var c = contactFor(name);
   if (!c) return '<span class="chip '+cls+'">'+esc(name)+(extra||'')+'</span>';
-  var inner = c.email && c.phone
-    ? '<button class="cn" data-cm="'+esc(name)+'">'+esc(name)+' ▾</button>'
-    : '<a class="cn" href="'+esc(c.email ? 'mailto:'+c.email : waLink(c.phone))+'"'+(c.email ? '' : ' target="_blank" rel="noopener"')+'>'+esc(name)+' '+(c.email ? '✉️' : '💬')+'</a>';
-  return '<span class="chip '+cls+' hasc">'+inner+(extra||'')+'</span>';
+  var icons = (c.email ? '<a class="ci" href="mailto:'+esc(c.email)+'" title="Mail an '+esc(name)+'" aria-label="Mail an '+esc(name)+'">✉️</a>' : '')
+            + (c.phone ? '<a class="ci" href="'+esc(waLink(c.phone))+'" target="_blank" rel="noopener" title="WhatsApp an '+esc(name)+'" aria-label="WhatsApp an '+esc(name)+'">💬</a>' : '');
+  return '<span class="chip '+cls+' hasc" tabindex="0">'+esc(name)+'<span class="cis">'+icons+'</span>'+(extra||'')+'</span>';
 }
 function ownerNames(o){
   return (o || '').replace(/\([^)]*\)/g,'').split(/\s*(?:&|,|\bund\b)\s*/).map(function(x){ return x.trim(); }).filter(Boolean);
@@ -569,10 +567,8 @@ function mkcard(i){
       + hl.map(function(h){ return nameChip(h.name, '', norm(h.name) === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : ''); }).join('')
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
       + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
-      + '<div class="cmenu" hidden></div>'
-      + (CONTACTS ? '<div class="edited">'+(ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(contactFor)
-          ? 'Tippe auf einen Namen, um die Person per Mail oder WhatsApp zu erreichen.'
-          : 'Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben über „📱 Mein Kontakt“.')+'</div>' : '')
+      + (CONTACTS && !ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(contactFor)
+          ? '<div class="edited">Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben über „📱 Mein Kontakt“.</div>' : '')
       + '</div>';
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
@@ -616,14 +612,6 @@ function mkcard(i){
   if (lb) lb.addEventListener('click', function(){
     if (!confirm('Bei „'+i.n+'“ austragen?')) return;
     api('remove_helper', {p_ticket:i.id, p_name:ME.name}).then(load, alertErr);
-  });
-  Array.prototype.forEach.call(el.querySelectorAll('[data-cm]'), function(b){
-    b.addEventListener('click', function(){
-      var m = el.querySelector('.cmenu'), c = contactFor(b.dataset.cm);
-      var same = !m.hidden && m.dataset.who === b.dataset.cm;
-      m.hidden = same;
-      if (!same) { m.dataset.who = b.dataset.cm; m.innerHTML = '<span>'+esc(c.name)+':</span>'+contactLinks(c); }
-    });
   });
   var ub = el.querySelector('[data-unlock]');
   if (ub) ub.addEventListener('click', function(){ whoami(load); });
