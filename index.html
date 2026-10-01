@@ -247,11 +247,11 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
   <div class="updated" id="last-update"></div>
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
-    <button class="btn btn-light" id="profile-btn" type="button" hidden>📇 Mein Kontakt</button>
+    <button class="btn btn-light" id="profile-btn" type="button" hidden>📱 Mein Kontakt</button>
     <a class="btn btn-light" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">💬 WhatsApp Gruppe</a>
   </div>
   <div class="panel" id="profile" hidden>
-    <h2>📇 Meine Kontaktdaten</h2>
+    <h2>📱 Meine Kontaktdaten</h2>
     <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Tickets erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich.</p>
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">
@@ -376,7 +376,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
-  ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen."],
+  ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen. Hinweis, wie man Zuständige kontaktiert."],
   ["2.4", "1. Okt. 2026", "Hinweis beim ersten Besuch: Dashboard auf den Homescreen legen oder als Lesezeichen speichern."],
   ["2.3", "1. Okt. 2026", "Kontaktdaten hinterlegen (nur für Mitglieder sichtbar), Kontakt zu Zuständigen direkt per Mail oder WhatsApp, Nächste Schritte online bearbeitbar, Filter auf dem Handy übersichtlicher."],
   ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Tickets und auf der Seite gestrafft."],
@@ -547,7 +547,11 @@ function mkcard(i){
       + ownerNames(i.owner).map(function(n){ return '<span class="chip own" title="Verantwortlich">'+esc(n)+contactIcons(n)+'</span>'; }).join('')
       + hl.map(function(h){ return '<span class="chip">'+esc(h.name)+contactIcons(h.name)+(h.name.toLowerCase() === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : '')+'</span>'; }).join('')
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
-      + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div></div>';
+      + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
+      + (CONTACTS ? '<div class="edited">'+(ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(contactFor)
+          ? 'Tippe auf ✉️ für Mail oder 💬 für WhatsApp.'
+          : 'Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben über „📱 Mein Kontakt“.')+'</div>' : '')
+      + '</div>';
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
   var steps = se ? se.body : i.x;
