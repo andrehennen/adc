@@ -256,7 +256,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 <main>
 <section class="wrap hero">
   <h1>Dein ADC Dashboard</h1>
-  <p>Alle Ideen und Initiativen im ADC auf einen Blick: was läuft, wer sich kümmert, was als Nächstes passiert. Schnapp dir ein offenes Ticket oder mach bei einem mit.</p>
+  <p>Alle Ideen und Initiativen im ADC auf einen Blick: was läuft, wer sich kümmert, was als Nächstes passiert. Schnapp dir eine offene Idee oder mach bei einer mit.</p>
   <div class="updated" id="last-update"></div>
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
@@ -265,7 +265,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   </div>
   <div class="panel" id="profile" hidden>
     <h2>📱 Meine Kontaktdaten</h2>
-    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Tickets erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich.</p>
+    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich.</p>
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">
       <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" autocomplete="tel">
@@ -273,7 +273,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
     </form>
   </div>
   <div class="panel" id="suggest" hidden>
-    <h2 id="s-head">💡 Neues Ticket</h2>
+    <h2 id="s-head">💡 Neue Idee</h2>
     <form class="form" id="sform">
       <div class="form-row"><input id="s-emoji" class="emo" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" maxlength="140" placeholder="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
       <textarea id="s-body" maxlength="2000" placeholder="Beschreibung (optional): was, warum, für wen?"></textarea>
@@ -294,7 +294,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
         <label class="opt"><input type="checkbox" name="s-t" value="verein"><span>🏛️ Verein & Struktur</span></label>
         <label class="opt"><input type="checkbox" name="s-t" value="jury"><span>⚖️ Jury</span></label>
       </div>
-      <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Ticket speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Ticket löschen</button><span class="msg" id="s-msg"></span></div>
+      <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Idee speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Idee löschen</button><span class="msg" id="s-msg"></span></div>
     </form>
     <div class="whoami" id="whoami"></div>
     <p class="by" style="margin-top:8px">Ältere Ideen aus der ersten Sammlung: <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">Sli.do</a></p>
@@ -406,22 +406,23 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.11", "1. Okt. 2026", "Aus „Tickets“ werden überall „Ideen“."],
   ["2.10", "1. Okt. 2026", "Themen klarer getrennt: Mitglieder (Angebote & Austausch), Partner & Öffentlichkeit (nach außen) und neu Verein & Struktur (Satzung, Wahlen, Beiträge, Tools)."],
-  ["2.9", "1. Okt. 2026", "Neue Tickets direkt anlegen, bearbeiten und löschen (ersetzt „Idee vorschlagen“). Alle Tickets hochvoten, eine Stimme pro Person. Kontakt-Icons springen nicht mehr."],
+  ["2.9", "1. Okt. 2026", "Neue Ideen direkt anlegen, bearbeiten und löschen (ersetzt „Idee vorschlagen“). Alle Ideen hochvoten, eine Stimme pro Person. Kontakt-Icons springen nicht mehr."],
   ["2.8", "1. Okt. 2026", "Kontakt einfacher: Beim Darüberfahren oder Antippen eines Namens erscheinen Mail- und WhatsApp-Icons direkt am Namen."],
   ["2.7", "1. Okt. 2026", "Kontakte werden auch bei nur eingetragenem Vornamen zugeordnet. Wer sich nur mit Vornamen angemeldet hat, wird einmal nach dem Nachnamen gefragt."],
   ["2.6", "1. Okt. 2026", "Namen antippen, um Zuständige per Mail oder WhatsApp zu erreichen. Namen werden robuster erkannt (André = Andre), alle Zuständigen mit vollem Namen. Homescreen-Anleitung auch für Chrome auf dem iPhone."],
-  ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen das Ticket nur noch einmal, nicht bei jedem Neuladen."],
+  ["2.5", "1. Okt. 2026", "Geteilte Ideen-Links öffnen die Idee nur noch einmal, nicht bei jedem Neuladen."],
   ["2.4", "1. Okt. 2026", "Hinweis beim ersten Besuch: Dashboard auf den Homescreen legen oder als Lesezeichen speichern."],
   ["2.3", "1. Okt. 2026", "Kontaktdaten hinterlegen (nur für Mitglieder sichtbar), Kontakt zu Zuständigen direkt per Mail oder WhatsApp, Nächste Schritte online bearbeitbar, Filter auf dem Handy übersichtlicher."],
-  ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Tickets und auf der Seite gestrafft."],
-  ["2.1", "1. Okt. 2026", "Ideen direkt hier vorschlagen, bei Tickets mitmachen, Notizen und Kommentare (mit Mitglieder-Code). Kompakteres Design."],
-  ["2.0", "1. Okt. 2026", "Neues helles Design nach adc.de, aufklappbare Tickets, Links zu einzelnen Ideen, als Homescreen-App nutzbar."],
+  ["2.2", "1. Okt. 2026", "Changelog mit Versionen im Footer, Texte in Ideen und auf der Seite gestrafft."],
+  ["2.1", "1. Okt. 2026", "Ideen direkt hier vorschlagen, bei Ideen mitmachen, Notizen und Kommentare (mit Mitglieder-Code). Kompakteres Design."],
+  ["2.0", "1. Okt. 2026", "Neues helles Design nach adc.de, aufklappbare Ideen, Links zu einzelnen Ideen, als Homescreen-App nutzbar."],
   ["1.4", "26. Aug. 2026", "Leitlinien als eigenes Feld, Ziele für Sektionstreffen."],
   ["1.3", "6. Aug. 2026", "Neue Status „Wird gemacht!“ und „Prüfung abgeschlossen“, JHV-Anträge auf vier reduziert, PDF neu sortiert."],
   ["1.2", "4. Aug. 2026", "Anträge überarbeitet und als PDF, Favicon, Merch wird zum ADC Artist Shop."],
   ["1.1", "23. Jul. 2026", "Sektionsfilter Hamburg/Berlin, ADC Beats, Einwandverfahren als Antrag."],
-  ["1.0", "15. Jul. 2026", "Kopierbare JHV-Antragsentwürfe in den Tickets, Filter „JHV-Antrag“."],
+  ["1.0", "15. Jul. 2026", "Kopierbare JHV-Antragsentwürfe in den Ideen, Filter „JHV-Antrag“."],
   ["0.3", "12. Jul. 2026", "Design nach ADC-CI, Buttons „Idee vorschlagen!“ und WhatsApp-Gruppe."],
   ["0.2", "9. Jul. 2026", "Titel „Dein ADC Dashboard“, Details mit Nächsten Schritten und „Bisher passiert“, Link zum ADC Kompass."],
   ["0.1", "8. Jul. 2026", "Erste Version: Ideen aus der Sli.do-Sammlung mit Stimmen, Prio, Status und Verantwortlichen."]
@@ -615,7 +616,7 @@ function mkcard(i){
   var steps = se ? se.body : i.x;
   if (i.body) body += '<div class="sec"><div class="lbl">📝 Beschreibung</div><div class="txt"><p style="white-space:pre-wrap">'+linkify(esc(i.body))+'</p></div></div>';
   body += '<div class="sec" data-steps="1"><div class="lbl-row"><div class="lbl">👉 Nächste Schritte</div>'+(SB_ON && !i.online ? '<button class="copy" data-edit="1">✏️ Bearbeiten</button>' : '')+'</div><div class="txt">'
-    + (steps ? bullets(steps) : '<p class="by">Noch keine. Ergänze sie über „Ticket bearbeiten“.</p>')+'</div>'
+    + (steps ? bullets(steps) : '<p class="by">Noch keine. Ergänze sie über „Idee bearbeiten“.</p>')+'</div>'
     + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
@@ -627,7 +628,7 @@ function mkcard(i){
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
   if (i.online) body += '<div class="sec edited">Angelegt von '+esc(i.online.created_by)+' · '+fmtDate(i.online.created_at)
     + (i.online.updated_by ? ' · zuletzt bearbeitet von '+esc(i.online.updated_by)+' · '+fmtDate(i.online.updated_at) : '')
-    + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Ticket bearbeiten</button>' : '') + '</div>';
+    + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Idee bearbeiten</button>' : '') + '</div>';
   body += '<button class="permalink" data-link="1">🔗 Link zu dieser Idee kopieren</button>';
 
   el.innerHTML =
@@ -785,7 +786,7 @@ function openTicket(id){
 
 function renderSugg(){
   var sb = document.getElementById('suggest-btn');
-  if (SB_ON) sb.textContent = '💡 Neues Ticket';
+  if (SB_ON) sb.textContent = '💡 Neue Idee';
   var w = document.getElementById('whoami');
   w.innerHTML = ME.name ? 'Du schreibst als <b>'+esc(ME.name)+'</b> · <button type="button" id="w-reset">Nicht du?</button>' : '';
   var rb = document.getElementById('w-reset');
@@ -798,7 +799,7 @@ function openForm(t){
   editing = t;
   var f = document.getElementById('sform'), p = document.getElementById('suggest');
   f.reset();
-  document.getElementById('s-head').textContent = t ? '✏️ Ticket bearbeiten' : '💡 Neues Ticket';
+  document.getElementById('s-head').textContent = t ? '✏️ Idee bearbeiten' : '💡 Neue Idee';
   document.getElementById('s-del').hidden = !t;
   document.getElementById('s-msg').textContent = '';
   document.getElementById('s-emoji').value = t ? t.e : '💡';
@@ -852,7 +853,7 @@ function initStore(){
     });
   });
   document.getElementById('s-del').addEventListener('click', function(){
-    if (!editing || !confirm('Ticket „'+editing.n+'“ wirklich löschen?')) return;
+    if (!editing || !confirm('Idee „'+editing.n+'“ wirklich löschen?')) return;
     var t = editing;
     whoami(function(){
       api('delete_ticket', {p_name:ME.name, p_id:t.online.id}).then(function(){

@@ -13,6 +13,8 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 ## Grundsätze (wichtig, hart erarbeitet)
 
+- **Sprache auf der Seite: „Ideen“, nie „Tickets“** (klingt weniger nach Arbeit). Intern im Code und in dieser Datei heißen sie weiter Tickets.
+
 - **Das Dashboard ist die Single Source of Truth.** Trello wird nicht mehr genutzt.
 - **Ticket-Inhalte** (Status, Owner, Leitlinien, Anträge) ändert nur Claude im Code, auf Andrés Anweisung. Ausnahme: **Nächste Schritte** können Mitglieder online bearbeiten (siehe Speicher).
 - **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können online Tickets anlegen/bearbeiten/löschen, Tickets hochvoten, sich als „Mach mit“ eintragen, Kontaktdaten hinterlegen, Nächste Schritte bearbeiten und kommentieren. Siehe Abschnitt „Speicher (Supabase)“.
