@@ -48,7 +48,7 @@ Jedes Ticket ist ein Objekt:
 | `n` | Titel (aus ihm wird auch die Ticket-ID für Deep-Links `#slug` und Speicher gebildet) |
 | `id` | Optional: feste Ticket-ID, wenn der Titel geändert wurde |
 | `v` | Stimmen aus der Sli.do-Sammlung (Zahl oder `null`); Online-Stimmen kommen dazu |
-| `t` | Tags: `events`, `network`, `members`, `jury` |
+| `t` | Themen: `events` (🎤 Events), `members` (👥 Mitglieder: Angebote & Austausch für Mitglieder), `network` (🌍 Partner & Öffentlichkeit: Kooperationen, Nachwuchs, Sponsoren, Stadt), `verein` (🏛️ Verein & Struktur: Satzung, Wahlen, Beiträge, Transparenz, Tools), `jury` (⚖️ Jury/Wettbewerb). Möglichst 1–2 pro Ticket |
 | `f` | Aufwand: `easy`, `medium`, `complex` |
 | `status` | `idea`, `planned`, `active`, `draft`, `checked`, `doing`, `live`, `done` |
 | `prio` | `true` für Prio-Tickets (stehen ganz oben) |
