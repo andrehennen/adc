@@ -27,7 +27,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben im Script bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
 - Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) und `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`, dazu `token` für die eigenen Kontaktdaten).
-- **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Zuordnung über den vollen Namen, sonst über einen eindeutigen Vornamen (Owner im Code sind oft nur Vornamen).
+- **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Namen sind antippbar (ein Kontaktweg = direkter Link, zwei = kleines Menü). Zuordnung über den vollen Namen, akzent- und großschreibungsunabhängig (André = Andre), sonst über einen eindeutigen Vornamen. Der Login-Dialog verlangt Vor- und Nachnamen.
 - **Nächste Schritte online** (`step_edits`): Die neueste Bearbeitung gilt nur, solange `base` gleich dem `x` im Code ist. **Bevor Claude `x` im Code ändert, die neueste Bearbeitung lesen** (öffentlich: `GET /rest/v1/step_edits?ticket=eq.<id>&order=created_at.desc&limit=1` mit Publishable Key von `/api/config`) und in den neuen Text übernehmen, sonst geht sie verloren.
 - Verknüpfung über die Ticket-ID (Slug aus `n`). **Wird ein Titel umbenannt, die alte ID als `id:"alter-slug"` am Ticket festhalten**, sonst verlieren Mitmachende und Kommentare ihre Zuordnung.
 - Moderation (Spam, falsche Einträge löschen) im Supabase Table Editor. Neue Vorschläge sichtet André und übernimmt sie bei Bedarf als Ticket in `D`.
@@ -49,7 +49,7 @@ Jedes Ticket ist ein Objekt:
 | `f` | Aufwand: `easy`, `medium`, `complex` |
 | `status` | `idea`, `planned`, `active`, `draft`, `checked`, `doing`, `live`, `done` |
 | `prio` | `true` für Prio-Tickets (stehen ganz oben) |
-| `owner` | Verantwortliche:r; fehlt er, zeigt die Karte „Noch offen“ und einen Mitmach-Hinweis |
+| `owner` | Verantwortliche:r, **immer mit vollem Namen** (für die Kontakt-Zuordnung), mehrere mit ` & `; fehlt er, zeigt die Karte „Noch offen“ und einen Mitmach-Hinweis |
 | `x` | Nächste Schritte (`1. … 2. …` oder mit `;` getrennt, wird zu Bullets) |
 | `bisher` | Bisher passiert, mit ` \| ` getrennt |
 | `rahmen` | Leitlinien, mit ` \| ` getrennt |
