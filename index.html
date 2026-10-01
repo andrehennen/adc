@@ -190,6 +190,8 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 .opt span{display:inline-block;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--ink-2);background:#fff}
 .opt input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
 .opt input:focus-visible+span{outline:2px solid var(--blue);outline-offset:1px}
+.anon{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);cursor:pointer}
+.form .anon input{width:auto;accent-color:var(--ink)}
 .form input.emo{width:52px;text-align:center;font-size:18px;padding:6px}
 .vote{position:absolute;top:10px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;line-height:1.35}
 .vote:hover{border-color:var(--ink);color:var(--ink)}
@@ -294,6 +296,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
         <label class="opt"><input type="checkbox" name="s-t" value="verein"><span>🏛️ Verein & Struktur</span></label>
         <label class="opt"><input type="checkbox" name="s-t" value="jury"><span>⚖️ Jury</span></label>
       </div>
+      <label class="anon" id="s-anon-row"><input type="checkbox" id="s-anon"> Anonym einreichen <span class="by">(dein Name wird nicht gespeichert)</span></label>
       <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Idee speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Idee löschen</button><span class="msg" id="s-msg"></span></div>
     </form>
     <div class="whoami" id="whoami"></div>
@@ -314,7 +317,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 <dialog class="who" id="who">
   <form class="form" id="wform" method="dialog">
     <h2>Wer bist du?</h2>
-    <p>Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.</p>
+    <p id="w-txt">Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.</p>
     <input id="w-name" maxlength="60" placeholder="Vor- und Nachname" required autocomplete="name">
     <input id="w-code" placeholder="Mitglieder-Code" required autocomplete="off">
     <div class="form-row"><button class="btn btn-dark" type="submit" value="ok">Weiter</button><button class="btn btn-light" type="button" id="w-cancel">Abbrechen</button><span class="msg" id="w-msg"></span></div>
@@ -406,6 +409,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.12", "1. Okt. 2026", "Ideen lassen sich anonym einreichen (Mitglieder-Code reicht, kein Name wird gespeichert)."],
   ["2.11", "1. Okt. 2026", "Aus „Tickets“ werden überall „Ideen“."],
   ["2.10", "1. Okt. 2026", "Themen klarer getrennt: Mitglieder (Angebote & Austausch), Partner & Öffentlichkeit (nach außen) und neu Verein & Struktur (Satzung, Wahlen, Beiträge, Tools)."],
   ["2.9", "1. Okt. 2026", "Neue Ideen direkt anlegen, bearbeiten und löschen (ersetzt „Idee vorschlagen“). Alle Ideen hochvoten, eine Stimme pro Person. Kontakt-Icons springen nicht mehr."],
@@ -529,14 +533,21 @@ function ownerNames(o){
 // Name + Mitglieder-Code einmalig abfragen
 var whoCb = null;
 function fullName(n){ return String(n||'').trim().split(/\s+/).length >= 2; }
-function whoami(cb){
-  if (fullName(ME.name) && ME.code) return cb();
-  whoCb = cb;
-  document.getElementById('w-name').value = ME.name || '';
+var whoCodeOnly = false;
+function whoami(cb, codeOnly){
+  if (ME.code && (codeOnly || fullName(ME.name))) return cb();
+  whoCb = cb; whoCodeOnly = !!codeOnly;
+  var wn = document.getElementById('w-name');
+  wn.hidden = whoCodeOnly; wn.required = !whoCodeOnly;
+  document.getElementById('w-txt').textContent = whoCodeOnly
+    ? 'Für anonyme Ideen reicht der Mitglieder-Code (aus der WhatsApp-Gruppe). Dein Name wird nicht abgefragt.'
+    : 'Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.';
+  wn.value = ME.name || '';
   document.getElementById('w-code').value = ME.code || '';
   var wm = document.getElementById('w-msg');
-  wm.className = 'msg' + (ME.name ? ' err' : '');
-  wm.textContent = ME.name ? 'Bitte ergänze deinen Nachnamen.' : '';
+  var needLast = ME.name && !whoCodeOnly;
+  wm.className = 'msg' + (needLast ? ' err' : '');
+  wm.textContent = needLast ? 'Bitte ergänze deinen Nachnamen.' : '';
   document.getElementById('who').showModal();
 }
 
@@ -801,6 +812,7 @@ function openForm(t){
   f.reset();
   document.getElementById('s-head').textContent = t ? '✏️ Idee bearbeiten' : '💡 Neue Idee';
   document.getElementById('s-del').hidden = !t;
+  document.getElementById('s-anon-row').hidden = !!t;
   document.getElementById('s-msg').textContent = '';
   document.getElementById('s-emoji').value = t ? t.e : '💡';
   document.getElementById('s-title').value = t ? t.n : '';
@@ -838,8 +850,9 @@ function initStore(){
       p_x: document.getElementById('s-x').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean).join('\n'),
       p_tags: Array.prototype.map.call(f.querySelectorAll('[name=s-t]:checked'), function(c){ return c.value; })
     };
+    var anon = !editing && document.getElementById('s-anon').checked;
     whoami(function(){
-      args.p_name = ME.name;
+      args.p_name = anon ? 'Anonym' : ME.name;
       m.className = 'msg'; m.textContent = 'Speichere …';
       var isEdit = !!editing;
       if (isEdit) args.p_id = editing.online.id;
@@ -850,7 +863,7 @@ function initStore(){
         m.textContent = '';
         return load().then(function(){ openTicket(id); });
       }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
-    });
+    }, anon);
   });
   document.getElementById('s-del').addEventListener('click', function(){
     if (!editing || !confirm('Idee „'+editing.n+'“ wirklich löschen?')) return;
@@ -900,9 +913,10 @@ function initStore(){
   document.getElementById('wform').addEventListener('submit', function(e){
     e.preventDefault();
     var n = document.getElementById('w-name').value.trim(), c = document.getElementById('w-code').value.trim(), m = document.getElementById('w-msg');
-    if (n.split(/\s+/).length < 2) { m.className = 'msg err'; m.textContent = 'Bitte Vor- und Nachnamen eingeben.'; return; }
+    if (!whoCodeOnly && n.split(/\s+/).length < 2) { m.className = 'msg err'; m.textContent = 'Bitte Vor- und Nachnamen eingeben.'; return; }
     m.className = 'msg'; m.textContent = 'Prüfe …';
     sbFetch('rpc/verify_code', {method:'POST', body:JSON.stringify({p_code:c})}).then(function(){
+      if (whoCodeOnly) { ME.code = c; saveMe(); document.getElementById('who').close(); var cb0 = whoCb; whoCb = null; load().then(function(){ if (cb0) cb0(); }); return; }
       // Token behalten; alten Namen merken, damit Kontaktdaten beim nächsten Speichern umziehen
       var old = ME.name && norm(ME.name) !== norm(n) ? ME.name : ME.oldName;
       ME = {name:n, code:c, token:ME.token, oldName:old}; saveMe();
