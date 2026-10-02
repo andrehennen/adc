@@ -76,7 +76,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
 - Hilfe-Button „?“ im Header öffnet das Modal `#help` mit den wichtigsten Funktionen. **Bei neuen Funktionen dort mitpflegen.**
 - Installations-Hinweis (Modal `#install`): nur beim ersten Besuch, je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
-- Bewegung (seit 2.14): Easing-Variablen `--ease` (iOS-Feder) und `--ease-out`. Akkordeon animiert über `.cbody` (grid-rows 0fr→1fr) > `.cin` > `.cpad` – Inhalt immer in `.cpad`. Tasten skalieren beim Drücken auf .95, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab.
+- Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (CDN jsDelivr, `lenis@1.3.26`; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
 - `[hidden]` ist global `display:none!important`, weil `.btn` sonst `hidden` überschreibt.
 - „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit.
 

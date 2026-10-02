@@ -44,6 +44,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html.lenis,html.lenis body{height:auto;scroll-behavior:auto}
+.lenis [data-lenis-prevent]{overscroll-behavior:contain}
 button,a,.chip,.opt{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -136,11 +138,10 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .cmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding-left:28px;font-size:13px;color:var(--ink-2)}
 .owner-open{color:var(--open);font-weight:600}
 
-.cbody{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .42s var(--ease),visibility 0s .42s}
-.card.open .cbody{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .42s var(--ease),visibility 0s}
-.cbody>.cin{min-height:0;overflow:hidden;padding:0 14px 0 42px}
-.cin>.cpad{padding-bottom:16px;opacity:0;transform:translateY(-6px);transition:opacity .2s var(--ease-out),transform .3s var(--ease)}
-.card.open .cin>.cpad{opacity:1;transform:none;transition:opacity .35s var(--ease-out) .06s,transform .45s var(--ease) .04s}
+.cbody{display:none;overflow:hidden}
+.card.open .cbody{display:block}
+.cbody>.cin{padding:0 14px 0 42px}
+.cin>.cpad{padding-bottom:16px}
 .sec{margin-top:14px}
 .sec:first-child{margin-top:4px}
 .lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
@@ -269,11 +270,9 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 dialog[open]{animation:pop .38s var(--ease)}
 dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 .panel:not([hidden]){animation:drop .4s var(--ease)}
-.cards.swap{animation:fadeup .35s var(--ease)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after,*::backdrop{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -291,7 +290,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </header>
 
-<dialog class="who help" id="help" aria-labelledby="help-h">
+<dialog data-lenis-prevent class="who help" id="help" aria-labelledby="help-h">
   <h2 id="help-h" tabindex="-1" autofocus style="outline:none">So funktioniert das Dashboard</h2>
   <ul class="hl">
     <li><span class="ic">👀</span><span><b>Lesen kann jede:r mit dem Link.</b> Bitte verschick ihn nicht leichtfertig.</span></li>
@@ -364,7 +363,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </section>
 
-<dialog class="who" id="install" aria-labelledby="inst-h">
+<dialog data-lenis-prevent class="who" id="install" aria-labelledby="inst-h">
   <h2 id="inst-h">📲 Dashboard immer griffbereit</h2>
   <p id="inst-txt"></p>
   <div class="form-row" style="margin-top:12px">
@@ -374,7 +373,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </dialog>
 
-<dialog class="who" id="who">
+<dialog data-lenis-prevent class="who" id="who">
   <form class="form" id="wform" method="dialog">
     <h2>Wer bist du?</h2>
     <p id="w-txt">Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.</p>
@@ -429,6 +428,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>
 var D = [
   {s:"hh",sektion:"Hamburg",e:"🎟️",n:"Promotioncodes: 10 % auf Hamburger Museen für Mitglieder",v:2,t:["members"],f:"easy",status:"idea",x:"Anfragen an 3–5 Hamburger Museen vorbereiten; Vorschlag ins nächste Sektionstreffen.",orig:"Promocodes für Mitglieder. 10% auf alle Museen in HH etc"},
@@ -469,6 +469,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.15", "2. Okt. 2026", "Ideen klappen ruhiger auf, die Seite rollt beim Scrollen weich aus, Filter sortieren die Ideen mit fließender Bewegung um."],
   ["2.14", "2. Okt. 2026", "Weicher und natürlicher: Ideen gleiten auf und zu, Tasten geben beim Tippen nach, Fenster und Filter blenden sanft ein, Header mit Milchglas."],
   ["2.13", "1. Okt. 2026", "Hilfe-Button (?) im Header erklärt kurz, was man wie machen kann, und wer was sehen darf."],
   ["2.12", "1. Okt. 2026", "Ideen lassen sich anonym einreichen (Mitglieder-Code reicht, kein Name wird gespeichert)."],
@@ -623,6 +624,73 @@ fetch('https://api.github.com/repos/andrehennen/adc/commits?per_page=1')
     document.getElementById('last-update').textContent = 'Letztes Update: ' + d.toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
   }).catch(function(){});
 
+// --- Bewegung ----------------------------------------------------------------
+var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+var EASE = 'cubic-bezier(.32,.72,0,1)';          // iOS-Feder
+var EASE_IO = 'cubic-bezier(.45,.05,.2,1)';      // weich an und aus
+var lenis = null;
+if (!REDUCED && window.Lenis) {
+  lenis = new Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.9, smoothWheel: true, allowNestedScroll: true });
+  // Während ein Dialog offen ist, scrollt die Seite dahinter nicht
+  var sm = HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.showModal = function(){ lenis.stop(); this.addEventListener('close', function(){ lenis.start(); }, {once:true}); return sm.apply(this, arguments); };
+}
+function headerH(){ return document.querySelector('header').offsetHeight; }
+function scrollToEl(el){
+  if (lenis) lenis.scrollTo(el, {offset: -(headerH() + 12), duration: 1.1});
+  else el.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'start'});
+}
+function scrollByY(dy){
+  if (lenis) lenis.scrollTo(window.scrollY + dy, {duration: 0.9});
+  else window.scrollBy({top: dy, behavior: REDUCED ? 'auto' : 'smooth'});
+}
+// Akkordeon: Höhe weich animieren
+function setOpen(el, o){
+  var b = el.querySelector('.cbody'), pad = b.querySelector('.cpad');
+  b.getAnimations().concat(pad.getAnimations()).forEach(function(a){ a.cancel(); });
+  if (REDUCED) { el.classList.toggle('open', o); return; }
+  if (o) {
+    el.classList.add('open');
+    var h = b.scrollHeight;
+    b.animate([{height:'0px'},{height:h+'px'}], {duration: Math.min(650, 380 + h * 0.25), easing: EASE_IO});
+    pad.animate([{opacity:0, transform:'translateY(-8px)'},{opacity:1, transform:'none'}], {duration: 480, delay: 90, easing: EASE, fill: 'backwards'});
+  } else {
+    var h2 = b.offsetHeight;
+    pad.animate([{opacity:1},{opacity:0}], {duration: 220, easing: 'ease-out', fill: 'forwards'});
+    var d = Math.min(520, 300 + h2 * 0.2), done = false;
+    var fin = function(){ if (done || openSet[el.id]) return; done = true; el.classList.remove('open'); b.getAnimations().concat(pad.getAnimations()).forEach(function(x){ x.cancel(); }); };
+    b.animate([{height:h2+'px'},{height:'0px'}], {duration: d, easing: EASE_IO, fill: 'forwards'}).onfinish = fin;
+    setTimeout(fin, d + 80);
+  }
+}
+// Filterwechsel: bleibende Karten gleiten an ihren neuen Platz, neue blenden ein, wegfallende blenden aus
+function flipRender(){
+  if (REDUCED) return render();
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var keep = {}; filtered().forEach(function(i){ keep[i.id] = 1; });
+  var leaving = cards.filter(function(c){ return !keep[c.id]; });
+  var first = {}; cards.forEach(function(c){ first[c.id] = c.getBoundingClientRect(); });
+  var go = function(){
+    render();
+    var k = 0;
+    document.querySelectorAll('.card, .group-title').forEach(function(c){
+      var f = c.id && first[c.id];
+      if (f) {
+        var l = c.getBoundingClientRect(), dx = f.left - l.left, dy = f.top - l.top;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) c.animate([{transform:'translate('+dx+'px,'+dy+'px)'},{transform:'none'}], {duration: 560, easing: EASE});
+      } else {
+        c.animate([{opacity:0, transform:'translateY(10px) scale(.98)'},{opacity:1, transform:'none'}], {duration: 460, delay: Math.min(k++, 12) * 22, easing: EASE, fill: 'backwards'});
+      }
+    });
+  };
+  if (!leaving.length) return go();
+  var anims = leaving.map(function(c){ return c.animate([{opacity:1, transform:'none'},{opacity:0, transform:'scale(.97)'}], {duration: 170, easing: 'ease-in', fill: 'forwards'}); });
+  document.querySelectorAll('.group-title').forEach(function(t){ t.animate([{opacity:1},{opacity:0}], {duration: 170, fill: 'forwards'}); });
+  var ran = false, once = function(){ if (!ran) { ran = true; go(); } };
+  anims[0].onfinish = once;
+  setTimeout(once, 240);
+}
+
 function all(){ return D.concat(ONLINE); }
 function votes(i){ return (i.v || 0) + (VOTES[i.id] || []).length; }
 function filtered(){
@@ -693,9 +761,9 @@ function mkcard(i){
     + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
-  if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag">'+esc(i.antrag)+'</div></div>';
+  if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag" data-lenis-prevent>'+esc(i.antrag)+'</div></div>';
   if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
-  if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote">'+linkify(esc(i.orig))+'</div></div>';
+  if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent>'+linkify(esc(i.orig))+'</div></div>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
     + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
@@ -714,11 +782,11 @@ function mkcard(i){
     + '<div class="cbody"><div class="cin"><div class="cpad">'+body+'</div></div></div>';
 
   el.querySelector('.chead').addEventListener('click', function(){
-    var o = !el.classList.contains('open');
+    var o = !openSet[i.id];
     // Beim Zuklappen einer langen Karte den Kopf im Blick behalten, statt den Inhalt wegspringen zu lassen
-    var top = el.getBoundingClientRect().top, bar = document.querySelector('header').offsetHeight + 8;
-    if (!o && top < bar) window.scrollBy({top: top - bar - 4, behavior: 'smooth'});
-    el.classList.toggle('open', o);
+    var top = el.getBoundingClientRect().top, bar = headerH() + 8;
+    if (!o && top < bar) scrollByY(top - bar - 4);
+    setOpen(el, o);
     this.setAttribute('aria-expanded', o ? 'true' : 'false');
     if (o) openSet[i.id] = 1; else delete openSet[i.id];
     syncToggle();
@@ -841,8 +909,7 @@ document.getElementById('frow').addEventListener('click', function(e){
   if (!b) return;
   active = b.dataset.t;
   document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); });
-  render();
-  document.querySelectorAll('.cards').forEach(function(c){ c.classList.add('swap'); });
+  flipRender();
 });
 
 function openFromHash(){
@@ -856,7 +923,7 @@ function openTicket(id){
   openSet[id] = 1;
   render();
   var el = document.getElementById(id);
-  if (el) setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+  if (el) setTimeout(function(){ scrollToEl(el); }, 50);
   // Anker wieder aus der URL nehmen, sonst startet das Ticket bei Reload, Lesezeichen oder Homescreen-App immer aufgeklappt
   if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
 }
@@ -888,7 +955,7 @@ function openForm(t){
   f.querySelector('[name=s-sek][value="'+(t && t.sektion || '')+'"]').checked = true;
   Array.prototype.forEach.call(f.querySelectorAll('[name=s-t]'), function(c){ c.checked = !!t && t.t.indexOf(c.value) >= 0; });
   p.hidden = false;
-  p.scrollIntoView({behavior:'smooth', block:'start'});
+  scrollToEl(p);
   document.getElementById('s-title').focus({preventScroll:true});
 }
 
