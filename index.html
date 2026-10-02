@@ -38,17 +38,20 @@
   --violet-bg:#eeebfb;
   --gray-bg:#efefed;
   --radius:12px;
+  --ease:cubic-bezier(.32,.72,0,1);   /* iOS-artige Feder: schnell los, weich aus */
+  --ease-out:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+button,a,.chip,.opt{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 button{font-family:inherit}
 .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
 
 /* Header */
-header{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:50}
+header{border-bottom:1px solid var(--line);background:rgba(255,255,255,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);position:sticky;top:0;z-index:50}
 .hbar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
 .brand{display:flex;align-items:center;gap:14px;text-decoration:none;min-width:0}
 .hright{display:flex;align-items:center;gap:8px}
@@ -104,9 +107,10 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .cards{display:flex;flex-direction:column;gap:8px}
 
 /* Card */
-.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s;scroll-margin-top:120px}
-.card:hover{border-color:var(--line-strong);box-shadow:0 4px 18px rgba(0,0,0,.06)}
-.card.open{border-color:var(--ink);box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .3s var(--ease-out),box-shadow .4s var(--ease-out),transform .35s var(--ease);scroll-margin-top:120px}
+@media(hover:hover){.card:hover{border-color:var(--line-strong);box-shadow:0 6px 22px rgba(0,0,0,.07)}}
+.card:has(.chead:active){transform:scale(.988)}
+.card.open{border-color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.09)}
 .card.prio{border-color:var(--ink);border-width:1.5px}
 .chead{display:block;width:100%;text-align:left;background:none;border:none;padding:12px 14px;cursor:pointer;color:inherit;border-radius:var(--radius)}
 .chead:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
@@ -126,14 +130,17 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .ctitle{display:flex;gap:10px;align-items:flex-start}
 .cemoji{font-size:18px;line-height:1.3;flex-shrink:0}
 .cname{font-size:16px;font-weight:700;line-height:1.35;letter-spacing:-.01em;flex:1}
-.chev{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .15s;margin-top:-2px}
+.chev{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;transition:transform .45s var(--ease),background .25s var(--ease-out),color .25s;margin-top:-2px}
 .chev svg{width:13px;height:13px}
 .card.open .chev{transform:rotate(180deg);background:var(--ink);color:#fff}
 .cmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding-left:28px;font-size:13px;color:var(--ink-2)}
 .owner-open{color:var(--open);font-weight:600}
 
-.cbody{display:none;padding:0 14px 16px 42px}
-.card.open .cbody{display:block}
+.cbody{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .42s var(--ease),visibility 0s .42s}
+.card.open .cbody{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .42s var(--ease),visibility 0s}
+.cbody>.cin{min-height:0;overflow:hidden;padding:0 14px 0 42px}
+.cin>.cpad{padding-bottom:16px;opacity:0;transform:translateY(-6px);transition:opacity .2s var(--ease-out),transform .3s var(--ease)}
+.card.open .cin>.cpad{opacity:1;transform:none;transition:opacity .35s var(--ease-out) .06s,transform .45s var(--ease) .04s}
 .sec{margin-top:14px}
 .sec:first-child{margin-top:4px}
 .lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
@@ -248,12 +255,26 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .col-title{font-size:20px}
   .chead{padding:12px}
   .cmeta{padding-left:0}
-  .cbody{padding:0 12px 14px}
+  .cbody>.cin{padding:0 12px}
+  .cin>.cpad{padding-bottom:14px}
   .cname{font-size:16px}
   .card{scroll-margin-top:68px}
   .cform{flex-direction:column;align-items:stretch}
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.btn,.fb,.minibtn,.vote,.help-btn,.copy,.opt span,.chip{transition:background .2s var(--ease-out),color .2s,border-color .2s,transform .25s var(--ease)}
+.btn:active,.fb:active,.minibtn:active,.vote:active,.help-btn:active,.copy:active,.opt:active span{transform:scale(.95)}
+.vote.bump{animation:bump .45s var(--ease)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+/* Modals und Panels: weich einblenden */
+dialog[open]{animation:pop .38s var(--ease)}
+dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
+.panel:not([hidden]){animation:drop .4s var(--ease)}
+.cards.swap{animation:fadeup .35s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after,*::backdrop{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -448,6 +469,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.14", "2. Okt. 2026", "Weicher und natürlicher: Ideen gleiten auf und zu, Tasten geben beim Tippen nach, Fenster und Filter blenden sanft ein, Header mit Milchglas."],
   ["2.13", "1. Okt. 2026", "Hilfe-Button (?) im Header erklärt kurz, was man wie machen kann, und wer was sehen darf."],
   ["2.12", "1. Okt. 2026", "Ideen lassen sich anonym einreichen (Mitglieder-Code reicht, kein Name wird gespeichert)."],
   ["2.11", "1. Okt. 2026", "Aus „Tickets“ werden überall „Ideen“."],
@@ -494,7 +516,7 @@ D.forEach(function(i){ i.id = i.id || slug(i.n); });
 
 // --- Speicher ---
 var SB_ON = false; // erst an, wenn der Speicher erreichbar ist
-var HELP = {}, COMM = {}, STEPS = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
+var bumpId = null, HELP = {}, COMM = {}, STEPS = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
 var ME = {};
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -533,7 +555,7 @@ function load(){
     STEPS = {}; r[3].forEach(function(e){ if (!STEPS[e.ticket]) STEPS[e.ticket] = e; });
     CONTACTS = r[4];
     if (!SB_ON) { SB_ON = true; initStore(); }
-    render(); renderSugg();
+    render(); renderSugg(); bumpId = null;
     if (pendingOpen) { var po = pendingOpen; pendingOpen = null; openTicket(po); }
     return true;
   }).catch(function(e){ console.warn('Speicher nicht erreichbar', e); return false; });
@@ -640,7 +662,7 @@ function mkcard(i){
   var vl = VOTES[i.id] || [], myVote = vl.some(function(x){ return norm(x.name) === norm(ME.name); }), vn = votes(i);
   var vtitle = (i.v ? i.v+' aus der Sli.do-Sammlung' : '') + (i.v && vl.length ? ' + ' : '') + (vl.length ? vl.length+' online' : '') || 'Noch keine Stimmen';
   var vote = SB_ON
-    ? '<button class="vote'+(myVote ? ' on' : '')+'" data-vote="1" title="'+esc(vtitle)+(myVote ? ' · Klick nimmt deine Stimme zurück' : ' · Hochvoten')+'" aria-pressed="'+myVote+'">▲ '+vn+'</button>'
+    ? '<button class="vote'+(myVote ? ' on' : '')+(bumpId === i.id && myVote ? ' bump' : '')+'" data-vote="1" title="'+esc(vtitle)+(myVote ? ' · Klick nimmt deine Stimme zurück' : ' · Hochvoten')+'" aria-pressed="'+myVote+'">▲ '+vn+'</button>'
     : (vn ? '<span class="vote" title="'+esc(vtitle)+'">▲ '+vn+'</span>' : '');
   var hl = HELP[i.id] || [], cl = COMM[i.id] || [];
   var owner = i.owner ? '<span>👤 '+esc(i.owner)+'</span>' : (hl.length ? '' : '<span class="owner-open">👤 Noch offen</span>');
@@ -689,10 +711,13 @@ function mkcard(i){
       + '<div class="cmeta">'+owner+sek+'</div>'
     + '</button>'
     + vote
-    + '<div class="cbody">'+body+'</div>';
+    + '<div class="cbody"><div class="cin"><div class="cpad">'+body+'</div></div></div>';
 
   el.querySelector('.chead').addEventListener('click', function(){
     var o = !el.classList.contains('open');
+    // Beim Zuklappen einer langen Karte den Kopf im Blick behalten, statt den Inhalt wegspringen zu lassen
+    var top = el.getBoundingClientRect().top, bar = document.querySelector('header').offsetHeight + 8;
+    if (!o && top < bar) window.scrollBy({top: top - bar - 4, behavior: 'smooth'});
     el.classList.toggle('open', o);
     this.setAttribute('aria-expanded', o ? 'true' : 'false');
     if (o) openSet[i.id] = 1; else delete openSet[i.id];
@@ -713,7 +738,7 @@ function mkcard(i){
   });
   var vb = el.querySelector('[data-vote]');
   if (vb) vb.addEventListener('click', function(){
-    whoami(function(){ vb.disabled = true; api('toggle_vote', {p_ticket:i.id, p_name:ME.name}).then(load, function(err){ vb.disabled = false; alertErr(err); }); });
+    whoami(function(){ vb.disabled = true; bumpId = i.id; api('toggle_vote', {p_ticket:i.id, p_name:ME.name}).then(load, function(err){ vb.disabled = false; alertErr(err); }); });
   });
   var te = el.querySelector('[data-tedit]');
   if (te) te.addEventListener('click', function(){ openForm(i); });
@@ -817,6 +842,7 @@ document.getElementById('frow').addEventListener('click', function(e){
   active = b.dataset.t;
   document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); });
   render();
+  document.querySelectorAll('.cards').forEach(function(c){ c.classList.add('swap'); });
 });
 
 function openFromHash(){
