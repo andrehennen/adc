@@ -577,7 +577,7 @@ function load(){
     sbFetch('votes?select=ticket,name').catch(function(){ return []; })
   ]).then(function(r){
     HELP = group(r[0]); COMM = group(r[1].filter(function(c){ return !c.deleted; })); VOTES = group(r[5]);
-    ONLINE = r[2].map(function(t){
+    ONLINE = r[2].filter(function(t){ return !t.deleted; }).map(function(t){
       return {s:t.s, sektion:t.sektion, e:t.emoji || '💡', n:t.title, v:null, t:t.tags || [], status:'idea', x:t.x || '', body:t.body, id:'neu-'+t.id, online:t};
     });
     STEPS = {}; r[3].forEach(function(e){ if (!STEPS[e.ticket]) STEPS[e.ticket] = e; });
