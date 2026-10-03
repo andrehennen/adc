@@ -27,7 +27,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 ## Speicher (Supabase)
 
 - Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben im Script bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
-- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`) und `supabase/003_tickets_votes.sql` (`tickets`, `votes`). Die Tabelle `suggestions` ist abgelöst (Inhalte wurden zu Tickets). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
+- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`) und `supabase/003_tickets_votes.sql` (`tickets`, `votes`), `004_tag_verein.sql` und `005_haertung.sql` (Längen-/Formatgrenzen). Die Tabelle `suggestions` ist abgelöst (Inhalte wurden zu Tickets). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`, dazu `token` für die eigenen Kontaktdaten).
 - **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Beim Hovern bzw. Antippen eines Namens erscheinen ✉️/💬-Icons direkt im Namens-Chip. Zuordnung über den vollen Namen, akzent- und großschreibungsunabhängig (André = Andre), sonst über einen eindeutigen Vornamen. Der Login-Dialog verlangt Vor- und Nachnamen.
 - **Nächste Schritte online** (`step_edits`): Die neueste Bearbeitung gilt nur, solange `base` gleich dem `x` im Code ist. **Bevor Claude `x` im Code ändert, die neueste Bearbeitung lesen** (öffentlich: `GET /rest/v1/step_edits?ticket=eq.<id>&order=created_at.desc&limit=1` mit Publishable Key von `/api/config`) und in den neuen Text übernehmen, sonst geht sie verloren.
@@ -37,6 +37,16 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - **Upvotes** (`votes`): eine Stimme pro Person (Name) und Ticket, per `toggle_vote` an/aus. Angezeigt wird `v` (Sli.do) + Online-Stimmen; danach wird auch sortiert.
 - Moderation (Spam, falsche Einträge löschen) im Supabase Table Editor.
 - Mitmachende ohne Code-Owner: Die Karte zeigt dann nicht mehr „Noch offen“, und das Ticket sortiert wie eines mit Owner.
+
+## Sicherheit & Zuverlässigkeit (QA vom 3.10.2026)
+
+- **Alles, was aus der Datenbank kommt, mit `esc()` ausgeben** (auch Emoji, Namen, Sektion). Links nur über `linkify(esc(...))`.
+- `vercel.json` setzt Schutz-Header inkl. Content-Security-Policy und `noindex`. **Neue externe Quellen (Scripts, Fonts, APIs) müssen dort in die CSP**, sonst blockt der Browser sie. Scripts möglichst lokal ablegen (`vendor/`), nicht vom CDN.
+- `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich (nötig für den PDF-Link), also hier nichts Vertrauliches notieren.
+- `render()` behält ungespeicherte Kommentar-Entwürfe und offene „Nächste Schritte“-Bearbeitungen (`keepDrafts`). Nach erfolgreichem Speichern das Feld leeren bzw. das Formular entfernen, **bevor** `load()` läuft.
+- Kein Auto-Reload, solange etwas Ungespeichertes offen ist (`unsaved()`).
+- Speichern-Buttons während des Requests deaktivieren (Doppelklick).
+- Bekannte Grenzen (bewusst akzeptiert): Wer den Code hat, kann unter jedem Namen schreiben/voten und fremde Einträge ändern. Kein Rate-Limit auf Code-Versuche (deshalb langen Code wählen). Der WhatsApp-Einladungslink steht auf der öffentlichen Seite.
 
 ## Datenmodell (in `index.html`, `var D = [...]`)
 
@@ -76,7 +86,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
 - Hilfe-Button „?“ im Header öffnet das Modal `#help` mit den wichtigsten Funktionen. **Bei neuen Funktionen dort mitpflegen.**
 - Installations-Hinweis (Modal `#install`): nur beim ersten Besuch, je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
-- Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (CDN jsDelivr, `lenis@1.3.26`; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
+- Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (lokal in `vendor/lenis.min.js`, Version 1.3.26, MIT; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
 - `[hidden]` ist global `display:none!important`, weil `.btn` sonst `hidden` überschreibt.
 - „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit.
 
