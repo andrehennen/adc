@@ -42,11 +42,11 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 - **Alles, was aus der Datenbank kommt, mit `esc()` ausgeben** (auch Emoji, Namen, Sektion). Links nur über `linkify(esc(...))`.
 - `vercel.json` setzt Schutz-Header inkl. Content-Security-Policy und `noindex`. **Neue externe Quellen (Scripts, Fonts, APIs) müssen dort in die CSP**, sonst blockt der Browser sie. Scripts möglichst lokal ablegen (`vendor/`), nicht vom CDN.
-- `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich (nötig für den PDF-Link), also hier nichts Vertrauliches notieren.
+- `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich (nötig für den PDF-Link): **nichts Vertrauliches in diese Datei oder ins Repo schreiben** (interne Einschätzungen, offene Entscheidungen), das gehört in Claudes privaten Projektspeicher.
 - `render()` behält ungespeicherte Kommentar-Entwürfe und offene „Nächste Schritte“-Bearbeitungen (`keepDrafts`). Nach erfolgreichem Speichern das Feld leeren bzw. das Formular entfernen, **bevor** `load()` läuft.
 - Kein Auto-Reload, solange etwas Ungespeichertes offen ist (`unsaved()`).
 - Speichern-Buttons während des Requests deaktivieren (Doppelklick).
-- Bekannte Grenzen (bewusst akzeptiert): Wer den Code hat, kann unter jedem Namen schreiben/voten und fremde Einträge ändern. Kein Rate-Limit auf Code-Versuche (deshalb langen Code wählen). Der WhatsApp-Einladungslink steht auf der öffentlichen Seite.
+- Der Zugang ist bewusst einfach gehalten (ein gemeinsamer Code, kein Login). Einfachheit geht vor.
 
 ## Datenmodell (in `index.html`, `var D = [...]`)
 
@@ -80,7 +80,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 
 ## Design (seit Okt. 2026)
 
-- Hell, orientiert an adc.de: weißer Hintergrund, schwarze Typo, Inter, große fette Headlines, ADC-Logo schwarz (als base64 eingebettet).
+- Hell, orientiert an adc.de: weißer Hintergrund, schwarze Typo, Inter (lokal in `fonts/`, nicht von Google), große fette Headlines, ADC-Logo schwarz (als base64 eingebettet).
 - Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
@@ -88,7 +88,9 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Installations-Hinweis (Modal `#install`): nur beim ersten Besuch, je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
 - Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (lokal in `vendor/lenis.min.js`, Version 1.3.26, MIT; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
 - `[hidden]` ist global `display:none!important`, weil `.btn` sonst `hidden` überschreibt.
-- „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit.
+- „Letztes Update“ kommt automatisch aus dem letzten GitHub-Commit, über `/api/updated` (serverseitig, damit Besucher:innen nicht direkt mit GitHub verbunden werden).
+- Externe Verbindungen der Seite: nur Supabase. Schrift, Scripts und GitHub-Abfrage laufen über die eigene Domain. So lassen.
+- `/api/keepalive` wird täglich per Vercel Cron aufgerufen (`vercel.json`) und hält das Supabase-Projekt im Gratis-Tarif aktiv.
 
 Feste Links:
 - 🧭 ADC Kompass: https://adc-compass.vercel.app/
@@ -119,13 +121,3 @@ Feste Links:
   - Kopfzeile „ADC“ / „JHV-Anträge · Entwurfsfassung“, Seitenzahlen
   - keine Emojis (sie werden im PDF als Kästchen gerendert)
 - Das alte Build-Skript ist nicht im Repo. Beim nächsten Neubau ein Skript `tools/build_pdf.py` anlegen, das die Anträge aus `index.html` liest, und es mit einchecken.
-
-### Offene Punkte (Stand 1.10.2026)
-
-Das Präsidium hat mit Anwalt einen Gegenvorschlag zu den Satzungsänderungen geschickt (`20260914_Satzungsaenderungen.docx`).
-
-- **Wahlen:** Die Präsidiumsfassung (§ 7.2, allgemein für virtuell/hybrid/online) ist die bessere. Empfohlen wird, in § 7.2 zu ergänzen: „Bei Wahlen ist sicherzustellen, dass die Stimmabgabe geheim, nachvollziehbar und dokumentierbar erfolgt.“
-- **Abstimmungen:** „Einwandverfahren“ statt „Konsent“. Die bisherige Fassung enthält noch den widersprüchlichen Satz zu Enthaltungen. André hat noch nicht entschieden zwischen:
-  - a) die Ermessensfassung des Präsidiums übernehmen
-  - b) eine verbindliche Regel ohne den Enthaltungssatz
-  - c) eine verbindliche Regel mit Mindestzustimmung (z. B. ≥ 25 % der Anwesenden)
