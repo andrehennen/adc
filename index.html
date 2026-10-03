@@ -200,6 +200,16 @@ footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color
 .clist{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
 .cm{background:var(--soft);border-radius:8px;padding:7px 10px;font-size:14px;color:var(--ink-2)}
 .cm p{white-space:pre-wrap;margin-top:1px;color:var(--ink)}
+.cm .by{display:flex;align-items:center;gap:4px}
+.cdel{margin-left:auto;background:none;border:none;cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:6px;opacity:.45;transition:opacity .2s}
+.cdel:hover,.cdel:focus-visible{opacity:1}
+.trash-list{list-style:none;text-align:left;max-width:640px;margin:12px auto 16px;display:flex;flex-direction:column;gap:8px}
+.trash-list li{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2);line-height:1.45}
+.trash-list b{color:var(--ink)}
+.trash-list p{white-space:pre-wrap;color:var(--ink);margin:2px 0 6px}
+.foot-row{display:flex;gap:6px 18px;justify-content:center;flex-wrap:wrap}
+.foot-row details{flex:0 1 auto}
+.foot-row details[open]{flex-basis:100%}
 .cform{display:flex;gap:6px;align-items:flex-end}
 .cform textarea{flex:1;font:inherit;font-size:14px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 9px;min-height:36px;resize:vertical}
 dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;max-width:380px;width:calc(100% - 32px);margin:auto}
@@ -306,6 +316,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <li><span class="ic">▲</span><span><b>Hochvoten</b>: eine Stimme pro Person, nochmal tippen nimmt sie zurück.</span></li>
     <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen</b>: Dein Name erscheint an der Idee.</span></li>
     <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten und <b>Notizen</b> schreiben.</span></li>
+    <li><span class="ic">🗑️</span><span><b>Löschen</b>: Ideen und Kommentare landen 30 Tage im Papierkorb unten auf der Seite und lassen sich dort wiederherstellen.</span></li>
     <li><span class="ic">📱</span><span><b>Mein Kontakt</b>: Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
   </ul>
   <h3>Orientierung</h3>
@@ -428,7 +439,10 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 
 <footer>
   <div class="wrap">
-    <details class="changelog" id="changelog"><summary id="cl-sum">Changelog</summary><ol id="cl-list"></ol></details>
+    <div class="foot-row">
+      <details class="changelog" id="changelog"><summary id="cl-sum">Changelog</summary><ol id="cl-list"></ol></details>
+      <details class="changelog" id="trash" hidden><summary>🗑️ Papierkorb</summary><ul class="trash-list" id="trash-list"></ul></details>
+    </div>
     <div class="legal">Entwickelt von André Hennen, <a href="https://curiouscompany.de" target="_blank" rel="noopener">Curious Company</a></div>
     <div class="legal" style="margin-top:4px"><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></div>
   </div>
@@ -475,6 +489,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.18", "3. Okt. 2026", "Ideen und Kommentare löschen. Gelöschtes bleibt 30 Tage im Papierkorb unten auf der Seite und lässt sich wiederherstellen."],
   ["2.17", "3. Okt. 2026", "Impressum und Datenschutz ergänzt. Schrift liegt jetzt lokal, die Seite lädt nichts mehr von Google oder GitHub."],
   ["2.16", "3. Okt. 2026", "Sicherheit und Zuverlässigkeit: Entwürfe gehen beim Aktualisieren nicht mehr verloren, kein Doppelspeichern, Seite nicht mehr bei Google auffindbar, zusätzliche Schutz-Header."],
   ["2.15", "2. Okt. 2026", "Ideen klappen ruhiger auf, die Seite rollt beim Scrollen weich aus, Filter sortieren die Ideen mit fließender Bewegung um."],
@@ -553,7 +568,7 @@ function load(){
   if (!SB_URL || !SB_KEY) return Promise.resolve(false);
   return Promise.all([
     sbFetch('helpers?select=ticket,name,created_at&order=created_at'),
-    sbFetch('comments?select=ticket,name,body,created_at&order=created_at'),
+    sbFetch('comments?select=id,ticket,name,body,created_at&order=created_at'),
     sbFetch('tickets?select=*&order=created_at').catch(function(){ return []; }),
     sbFetch('step_edits?select=ticket,body,base,name,created_at&order=created_at.desc').catch(function(){ return []; }),
     ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null),
@@ -775,11 +790,11 @@ function mkcard(i){
   if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
   if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent>'+linkify(esc(i.orig))+'</div></div>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
-    + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
+    + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+(c.id ? '<button class="cdel" data-cdel="'+(+c.id)+'" title="Kommentar löschen" aria-label="Kommentar löschen">🗑️</button>' : '')+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
   if (i.online) body += '<div class="sec edited">Angelegt von '+esc(i.online.created_by)+' · '+fmtDate(i.online.created_at)
     + (i.online.updated_by ? ' · zuletzt bearbeitet von '+esc(i.online.updated_by)+' · '+fmtDate(i.online.updated_at) : '')
-    + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Idee bearbeiten</button>' : '') + '</div>';
+    + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Idee bearbeiten</button> · <button class="linkbtn" data-tdel="1">🗑️ Löschen</button>' : '') + '</div>';
   body += '<button class="permalink" data-link="1">🔗 Link zu dieser Idee kopieren</button>';
 
   el.innerHTML =
@@ -839,6 +854,17 @@ function mkcard(i){
         api('set_next_steps', {p_ticket:i.id, p_name:ME.name, p_body:v, p_base:i.x}).then(function(){ sec.innerHTML = ''; return load(); }, function(err){ sb2.disabled = false; alertErr(err); });
       });
     });
+  });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-cdel]'), function(b){
+    b.addEventListener('click', function(){
+      if (!confirm('Kommentar löschen? Er bleibt 30 Tage im Papierkorb (unten auf der Seite) und lässt sich dort wiederherstellen.')) return;
+      whoami(function(){ b.disabled = true; api('delete_comment', {p_name:ME.name, p_id:+b.dataset.cdel}).then(afterTrash, function(err){ b.disabled = false; alertErr(err); }); });
+    });
+  });
+  var td = el.querySelector('[data-tdel]');
+  if (td) td.addEventListener('click', function(){
+    if (!confirm('Idee „'+i.n+'“ löschen? Sie bleibt 30 Tage im Papierkorb (unten auf der Seite) und lässt sich dort wiederherstellen.')) return;
+    whoami(function(){ td.disabled = true; api('delete_ticket', {p_name:ME.name, p_id:i.online.id}).then(afterTrash, function(err){ td.disabled = false; alertErr(err); }); });
   });
   var cf = el.querySelector('[data-cform]');
   if (cf) cf.addEventListener('submit', function(e){
@@ -971,6 +997,36 @@ function renderSugg(){
   if (rb) rb.addEventListener('click', function(){ ME = {}; saveMe(); renderSugg(); render(); });
 }
 
+// Papierkorb: nur mit Mitglieder-Code lesbar, 30 Tage, wiederherstellbar
+function afterTrash(){ if (document.getElementById('trash').open) loadTrash(); return load(); }
+function loadTrash(){
+  var ul = document.getElementById('trash-list');
+  ul.innerHTML = '<li>Lade …</li>';
+  sbFetch('rpc/get_trash', {method:'POST', body:JSON.stringify({p_code:ME.code})}).then(function(t){
+    var names = {}; all().forEach(function(i){ names[i.id] = i.n; });
+    var rows = (t.tickets || []).map(function(x){ return {k:'ticket', id:x.id, at:x.deleted_at,
+        html:'<b>💡 Idee:</b> '+esc(x.emoji || '')+' '+esc(x.title)+(x.body ? '<p>'+esc(x.body)+'</p>' : '<br>')
+           + '<span class="by">Angelegt von '+esc(x.created_by)+' · gelöscht von '+esc(x.deleted_by || 'Unbekannt')+' am '+fmtDate(x.deleted_at)+'</span>'}; })
+      .concat((t.comments || []).map(function(x){ return {k:'comment', id:x.id, at:x.deleted_at,
+        html:'<b>💬 Kommentar</b> von '+esc(x.name)+' zu „'+esc(names[x.ticket] || x.ticket)+'“<p>'+esc(x.body)+'</p>'
+           + '<span class="by">Gelöscht von '+esc(x.deleted_by || 'Unbekannt')+' am '+fmtDate(x.deleted_at)+'</span>'}; }))
+      .sort(function(a,b){ return a.at < b.at ? 1 : -1; });
+    ul.innerHTML = rows.length ? rows.map(function(r){
+      return '<li>'+r.html+' · <button class="linkbtn" data-restore="'+r.k+':'+(+r.id)+'">↩︎ Wiederherstellen</button></li>';
+    }).join('') + '<li class="by" style="background:none;padding:0 2px">Gelöschtes wird nach 30 Tagen endgültig entfernt.</li>'
+      : '<li>Der Papierkorb ist leer. Gelöschte Ideen und Kommentare bleiben hier 30 Tage.</li>';
+    Array.prototype.forEach.call(ul.querySelectorAll('[data-restore]'), function(b){
+      b.addEventListener('click', function(){
+        var p = b.dataset.restore.split(':'); b.disabled = true;
+        api(p[0] === 'ticket' ? 'restore_ticket' : 'restore_comment', {p_id:+p[1]}).then(afterTrash, function(err){ b.disabled = false; alertErr(err); });
+      });
+    });
+  }, function(err){
+    if (/Mitglieder-Code/.test(err.message)) { delete ME.code; saveMe(); }
+    ul.innerHTML = '<li class="msg err">'+esc(err.message)+'</li>';
+  });
+}
+
 // Formular für neues bzw. bestehendes Online-Ticket öffnen
 var editing = null;
 function openForm(t){
@@ -994,6 +1050,14 @@ function openForm(t){
 }
 
 function initStore(){
+  var tr = document.getElementById('trash');
+  tr.hidden = false;
+  tr.addEventListener('toggle', function(){
+    if (!tr.open) return;
+    if (ME.code) return loadTrash();
+    tr.open = false;
+    whoami(function(){ tr.open = true; }, true);
+  });
   var sbtn = document.getElementById('suggest-btn');
   sbtn.removeAttribute('target'); sbtn.href = '#vorschlag';
   sbtn.addEventListener('click', function(e){
@@ -1035,11 +1099,11 @@ function initStore(){
     }, anon);
   });
   document.getElementById('s-del').addEventListener('click', function(){
-    if (!editing || !confirm('Idee „'+editing.n+'“ wirklich löschen?')) return;
+    if (!editing || !confirm('Idee „'+editing.n+'“ löschen? Sie bleibt 30 Tage im Papierkorb (unten auf der Seite) und lässt sich dort wiederherstellen.')) return;
     var t = editing;
     whoami(function(){
       api('delete_ticket', {p_name:ME.name, p_id:t.online.id}).then(function(){
-        editing = null; document.getElementById('suggest').hidden = true; load();
+        editing = null; document.getElementById('suggest').hidden = true; afterTrash();
       }, alertErr);
     });
   });
