@@ -169,6 +169,8 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 
 footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color:var(--ink-3);text-align:center}
 .changelog{margin-bottom:8px}
+.legal{margin-top:6px}
+.legal a{color:inherit;text-underline-offset:3px}
 .changelog summary{cursor:pointer;font-weight:600;color:var(--ink-2);display:inline-block;list-style:none}
 .changelog summary::-webkit-details-marker{display:none}
 .changelog summary::after{content:" ▾"}
@@ -328,7 +330,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
   <div class="panel" id="profile" hidden>
     <h2>📱 Meine Kontaktdaten</h2>
-    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich.</p>
+    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">
       <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" autocomplete="tel">
@@ -381,6 +383,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <p id="w-txt">Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.</p>
     <input id="w-name" maxlength="60" placeholder="Vor- und Nachname" required autocomplete="name">
     <input id="w-code" placeholder="Mitglieder-Code" required autocomplete="off">
+    <p class="by" style="margin:2px 0 0">Was du einträgst, sehen alle mit dem Link. Mehr dazu im <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a>.</p>
     <div class="form-row"><button class="btn btn-dark" type="submit" value="ok">Weiter</button><button class="btn btn-light" type="button" id="w-cancel">Abbrechen</button><span class="msg" id="w-msg"></span></div>
   </form>
 </dialog>
@@ -427,6 +430,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="wrap">
     <details class="changelog" id="changelog"><summary id="cl-sum">Changelog</summary><ol id="cl-list"></ol></details>
     <div>Erstellt und verantwortlich: André Hennen, Curious Company</div>
+    <div class="legal"><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></div>
   </div>
 </footer>
 
@@ -471,6 +475,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.17", "3. Okt. 2026", "Impressum und Datenschutz ergänzt. Schrift liegt jetzt lokal, die Seite lädt nichts mehr von Google oder GitHub."],
   ["2.16", "3. Okt. 2026", "Sicherheit und Zuverlässigkeit: Entwürfe gehen beim Aktualisieren nicht mehr verloren, kein Doppelspeichern, Seite nicht mehr bei Google auffindbar, zusätzliche Schutz-Header."],
   ["2.15", "2. Okt. 2026", "Ideen klappen ruhiger auf, die Seite rollt beim Scrollen weich aus, Filter sortieren die Ideen mit fließender Bewegung um."],
   ["2.14", "2. Okt. 2026", "Weicher und natürlicher: Ideen gleiten auf und zu, Tasten geben beim Tippen nach, Fenster und Filter blenden sanft ein, Header mit Milchglas."],

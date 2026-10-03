@@ -35,5 +35,6 @@
       "path": "/api/keepalive",
       "schedule": "17 5 * * *"
     }
-  ]
+  ],
+  "cleanUrls": true
 }
