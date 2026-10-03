@@ -97,7 +97,7 @@ Feste Links:
 - 💡 Idee vorschlagen: öffnet das Vorschlagsfeld auf der Seite (Fallback ohne Supabase: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls). Im ausgeklappten Feld steht ein Hinweis mit Link auf die alte Sli.do-Sammlung.
 - 💬 WhatsApp Gruppe: https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
 - 📄 Anträge JHV.pdf: https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf (der relative Pfad funktionierte auf Vercel nicht)
-- Footer: „Version x.y · Changelog“ (aufklappbar) und „Erstellt und verantwortlich: André Hennen, Curious Company“; darunter Links zu `/impressum` und `/datenschutz`
+- Footer: „Version x.y · Changelog“ (aufklappbar) und „Entwickelt von André Hennen, Curious Company“ (verlinkt auf https://curiouscompany.de); darunter Links zu `/impressum` und `/datenschutz`
 - **Impressum & Datenschutz** (`impressum.html`, `datenschutz.html`, eigenständige Seiten, über `cleanUrls` ohne `.html` erreichbar). Anbieter ist der ADC e. V. (Angaben von adc.de), Ansprechpartner André (andre.hennen@adc.de). **Ändert sich, was gespeichert wird oder wohin die Seite Daten schickt (neuer Dienst, neues Feld), die Datenschutzseite mit anpassen.**
 
 ## Changelog & Versionen
