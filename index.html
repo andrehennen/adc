@@ -168,14 +168,15 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .empty{padding:20px;text-align:center;color:var(--ink-3);font-size:14px;background:var(--soft);border-radius:var(--radius)}
 
 footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color:var(--ink-3);text-align:center}
-.changelog{margin-bottom:8px}
+.foot-btn{background:none;border:none;font:inherit;font-weight:600;color:var(--ink-2);cursor:pointer;padding:4px 2px}
+.foot-btn::after{content:" ▾"}
+.foot-btn[aria-expanded="true"]{color:var(--ink)}
+.foot-btn[aria-expanded="true"]::after{content:" ▴"}
+.foot-btn:hover{color:var(--ink)}
+.foot-panel:not([hidden]){animation:drop .4s var(--ease)}
 .legal{margin-top:6px}
 .legal a{color:inherit;text-underline-offset:3px}
-.changelog summary{cursor:pointer;font-weight:600;color:var(--ink-2);display:inline-block;list-style:none}
-.changelog summary::-webkit-details-marker{display:none}
-.changelog summary::after{content:" ▾"}
-.changelog[open] summary::after{content:" ▴"}
-.changelog ol{list-style:none;text-align:left;max-width:640px;margin:12px auto 16px;display:flex;flex-direction:column;gap:8px}
+ol.changelog{list-style:none;text-align:left;max-width:640px;margin:12px auto 16px;display:flex;flex-direction:column;gap:8px}
 .changelog li{font-size:13px;color:var(--ink-2);line-height:1.45}
 .changelog b{color:var(--ink)}
 
@@ -207,9 +208,7 @@ footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color
 .trash-list li{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2);line-height:1.45}
 .trash-list b{color:var(--ink)}
 .trash-list p{white-space:pre-wrap;color:var(--ink);margin:2px 0 6px}
-.foot-row{display:flex;gap:6px 18px;justify-content:center;flex-wrap:wrap}
-.foot-row details{flex:0 1 auto}
-.foot-row details[open]{flex-basis:100%}
+.foot-row{display:flex;gap:6px 18px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
 .cform{display:flex;gap:6px;align-items:flex-end}
 .cform textarea{flex:1;font:inherit;font-size:14px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 9px;min-height:36px;resize:vertical}
 dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;max-width:380px;width:calc(100% - 32px);margin:auto}
@@ -440,9 +439,11 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 <footer>
   <div class="wrap">
     <div class="foot-row">
-      <details class="changelog" id="changelog"><summary id="cl-sum">Changelog</summary><ol id="cl-list"></ol></details>
-      <details class="changelog" id="trash" hidden><summary>🗑️ Papierkorb</summary><ul class="trash-list" id="trash-list"></ul></details>
+      <button class="foot-btn" type="button" id="cl-btn" aria-expanded="false" aria-controls="cl-list">Changelog</button>
+      <button class="foot-btn" type="button" id="trash-btn" aria-expanded="false" aria-controls="trash-list" hidden>🗑️ Papierkorb</button>
     </div>
+    <ol class="foot-panel changelog" id="cl-list" hidden></ol>
+    <ul class="foot-panel trash-list" id="trash-list" hidden></ul>
     <div class="legal">Entwickelt von André Hennen, <a href="https://curiouscompany.de" target="_blank" rel="noopener">Curious Company</a></div>
     <div class="legal" style="margin-top:4px"><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></div>
   </div>
@@ -489,6 +490,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.19", "3. Okt. 2026", "Gelöschte Kommentare verschwinden sofort, Papierkorb und Changelog klappen ruhig unter den Buttons auf."],
   ["2.18", "3. Okt. 2026", "Ideen und Kommentare löschen. Gelöschtes bleibt 30 Tage im Papierkorb unten auf der Seite und lässt sich wiederherstellen."],
   ["2.17", "3. Okt. 2026", "Impressum und Datenschutz ergänzt. Schrift liegt jetzt lokal, die Seite lädt nichts mehr von Google oder GitHub."],
   ["2.16", "3. Okt. 2026", "Sicherheit und Zuverlässigkeit: Entwürfe gehen beim Aktualisieren nicht mehr verloren, kein Doppelspeichern, Seite nicht mehr bei Google auffindbar, zusätzliche Schutz-Header."],
@@ -568,13 +570,13 @@ function load(){
   if (!SB_URL || !SB_KEY) return Promise.resolve(false);
   return Promise.all([
     sbFetch('helpers?select=ticket,name,created_at&order=created_at'),
-    sbFetch('comments?select=id,ticket,name,body,created_at&order=created_at'),
+    sbFetch('comments?select=id,ticket,name,body,created_at,deleted&order=created_at').catch(function(){ return sbFetch('comments?select=id,ticket,name,body,created_at&order=created_at'); }),
     sbFetch('tickets?select=*&order=created_at').catch(function(){ return []; }),
     sbFetch('step_edits?select=ticket,body,base,name,created_at&order=created_at.desc').catch(function(){ return []; }),
     ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null),
     sbFetch('votes?select=ticket,name').catch(function(){ return []; })
   ]).then(function(r){
-    HELP = group(r[0]); COMM = group(r[1]); VOTES = group(r[5]);
+    HELP = group(r[0]); COMM = group(r[1].filter(function(c){ return !c.deleted; })); VOTES = group(r[5]);
     ONLINE = r[2].map(function(t){
       return {s:t.s, sektion:t.sektion, e:t.emoji || '💡', n:t.title, v:null, t:t.tags || [], status:'idea', x:t.x || '', body:t.body, id:'neu-'+t.id, online:t};
     });
@@ -998,7 +1000,16 @@ function renderSugg(){
 }
 
 // Papierkorb: nur mit Mitglieder-Code lesbar, 30 Tage, wiederherstellbar
-function afterTrash(){ if (document.getElementById('trash').open) loadTrash(); return load(); }
+function trashOpen(){ return !document.getElementById('trash-list').hidden; }
+// Footer: Changelog und Papierkorb klappen unter der festen Button-Zeile auf, immer nur eins
+function footToggle(which, open){
+  [['cl','cl-btn','cl-list'],['trash','trash-btn','trash-list']].forEach(function(x){
+    var on = x[0] === which && open;
+    document.getElementById(x[2]).hidden = !on;
+    document.getElementById(x[1]).setAttribute('aria-expanded', on ? 'true' : 'false');
+  });
+}
+function afterTrash(){ if (trashOpen()) loadTrash(); return load(); }
 function loadTrash(){
   var ul = document.getElementById('trash-list');
   ul.innerHTML = '<li>Lade …</li>';
@@ -1050,13 +1061,11 @@ function openForm(t){
 }
 
 function initStore(){
-  var tr = document.getElementById('trash');
-  tr.hidden = false;
-  tr.addEventListener('toggle', function(){
-    if (!tr.open) return;
-    if (ME.code) return loadTrash();
-    tr.open = false;
-    whoami(function(){ tr.open = true; }, true);
+  var tb = document.getElementById('trash-btn');
+  tb.hidden = false;
+  tb.addEventListener('click', function(){
+    if (trashOpen()) return footToggle('trash', false);
+    whoami(function(){ footToggle('trash', true); loadTrash(); }, true);
   });
   var sbtn = document.getElementById('suggest-btn');
   sbtn.removeAttribute('target'); sbtn.href = '#vorschlag';
@@ -1164,7 +1173,8 @@ function initStore(){
   if (location.hash === '#vorschlag') openForm(null);
 }
 
-document.getElementById('cl-sum').textContent = 'Version ' + CL[0][0] + ' · Changelog';
+document.getElementById('cl-btn').textContent = 'Version ' + CL[0][0] + ' · Changelog';
+document.getElementById('cl-btn').addEventListener('click', function(){ footToggle('cl', document.getElementById('cl-list').hidden); });
 document.getElementById('cl-list').innerHTML = CL.map(function(c){ return '<li><b>v'+c[0]+'</b> · '+c[1]+'<br>'+esc(c[2])+'</li>'; }).join('');
 
 render();
