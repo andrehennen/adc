@@ -1,6 +1,6 @@
 {
   "name": "Dein ADC Dashboard",
-  "short_name": "ADC",
+  "short_name": "ADC Dashboard",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
