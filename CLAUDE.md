@@ -9,7 +9,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - **Standardregel: Jede Änderung am Dashboard wird committed und gepusht**, ohne nachzufragen. Danach kurz sagen, was sich geändert hat.
 - Ändern sich Anträge, wird auch `antraege-jhv.pdf` neu gebaut und gepusht (siehe unten).
 - Der Kompass ist ein separates Repo: `andrehennen/adc-compass` → https://adc-compass.vercel.app/
-- **Niemals** Tokens oder Zugangsdaten in `index.html` schreiben (GitHub Secret Scanning blockt das, und die Seite ist öffentlich). Einzige Ausnahme: der Supabase **Publishable/anon Key** (`SB_KEY`), der ist dafür gemacht. Den `service_role`/Secret Key und den Mitglieder-Code nie ins Repo.
+- **Niemals** Tokens oder Zugangsdaten in `index.html`, `data.js` oder `app.js` schreiben (GitHub Secret Scanning blockt das, und die Seite ist öffentlich). Einzige Ausnahme: der Supabase **Publishable/anon Key** (`SB_KEY`), der ist dafür gemacht. Den `service_role`/Secret Key und den Mitglieder-Code nie ins Repo.
 
 ## Grundsätze (wichtig, hart erarbeitet)
 
@@ -19,15 +19,15 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - **Ticket-Inhalte** (Status, Owner, Leitlinien, Anträge) ändert nur Claude im Code, auf Andrés Anweisung. Ausnahme: **Nächste Schritte** können Mitglieder online bearbeiten (siehe Speicher).
 - **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können online Tickets anlegen/bearbeiten/löschen, Tickets hochvoten, sich als „Mach mit“ eintragen, Kontaktdaten hinterlegen, Nächste Schritte bearbeiten und kommentieren. Siehe Abschnitt „Speicher (Supabase)“.
 - Vor jeder Änderung logisch und auf UX prüfen. Bei Unklarheit **erst fragen**, dann bauen.
-- Nach jeder Änderung prüfen, ob `var D = [...]` noch parst (z. B. mit Node per Regex extrahieren und `eval`) und ob die Seite ohne JS-Fehler rendert.
+- Nach jeder Änderung prüfen, ob `var D = [...]` in `data.js` noch parst (z. B. mit Node per Regex extrahieren und `eval`) und ob die Seite ohne JS-Fehler rendert.
 - Beim Entfernen von Tickets auf verwaiste Kommas achten (`,\s*,`).
 - **Leitlinien** (`rahmen`) sind getroffene Entscheidungen und Ziele, keine nächsten Schritte.
 - Anträge nicht zusammenlegen, wenn André es nicht ausdrücklich sagt.
 
 ## Speicher (Supabase)
 
-- Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben im Script bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
-- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`) und `supabase/003_tickets_votes.sql` (`tickets`, `votes`), `004_tag_verein.sql` und `005_haertung.sql` (Längen-/Formatgrenzen). Die Tabelle `suggestions` ist abgelöst (Inhalte wurden zu Tickets). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
+- Supabase-Projekt `uuqeoefgwqsyvysfyood`, über die Supabase-Vercel-Integration verbunden. Die Seite holt URL und Publishable Key zur Laufzeit von `/api/config` (`api/config.js`, liest die Vercel-Env, gibt nie den Secret Key aus). `SB_URL`/`SB_KEY` oben in `app.js` bleiben leer (nur für lokale Tests). Ist der Speicher nicht erreichbar, fällt die Seite auf Sli.do/WhatsApp zurück.
+- Schema: `supabase/schema.sql` (Tabellen `helpers`, `comments`, `suggestions`) `supabase/002_kontakte_naechste_schritte.sql` (`contacts`, `step_edits`) und `supabase/003_tickets_votes.sql` (`tickets`, `votes`), `004_tag_verein.sql` und `005_haertung.sql` (Längen-/Formatgrenzen). `009_schreibrechte.sql` entzieht den öffentlichen Rollen alle Schreibrechte auf die Tabellen; **neue Tabellen bekommen für `anon` nur `select`**. Die Tabelle `suggestions` ist abgelöst (Inhalte wurden zu Tickets). Neue SQL-Dateien muss André im Supabase SQL Editor ausführen. Lesen ist öffentlich, Schreiben nur über RPC-Funktionen, die den Mitglieder-Code serverseitig prüfen (`private.settings`, key `write_code`).
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`, dazu `token` für die eigenen Kontaktdaten).
 - **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Beim Hovern bzw. Antippen eines Namens erscheinen ✉️/💬-Icons direkt im Namens-Chip. Zuordnung über den vollen Namen, akzent- und großschreibungsunabhängig (André = Andre), sonst über einen eindeutigen Vornamen. Der Login-Dialog verlangt Vor- und Nachnamen.
 - **Nächste Schritte online** (`step_edits`): Die neueste Bearbeitung gilt nur, solange `base` gleich dem `x` im Code ist. **Bevor Claude `x` im Code ändert, die neueste Bearbeitung lesen** (öffentlich: `GET /rest/v1/step_edits?ticket=eq.<id>&order=created_at.desc&limit=1` mit Publishable Key von `/api/config`) und in den neuen Text übernehmen, sonst geht sie verloren.
@@ -43,7 +43,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 ## Sicherheit & Zuverlässigkeit (QA vom 3.10.2026)
 
 - **Alles, was aus der Datenbank kommt, mit `esc()` ausgeben** (auch Emoji, Namen, Sektion). Links nur über `linkify(esc(...))`.
-- `vercel.json` setzt Schutz-Header inkl. Content-Security-Policy und `noindex`. **Neue externe Quellen (Scripts, Fonts, APIs) müssen dort in die CSP**, sonst blockt der Browser sie. Scripts möglichst lokal ablegen (`vendor/`), nicht vom CDN.
+- `vercel.json` setzt Schutz-Header inkl. Content-Security-Policy und `noindex`. **Die CSP erlaubt keine Inline-Scripts** (seit 13.10.2026): kein `<script>…</script>` im HTML, keine `onclick`-Attribute, auch nicht in per JS erzeugtem HTML. Logik gehört in `app.js`. **Neue externe Quellen (Scripts, Fonts, APIs) müssen dort in die CSP**, sonst blockt der Browser sie. Scripts möglichst lokal ablegen (`vendor/`), nicht vom CDN.
 - `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich (nötig für den PDF-Link): **nichts Vertrauliches in diese Datei oder ins Repo schreiben** (interne Einschätzungen, offene Entscheidungen), das gehört in Claudes privaten Projektspeicher.
 - `render()` behält ungespeicherte Kommentar-Entwürfe und offene „Nächste Schritte“-Bearbeitungen (`keepDrafts`). Nach erfolgreichem Speichern das Feld leeren bzw. das Formular entfernen, **bevor** `load()` läuft.
 - Kein Auto-Reload, solange etwas Ungespeichertes offen ist (`unsaved()`).
@@ -58,7 +58,9 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - `/fonts/` und `/vendor/` werden ein Jahr gecacht (`vercel.json`). **Wird eine Datei dort ersetzt, Dateinamen oder `?v=` ändern.**
 - `/.well-known/security.txt` läuft am 13.10.2027 ab, dann Datum erneuern.
 
-## Datenmodell (in `index.html`, `var D = [...]`)
+## Datenmodell (in `data.js`, `var D = [...]`)
+
+Seit 13.10.2026 liegen die Inhalte (`D`, `CL`) in `data.js` und die Logik in `app.js`; `index.html` enthält nur noch Markup und CSS.
 
 Jedes Ticket ist ein Objekt:
 
@@ -112,7 +114,7 @@ Feste Links:
 
 ## Changelog & Versionen
 
-- Liste `var CL = [...]` oben im Script, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.
+- Liste `var CL = [...]` in `data.js`, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.
 - Bei jeder für Nutzer:innen sichtbaren Änderung (Funktion, Design, größere Inhaltsrunde) einen Eintrag ergänzen. Mehrere Änderungen am selben Tag dürfen in einen Eintrag.
 - Neue Funktion oder größere Überarbeitung: Minor (2.2 → 2.3). Komplett neues Design/Konzept: Major (→ 3.0). Reine Ticket-Updates (Status, Owner, Next Steps) brauchen keinen Eintrag.
 - Texte knapp halten, keine unnötigen Zeilen. Anträge (`antrag`, `antragPdf`) und Originalideen (`orig`) bleiben wörtlich.
@@ -131,4 +133,4 @@ Feste Links:
   - Headlines Times-Bold, Fließtext Helvetica
   - Kopfzeile „ADC“ / „JHV-Anträge · Entwurfsfassung“, Seitenzahlen
   - keine Emojis (sie werden im PDF als Kästchen gerendert)
-- Das alte Build-Skript ist nicht im Repo. Beim nächsten Neubau ein Skript `tools/build_pdf.py` anlegen, das die Anträge aus `index.html` liest, und es mit einchecken.
+- Das alte Build-Skript ist nicht im Repo. Beim nächsten Neubau ein Skript `tools/build_pdf.py` anlegen, das die Anträge aus `data.js` liest, und es mit einchecken.

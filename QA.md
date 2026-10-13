@@ -5,7 +5,7 @@ Projektnotiz zur Qualitätsprüfung (Skill „website-endboss“). Letzter volls
 ## Bestandsaufnahme
 
 - **Art:** Webapp für ADC-Mitglieder (Ideen und Initiativen ansehen, mitmachen, kommentieren). Bewusst nicht für Suchmaschinen (`noindex`).
-- **Technik:** statische Seiten ohne Build (`index.html`, `impressum.html`, `datenschutz.html`, `404.html`), drei Vercel-Funktionen in `api/`, Daten in Supabase. Deploy: Push auf `main` → Vercel. Kein Staging.
+- **Technik:** statische Seiten ohne Build (`index.html` mit `data.js` und `app.js`, `impressum.html`, `datenschutz.html`, `404.html`), drei Vercel-Funktionen in `api/`, Daten in Supabase. Deploy: Push auf `main` → Vercel. Kein Staging.
 - **Inhalte:** Ideen, Anträge und Originalideen gehören André bzw. den Mitgliedern. Claude ändert sie nur auf Anweisung; Rechtschreibung nur nach Freigabe.
 - **Vorgaben:** Design nach adc.de, muss auf dem iPhone funktionieren, Impressum und Datenschutz vorhanden, keine Cookies.
 
