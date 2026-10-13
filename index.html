@@ -286,10 +286,16 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media(max-width:359px){.cta{grid-template-columns:1fr}}
+.skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;text-decoration:none}
+.skip:focus{left:12px}
+.linkbtn,.permalink,.copy{min-height:24px}
+.antrag:focus-visible,.quote:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after,*::backdrop{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<a class="skip" href="#inhalt">Zum Inhalt</a>
 
 <header>
   <div class="wrap hbar">
@@ -328,7 +334,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="form-row help-foot"><button class="btn btn-dark" type="button" id="help-close">Alles klar</button><a class="linkbtn" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">Fragen? WhatsApp-Gruppe</a></div>
 </dialog>
 
-<main>
+<main id="inhalt" tabindex="-1">
 <section class="wrap hero">
   <h1>Dein ADC Dashboard</h1>
   <p>Alle Ideen und Initiativen im ADC auf einen Blick: was läuft, wer sich kümmert, was als Nächstes passiert. Schnapp dir eine offene Idee oder mach bei einer mit.</p>
@@ -350,7 +356,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="panel" id="suggest" hidden>
     <h2 id="s-head">💡 Neue Idee</h2>
     <form class="form" id="sform">
-      <div class="form-row"><input id="s-emoji" class="emo" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" maxlength="140" placeholder="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
+      <div class="form-row"><input id="s-emoji" class="emo" type="text" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" type="text" maxlength="140" placeholder="Deine Idee in einem Satz" aria-label="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
       <textarea id="s-body" maxlength="2000" placeholder="Beschreibung (optional): was, warum, für wen?"></textarea>
       <textarea id="s-x" maxlength="3000" placeholder="Nächste Schritte (optional), einer pro Zeile"></textarea>
       <div class="opts" role="radiogroup" aria-label="Wer setzt um?">
@@ -362,7 +368,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
         <label class="opt"><input type="radio" name="s-sek" value="Hamburg"><span>📍 Hamburg</span></label>
         <label class="opt"><input type="radio" name="s-sek" value="Berlin"><span>📍 Berlin</span></label>
       </div>
-      <div class="opts" aria-label="Themen">
+      <div class="opts" role="group" aria-label="Themen">
         <label class="opt"><input type="checkbox" name="s-t" value="events"><span>🎤 Events</span></label>
         <label class="opt"><input type="checkbox" name="s-t" value="members"><span>👥 Mitglieder</span></label>
         <label class="opt"><input type="checkbox" name="s-t" value="network"><span>🌍 Partner & Öffentlichkeit</span></label>
@@ -387,12 +393,12 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </dialog>
 
-<dialog data-lenis-prevent class="who" id="who">
+<dialog data-lenis-prevent class="who" id="who" aria-labelledby="who-h">
   <form class="form" id="wform" method="dialog">
-    <h2>Wer bist du?</h2>
+    <h2 id="who-h">Wer bist du?</h2>
     <p id="w-txt">Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides.</p>
-    <input id="w-name" maxlength="60" placeholder="Vor- und Nachname" required autocomplete="name">
-    <input id="w-code" placeholder="Mitglieder-Code" required autocomplete="off">
+    <input id="w-name" type="text" maxlength="60" placeholder="Vor- und Nachname" aria-label="Vor- und Nachname" required autocomplete="name">
+    <input id="w-code" type="text" placeholder="Mitglieder-Code" aria-label="Mitglieder-Code" required autocomplete="off">
     <p class="by" style="margin:2px 0 0">Was du einträgst, sehen alle mit dem Link. Mehr dazu im <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a>.</p>
     <div class="form-row"><button class="btn btn-dark" type="submit" value="ok">Weiter</button><button class="btn btn-light" type="button" id="w-cancel">Abbrechen</button><span class="msg" id="w-msg"></span></div>
   </form>
@@ -400,17 +406,17 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 
 <div class="filters">
   <div class="wrap frow" id="frow" role="toolbar" aria-label="Filter">
-    <button class="fb on" data-t="all">Alle</button>
-    <button class="fb" data-t="events">🎤 Events</button>
-    <button class="fb" data-t="members">👥 Mitglieder</button>
-    <button class="fb" data-t="network">🌍 Partner & Öffentlichkeit</button>
-    <button class="fb" data-t="verein">🏛️ Verein & Struktur</button>
-    <button class="fb" data-t="jury">⚖️ Jury</button>
-    <button class="fb" data-t="antrag">📄 JHV-Antrag</button>
+    <button type="button" class="fb on" data-t="all" aria-pressed="true">Alle</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="events">🎤 Events</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="members">👥 Mitglieder</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="network">🌍 Partner & Öffentlichkeit</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="verein">🏛️ Verein & Struktur</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="jury">⚖️ Jury</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="antrag">📄 JHV-Antrag</button>
     <span class="fsep"></span>
-    <button class="fb" data-t="Hamburg">📍 Hamburg</button>
-    <button class="fb" data-t="Berlin">📍 Berlin</button>
-    <button class="toggle-all" id="toggle-all">Alle aufklappen</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="Hamburg">📍 Hamburg</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="Berlin">📍 Berlin</button>
+    <button type="button" class="toggle-all" id="toggle-all">Alle aufklappen</button>
   </div>
 </div>
 
@@ -449,7 +455,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </footer>
 
-<script src="/vendor/lenis.min.js"></script>
+<script src="/vendor/lenis.min.js?v=1.3.26"></script>
 <script>
 var D = [
   {s:"hh",sektion:"Hamburg",e:"🎟️",n:"Promotioncodes: 10 % auf Hamburger Museen für Mitglieder",v:2,t:["members"],f:"easy",status:"idea",x:"Anfragen an 3–5 Hamburger Museen vorbereiten; Vorschlag ins nächste Sektionstreffen.",orig:"Promocodes für Mitglieder. 10% auf alle Museen in HH etc"},
@@ -490,6 +496,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.22", "13. Okt. 2026", "Qualitätsrunde: besser per Tastatur und Screenreader bedienbar, kein seitliches Scrollen mehr auf sehr kleinen Handys, eigene Seite für falsche Links."],
   ["2.21", "12. Okt. 2026", "Auf dem Homescreen heißt die App jetzt „ADC Dashboard“ statt nur „ADC“."],
   ["2.20", "4. Okt. 2026", "Neues App-Icon für den Homescreen: ADC-Logo etwas kleiner. Der Kompass hat jetzt ein helles Icon, das Dashboard bleibt dunkel."],
   ["2.19", "3. Okt. 2026", "Gelöschte Kommentare verschwinden sofort, Papierkorb und Changelog klappen ruhig unter den Buttons auf."],
@@ -790,9 +797,9 @@ function mkcard(i){
     + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
-  if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag" data-lenis-prevent>'+esc(i.antrag)+'</div></div>';
+  if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag" data-lenis-prevent aria-label="JHV-Antrag (Entwurf): '+esc(i.n)+'">'+esc(i.antrag)+'</div></div>';
   if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
-  if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent>'+linkify(esc(i.orig))+'</div></div>';
+  if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent aria-label="Originalidee: '+esc(i.n)+'">'+linkify(esc(i.orig))+'</div></div>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
     + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+(c.id ? '<button class="cdel" data-cdel="'+(+c.id)+'" title="Kommentar löschen" aria-label="Kommentar löschen">🗑️</button>' : '')+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
@@ -816,6 +823,7 @@ function mkcard(i){
     var top = el.getBoundingClientRect().top, bar = headerH() + 8;
     if (!o && top < bar) scrollByY(top - bar - 4);
     setOpen(el, o);
+    if (o) markScroll(el);
     this.setAttribute('aria-expanded', o ? 'true' : 'false');
     if (o) openSet[i.id] = 1; else delete openSet[i.id];
     syncToggle();
@@ -887,6 +895,13 @@ function mkcard(i){
   return el;
 }
 
+// Lange Antrags- und Zitatfelder scrollen in sich: dann per Tastatur erreichbar machen
+function markScroll(card){
+  Array.prototype.forEach.call(card.querySelectorAll('.antrag, .quote'), function(s){
+    if (s.scrollHeight > s.clientHeight + 1) { s.tabIndex = 0; s.setAttribute('role', 'region'); }
+  });
+}
+
 // Text der Nächsten Schritte als eine Zeile pro Schritt (für das Bearbeitungsfeld)
 function bulletsPlain(text){
   var items = text.indexOf('\n') >= 0 ? text.split('\n') : text.split(/\d+\.\s+/);
@@ -950,6 +965,7 @@ function render(){
   document.getElementById('jc').textContent = jhv.length + (jhv.length === 1 ? ' Idee' : ' Ideen');
   fill(document.getElementById('chh'), hh);
   fill(document.getElementById('cjhv'), jhv);
+  Array.prototype.forEach.call(document.querySelectorAll('.card.open'), markScroll);
   syncToggle();
   restore();
 }
@@ -972,7 +988,7 @@ document.getElementById('frow').addEventListener('click', function(e){
   var b = e.target.closest('.fb');
   if (!b) return;
   active = b.dataset.t;
-  document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); });
+  document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
   flipRender();
 });
 

@@ -1,0 +1,20 @@
+{
+  "name": "adc-dashboard-qa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm install && npx playwright install chromium webkit firefox",
+    "html": "html-validate --config .htmlvalidate.json ../../index.html ../../impressum.html ../../datenschutz.html ../../404.html",
+    "a11y": "node a11y.mjs",
+    "geraete": "node devices.mjs",
+    "ablaeufe": "node e2e.mjs",
+    "alles": "npm run html && node a11y.mjs && node devices.mjs && node e2e.mjs",
+    "live": "node a11y.mjs --live && node devices.mjs --live",
+    "tempo": "node perf.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "html-validate": "^11.16.0",
+    "playwright": "^1.64.0"
+  }
+}

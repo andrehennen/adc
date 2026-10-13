@@ -50,6 +50,14 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - Speichern-Buttons während des Requests deaktivieren (Doppelklick).
 - Der Zugang ist bewusst einfach gehalten (ein gemeinsamer Code, kein Login). Einfachheit geht vor.
 
+## Qualitätsprüfung (seit 13.10.2026)
+
+- Tests liegen in `tools/qa/` (Playwright, axe-core, html-validate), Ablauf und letzter Stand in `QA.md`. Beides wird nicht deployt.
+- **Nach Änderungen an Markup, CSS oder Logik `npm run alles` in `tools/qa` laufen lassen**, nach dem Deploy `npm run live`. Ziel: 0 Befunde.
+- Die Tests schreiben nie in die echte Datenbank (`e2e.mjs` baut den Speicher nach). Kommt eine neue Funktion dazu, dort einen Ablauf ergänzen.
+- `/fonts/` und `/vendor/` werden ein Jahr gecacht (`vercel.json`). **Wird eine Datei dort ersetzt, Dateinamen oder `?v=` ändern.**
+- `/.well-known/security.txt` läuft am 13.10.2027 ab, dann Datum erneuern.
+
 ## Datenmodell (in `index.html`, `var D = [...]`)
 
 Jedes Ticket ist ein Objekt:
