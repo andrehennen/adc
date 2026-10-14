@@ -11,6 +11,7 @@ var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",draft:"
 var SW = {done:8, doing:7, live:6, active:5, draft:4, checked:3, planned:2, idea:1};
 var CHEV = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>';
 var active = 'all';
+var mineOn = false;  // Filter „Für mich“, lässt sich mit den Themen-Filtern kombinieren
 var openSet = {};
 
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -197,6 +198,21 @@ function flipRender(){
 }
 
 function all(){ return D.concat(ONLINE); }
+// Bin ich verantwortlich, mache mit oder habe die Idee angelegt?
+function isMine(i){
+  var me = norm(ME.name);
+  if (!me) return false;
+  return ownerNames(i.owner).some(function(n){ return norm(n) === me; })
+    || (HELP[i.id] || []).some(function(h){ return norm(h.name) === me; })
+    || (!!i.online && norm(i.online.created_by) === me);
+}
+function syncMine(){
+  if (!ME.name) mineOn = false;
+  var b = document.getElementById('mine-btn'), n = ME.name ? all().filter(isMine).length : 0;
+  b.classList.toggle('on', mineOn);
+  b.setAttribute('aria-pressed', mineOn ? 'true' : 'false');
+  document.getElementById('mine-n').textContent = ME.name ? ' · ' + n : '';
+}
 function votes(i){ return (i.v || 0) + (VOTES[i.id] || []).length; }
 function filtered(){
   var A = all();
@@ -204,6 +220,7 @@ function filtered(){
           active === 'antrag' ? A.filter(function(i){ return !!i.antrag; }) :
           (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return i.sektion === active; }) :
           A.filter(function(i){ return i.t.indexOf(active) >= 0; });
+  if (mineOn) r = r.filter(isMine);
   return r.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
     if (!a.prio && b.prio) return 1;
@@ -392,7 +409,7 @@ function fallback(text){
 
 function fill(container, list){
   container.innerHTML = '';
-  if (!list.length) { container.innerHTML = '<div class="empty">Keine Ideen für diesen Filter.</div>'; return; }
+  if (!list.length) { container.innerHTML = '<div class="empty">' + (mineOn ? 'Hier bist du noch bei keiner Idee dabei.' : 'Keine Ideen für diesen Filter.') + '</div>'; return; }
   var moving = list.filter(function(i){ return (i.status||'idea') !== 'idea'; });
   var ideas = list.filter(function(i){ return (i.status||'idea') === 'idea'; });
   [['🚀 Läuft schon', moving], ['💡 Ideen – suchen Mitstreiter:innen', ideas]].forEach(function(g){
@@ -436,6 +453,7 @@ function render(){
   fill(document.getElementById('cjhv'), jhv);
   Array.prototype.forEach.call(document.querySelectorAll('.card.open'), markScroll);
   syncToggle();
+  syncMine();
   restore();
 }
 
@@ -464,6 +482,11 @@ document.getElementById('frow').addEventListener('click', function(e){
   active = b.dataset.t;
   document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
   flipRender();
+});
+
+document.getElementById('mine-btn').addEventListener('click', function(){
+  if (mineOn) { mineOn = false; return flipRender(); }
+  whoami(function(){ mineOn = true; flipRender(); });
 });
 
 function openFromHash(){
@@ -553,6 +576,7 @@ function openForm(t){
 }
 
 function initStore(){
+  document.getElementById('mrow').hidden = false;
   var tb = document.getElementById('trash-btn');
   tb.hidden = false;
   tb.addEventListener('click', function(){

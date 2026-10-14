@@ -90,6 +90,11 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .frow{display:flex;gap:8px;align-items:center;padding-top:12px;padding-bottom:12px;overflow-x:auto;scrollbar-width:none}
 .frow::-webkit-scrollbar,.fscroll::-webkit-scrollbar{display:none}
 .fscroll{display:flex;gap:8px;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
+.mrow{display:flex;align-items:center;gap:12px;padding-top:14px}
+.mine{flex-shrink:0;font:inherit;font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap}
+.mine:hover{background:var(--soft)}
+.mine.on{background:var(--ink);color:#fff}
+.mine-hint{font-size:13px;color:var(--ink-3);line-height:1.35}
 .fb{flex-shrink:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .12s;white-space:nowrap}
 .fb:hover{border-color:var(--ink);color:var(--ink)}
 .fb.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -111,10 +116,10 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .cards{display:flex;flex-direction:column;gap:10px}
 
 /* Card */
-.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .3s var(--ease-out),box-shadow .4s var(--ease-out),transform .35s var(--ease);scroll-margin-top:120px}
-@media(hover:hover){.card:hover{border-color:var(--line-strong);box-shadow:0 6px 22px rgba(0,0,0,.07)}}
+.card{position:relative;background:#fff;border:1px solid var(--ink);border-radius:var(--radius);transition:border-color .3s var(--ease-out),box-shadow .4s var(--ease-out),transform .35s var(--ease);scroll-margin-top:120px}
+@media(hover:hover){.card:hover{box-shadow:0 6px 22px rgba(0,0,0,.07)}}
 .card:has(.chead:active){transform:scale(.988)}
-.card.open{border-color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.09)}
+.card.open{box-shadow:0 10px 30px rgba(0,0,0,.09)}
 .chead{display:block;width:100%;text-align:left;background:none;border:none;padding:12px 14px;cursor:pointer;color:inherit;border-radius:var(--radius)}
 .chead:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding-right:58px;min-height:22px}
@@ -265,6 +270,8 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .cta .btn{justify-content:center;padding:8px 10px}
   .cta .btn:first-child{grid-column:1/-1}
   .fb{padding:4px 9px}
+  .mrow{padding-top:12px}
+  .mine-hint{font-size:12px}
   .panel{padding:14px}
   .col-title{font-size:20px}
   .chead{padding:14px 12px}
@@ -275,8 +282,8 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .card{scroll-margin-top:68px}
   .cform{flex-direction:column;align-items:stretch}
 }
-.btn,.fb,.minibtn,.vote,.help-btn,.copy,.opt span,.chip{transition:background .2s var(--ease-out),color .2s,border-color .2s,transform .25s var(--ease)}
-.btn:active,.fb:active,.minibtn:active,.vote:active,.help-btn:active,.copy:active,.opt:active span{transform:scale(.95)}
+.btn,.fb,.mine,.minibtn,.vote,.help-btn,.copy,.opt span,.chip{transition:background .2s var(--ease-out),color .2s,border-color .2s,transform .25s var(--ease)}
+.btn:active,.fb:active,.mine:active,.minibtn:active,.vote:active,.help-btn:active,.copy:active,.opt:active span{transform:scale(.95)}
 .vote.bump{animation:bump .45s var(--ease)}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 /* Modals und Panels: weich einblenden */
@@ -328,6 +335,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <ul class="hl">
     <li><span class="ic">📍</span><span><b>Sektionen</b>: was wir selbst anschieben. <b>Gesamtverein</b>: was Präsidium oder JHV entscheiden.</span></li>
     <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter <b>Ideen, die Mitstreiter:innen suchen</b>.</span></li>
+    <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast.</span></li>
     <li><span class="ic">🔗</span><span>Filter nach Themen und Sektion. Mit dem Link-Button teilst du eine einzelne Idee.</span></li>
   </ul>
   <p class="trust">🤝 Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</p>
@@ -405,6 +413,10 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 </dialog>
 
 <div class="filters">
+  <div class="wrap mrow" id="mrow" hidden>
+    <button type="button" class="mine" id="mine-btn" aria-pressed="false">🙋 Für mich<span id="mine-n"></span></button>
+    <span class="mine-hint">Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast</span>
+  </div>
   <div class="wrap frow" id="frow" role="toolbar" aria-label="Filter">
     <div class="fscroll">
     <button type="button" class="fb on" data-t="all" aria-pressed="true">Alle</button>

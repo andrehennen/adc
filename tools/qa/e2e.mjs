@@ -207,9 +207,38 @@ for (const mode of ['down', 'noConfig']) {
   const page = await ctx.newPage(); const log = watch(page);
   await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
   const n = await page.locator('.card').count();
-  ok(`Speicher weg (${mode}): Seite zeigt alle festen Ideen, Sli.do-Link statt Formular, keine JS-Fehler`, n >= 30 && (await page.getAttribute('#suggest-btn', 'href')).includes('sli.do') && await page.locator('#profile-btn').isHidden() && !log.some(l => /JS-Fehler/.test(l)), n + ' Karten; ' + log.join(' | '));
+  ok(`Speicher weg (${mode}): Seite zeigt alle festen Ideen, Sli.do-Link statt Formular, keine JS-Fehler`, n >= 30 && (await page.getAttribute('#suggest-btn', 'href')).includes('sli.do') && await page.locator('#profile-btn').isHidden() && await page.locator('#mine-btn').isHidden() && !log.some(l => /JS-Fehler/.test(l)), n + ' Karten; ' + log.join(' | '));
   await page.locator('.card .chead').first().click(); await page.waitForTimeout(700);
   ok(`Speicher weg (${mode}): Karte ohne Schreib-Knöpfe, mit WhatsApp-Hinweis wo nötig`, await page.locator('.card.open [data-cform], .card.open [data-edit]').count() === 0);
+  await ctx.close();
+}
+
+// 3b. Filter „Für mich“
+{
+  const { ctx, page, store } = await setup(browser);
+  ok('„Für mich“ sichtbar, wenn der Speicher läuft', await page.locator('#mine-btn').isVisible());
+  await page.click('#mine-btn');
+  ok('„Für mich“ ohne Anmeldung öffnet Login-Dialog', await page.locator('#who').evaluate(d => d.open));
+  await login(page, 'Andre Hennen'); await page.waitForTimeout(1400);
+  const r = await page.evaluate(() => [...document.querySelectorAll('.card')].map(c => c.querySelector('.cmeta').textContent));
+  ok('„Für mich“ zeigt nur eigene Ideen (Owner, akzentunabhängig)', r.length > 0 && r.every(t => /André Hennen/.test(t)), r.length + ' Karten');
+  ok('„Für mich“ ist gedrückt und zeigt die Anzahl', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && (await page.textContent('#mine-btn')).includes('· ' + r.length));
+  await page.click('.fb[data-t=jury]'); await page.waitForTimeout(900);
+  const j = await page.locator('.card').count();
+  ok('„Für mich“ kombiniert sich mit Themen-Filter', j < r.length, j + ' von ' + r.length);
+  await page.click('.fb[data-t=all]'); await page.waitForTimeout(900);
+  await page.click('#mine-btn'); await page.waitForTimeout(900);
+  ok('Zweiter Klick zeigt wieder alle', await page.locator('.card').count() >= 30);
+  // Mitmachen landet in „Für mich“
+  const other = page.locator('.card:not(:has-text("André Hennen")) .chead').first();
+  const oid = await other.evaluate(e => e.parentElement.id); await other.click(); await page.waitForTimeout(800);
+  await page.locator('#' + oid + ' [data-join]').first().click(); await page.waitForTimeout(800);
+  await page.click('#mine-btn'); await page.waitForTimeout(1000);
+  ok('Mitgemachte Idee erscheint unter „Für mich“', await page.locator('#' + oid).count() === 1);
+  await page.evaluate(() => { localStorage.setItem('adc-me', JSON.stringify({ name: 'Niemand Hier', code: 'qa-code' })); });
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible');
+  await page.click('#mine-btn'); await page.waitForTimeout(1000);
+  ok('Ohne eigene Ideen: freundlicher Hinweis statt leerer Spalte', (await page.textContent('#chh')).includes('Hier bist du noch bei keiner Idee dabei'));
   await ctx.close();
 }
 
