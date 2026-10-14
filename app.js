@@ -5,7 +5,7 @@ var SB_KEY = '';
 
 (function(){
 var WA = 'https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t';
-var TL = {events:"🎤 Events",members:"👥 Mitglieder",network:"🌍 Partner & Öffentlichkeit",verein:"🏛️ Verein & Struktur",jury:"⚖️ Jury"};
+var TL = {events:"🎤 Events",members:"👥 Mitglieder",network:"🌍 PR",verein:"🏛️ Verein",jury:"⚖️ Jury"};
 var FL = {easy:"🟢 Leicht umsetzbar",medium:"🟡 Mittlerer Aufwand",complex:"🔴 Komplex / langfristig"};
 var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",draft:"📝 Entwurf vorbereitet",checked:"🔍 Prüfung abgeschlossen",doing:"✅ Wird gemacht!",live:"🟢 Live, wird getestet",done:"✅ Abgeschlossen"};
 var SW = {done:8, doing:7, live:6, active:5, draft:4, checked:3, planned:2, idea:1};
