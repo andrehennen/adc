@@ -102,7 +102,6 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .col-head{margin-bottom:20px}
 .col-kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .col-title{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
-.col-sub{font-size:14px;color:var(--ink-2);margin-top:6px}
 .col-tools{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;min-height:30px}
 .count{font-size:13px;font-weight:600;color:var(--ink-3)}
 .pdf-btn{font-size:13px;padding:5px 12px}
@@ -116,7 +115,6 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 @media(hover:hover){.card:hover{border-color:var(--line-strong);box-shadow:0 6px 22px rgba(0,0,0,.07)}}
 .card:has(.chead:active){transform:scale(.988)}
 .card.open{border-color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.09)}
-.card.prio{border-color:var(--ink);border-width:1.5px}
 .chead{display:block;width:100%;text-align:left;background:none;border:none;padding:12px 14px;cursor:pointer;color:inherit;border-radius:var(--radius)}
 .chead:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding-right:58px;min-height:22px}
@@ -436,7 +434,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <div class="col-head">
       <div class="col-kicker">🏛️ Gesamtverein</div>
       <h2 class="col-title">Präsidium / JHV</h2>
-      <p class="col-sub">Braucht eine Entscheidung im Gesamtverein.</p>
       <div class="col-tools"><a class="btn btn-light pdf-btn" href="https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf" target="_blank" rel="noopener">📄 Anträge JHV.pdf</a><span class="count" id="jc"></span><button type="button" class="toggle-all" data-col="jhv" aria-controls="cjhv">Alle aufklappen</button></div>
     </div>
     <div id="cjhv"></div>

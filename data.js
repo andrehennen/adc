@@ -38,7 +38,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
-  ["2.23", "14. Okt. 2026", "Kürzere Themen-Namen (PR, Verein, Anträge) in Filter, Formular und Ideen; Filter auf dem Handy in einer Zeile zum Wischen; Spalte „Können Sektionen selbst umsetzen“; „Alle aufklappen“ je Spalte bei den Ideen, luftigere Abstände."],
+  ["2.23", "14. Okt. 2026", "Kürzere Themen-Namen (PR, Verein, Anträge) in Filter, Formular und Ideen; Filter auf dem Handy in einer Zeile zum Wischen; Spalte „Können Sektionen selbst umsetzen“; „Alle aufklappen“ je Spalte bei den Ideen, luftigere Abstände, einheitliche Karten."],
   ["2.22", "13. Okt. 2026", "Qualitätsrunde: besser per Tastatur und Screenreader bedienbar, kein seitliches Scrollen mehr auf sehr kleinen Handys, eigene Seite für falsche Links."],
   ["2.21", "12. Okt. 2026", "Auf dem Homescreen heißt die App jetzt „ADC Dashboard“ statt nur „ADC“."],
   ["2.20", "4. Okt. 2026", "Neues App-Icon für den Homescreen: ADC-Logo etwas kleiner. Der Kompass hat jetzt ein helles Icon, das Dashboard bleibt dunkel."],
