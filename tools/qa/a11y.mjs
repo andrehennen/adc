@@ -36,9 +36,9 @@ for (const [vp, w, h] of [['handy', 375, 812], ['desktop', 1440, 900]]) {
   await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
   await page.waitForSelector('.card');
   await run(page, vp + '/start');
-  await page.click('#toggle-all'); await page.waitForTimeout(500);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(500);
   await run(page, vp + '/alle-offen');
-  await page.click('#toggle-all'); await page.waitForTimeout(300);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(300);
   await page.click('#help-btn'); await page.waitForTimeout(500);
   await run(page, vp + '/hilfe');
   await page.keyboard.press('Escape');

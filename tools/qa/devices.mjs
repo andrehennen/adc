@@ -47,9 +47,9 @@ for (const [name, engine, opts] of MATRIX) {
   if (hdr.length) res.push({ geraet: name, zustand: 'kopf', fehler: hdr, quer: [] });
 
   // Alle aufklappen
-  await page.click('#toggle-all'); await page.waitForTimeout(400);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(400);
   add('alle-offen', log.splice(0), await overflow(page)); await shot(page, 'alle-offen');
-  await page.click('#toggle-all'); await page.waitForTimeout(300);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(300);
 
   // jeder Filter
   for (const b of await page.$$('.fb')) {

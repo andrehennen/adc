@@ -190,7 +190,7 @@ const browser = await chromium.launch({ channel: 'chromium' });
   const { ctx, page, log } = await setup(browser, { seedXss: true });
   await page.evaluate(() => localStorage.setItem('adc-me', JSON.stringify({ name: 'Qa Testerin', code: 'qa-code' })));
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('.card[id^=neu-]');
-  await page.click('#toggle-all'); await page.waitForTimeout(600);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(600);
   await page.click('#trash-btn'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => ({ xss: window.__xss, imgs: document.querySelectorAll('main img, footer img, main script').length, bad: [...document.querySelectorAll('a')].filter(a => /^javascript:/i.test(a.getAttribute('href') || '') || a.hasAttribute('onmouseover')).length, on: [...document.querySelectorAll('main *')].filter(e => [...e.attributes].some(a => /^on/i.test(a.name))).length }));
   ok('XSS-Versuche in allen Feldern bleiben Text', !r.xss && r.imgs === 0 && r.bad === 0 && r.on === 0, JSON.stringify(r));
@@ -245,7 +245,7 @@ for (const mode of ['down', 'noConfig']) {
 {
   const { ctx, page } = await setup(browser, { viewport: { width: 375, height: 812 }, seedXss: false });
   await page.evaluate(() => localStorage.setItem('adc-me', JSON.stringify({ name: 'Qa Testerin', code: 'qa-code' })));
-  await page.click('#toggle-all'); await page.waitForTimeout(600);
+  await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(600);
   const small = await page.evaluate(() => { const m = {}; document.querySelectorAll('a, button, input, textarea, [tabindex="0"]').forEach(e => { const r = e.getBoundingClientRect(); if (!r.width || getComputedStyle(e).visibility === 'hidden') return; if (r.width < 24 || r.height < 24) { const inline = getComputedStyle(e).display === 'inline' && e.closest('p, li, .txt, .quote, .legal, .by, .edited'); if (inline) return; const k = (e.tagName + '.' + (e.className || e.id)).slice(0, 40); m[k] = (m[k] || 0) + 1; m[k + ' Maß'] = Math.round(r.width) + '×' + Math.round(r.height); } }); return m; });
   ok('Zielgrößen ≥ 24 px', Object.keys(small).length === 0, JSON.stringify(small));
   await ctx.close();

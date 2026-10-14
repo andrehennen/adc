@@ -439,18 +439,23 @@ function render(){
   restore();
 }
 
+// „Alle aufklappen" gilt je Spalte (Sektionen / Gesamtverein)
+function colCards(col){ return document.querySelectorAll('#c' + col + ' .card'); }
+function colOpen(col){ var c = colCards(col); return c.length > 0 && Array.prototype.every.call(c, function(x){ return x.classList.contains('open'); }); }
 function syncToggle(){
-  var cards = document.querySelectorAll('.card');
-  var allOpen = cards.length && Array.prototype.every.call(cards, function(c){ return c.classList.contains('open'); });
-  document.getElementById('toggle-all').textContent = allOpen ? 'Alle zuklappen' : 'Alle aufklappen';
+  Array.prototype.forEach.call(document.querySelectorAll('.toggle-all'), function(b){
+    var c = colCards(b.dataset.col);
+    b.hidden = !c.length;
+    b.textContent = colOpen(b.dataset.col) ? 'Alle zuklappen' : 'Alle aufklappen';
+  });
 }
 
-document.getElementById('toggle-all').addEventListener('click', function(){
-  var cards = document.querySelectorAll('.card');
-  var allOpen = Array.prototype.every.call(cards, function(c){ return c.classList.contains('open'); });
-  openSet = {};
-  if (!allOpen) filtered().forEach(function(i){ openSet[i.id] = 1; });
-  render();
+Array.prototype.forEach.call(document.querySelectorAll('.toggle-all'), function(b){
+  b.addEventListener('click', function(){
+    var col = b.dataset.col, close = colOpen(col);
+    filtered().forEach(function(i){ if (i.s !== col) return; if (close) delete openSet[i.id]; else openSet[i.id] = 1; });
+    render();
+  });
 });
 
 document.getElementById('frow').addEventListener('click', function(e){

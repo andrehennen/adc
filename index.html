@@ -79,15 +79,15 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .btn-light:hover{background:var(--soft)}
 
 /* Hero */
-.hero{padding-top:32px;padding-bottom:22px}
+.hero{padding-top:40px;padding-bottom:32px}
 .hero h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.035em;line-height:1.02}
 .hero p{font-size:16px;color:var(--ink-2);max-width:680px;margin-top:10px;line-height:1.5}
 .updated{font-size:13px;color:var(--ink-3);margin-top:8px;font-weight:500}
-.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
 
 /* Filter */
 .filters{position:sticky;top:60px;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.frow{display:flex;gap:8px;align-items:center;padding-top:10px;padding-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.frow{display:flex;gap:8px;align-items:center;padding-top:12px;padding-bottom:12px;overflow-x:auto;scrollbar-width:none}
 .frow::-webkit-scrollbar,.fscroll::-webkit-scrollbar{display:none}
 .fscroll{display:flex;gap:8px;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
 .fb{flex-shrink:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .12s;white-space:nowrap}
@@ -98,18 +98,18 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .toggle-all:hover{color:var(--ink)}
 
 /* Board */
-.board{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:24px;padding-bottom:48px}
-.col-head{margin-bottom:14px}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-top:36px;padding-bottom:56px}
+.col-head{margin-bottom:20px}
 .col-kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .col-title{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
-.col-sub{font-size:14px;color:var(--ink-2);margin-top:4px}
-.col-tools{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.col-sub{font-size:14px;color:var(--ink-2);margin-top:6px}
+.col-tools{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;min-height:30px}
 .count{font-size:13px;font-weight:600;color:var(--ink-3)}
 .pdf-btn{font-size:13px;padding:5px 12px}
-.group-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 8px;display:flex;align-items:center;gap:10px}
+.group-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:32px 0 12px;display:flex;align-items:center;gap:10px}
 .group-title:first-of-type{margin-top:0}
 .group-title::after{content:"";flex:1;height:1px;background:var(--line)}
-.cards{display:flex;flex-direction:column;gap:8px}
+.cards{display:flex;flex-direction:column;gap:10px}
 
 /* Card */
 .card{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .3s var(--ease-out),box-shadow .4s var(--ease-out),transform .35s var(--ease);scroll-margin-top:120px}
@@ -138,16 +138,16 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .chev{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;transition:transform .45s var(--ease),background .25s var(--ease-out),color .25s;margin-top:-2px}
 .chev svg{width:13px;height:13px}
 .card.open .chev{transform:rotate(180deg);background:var(--ink);color:#fff}
-.cmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;padding-left:28px;font-size:13px;color:var(--ink-2)}
+.cmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;padding-left:28px;font-size:13px;color:var(--ink-2)}
 .owner-open{color:var(--open);font-weight:600}
 
 .cbody{display:none;overflow:hidden}
 .card.open .cbody{display:block}
 .cbody>.cin{padding:0 14px 0 42px}
 .cin>.cpad{padding-bottom:16px}
-.sec{margin-top:14px}
+.sec{margin-top:20px}
 .sec:first-child{margin-top:4px}
-.lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
 .txt{font-size:14px;color:var(--ink-2);line-height:1.55}
 .txt ul{padding-left:18px;display:flex;flex-direction:column;gap:3px}
 .txt li::marker{color:var(--ink-3)}
@@ -163,7 +163,7 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 .ef-easy{background:var(--green-bg);color:var(--green)}
 .ef-medium{background:var(--amber-bg);color:var(--amber)}
 .ef-complex{background:var(--open-bg);color:var(--open)}
-.permalink{font-size:13px;font-weight:600;color:var(--ink-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:16px}
+.permalink{font-size:13px;font-weight:600;color:var(--ink-3);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:20px}
 .permalink:hover{color:var(--ink)}
 
 .empty{padding:20px;text-align:center;color:var(--ink-3);font-size:14px;background:var(--soft);border-radius:var(--radius)}
@@ -194,7 +194,7 @@ ol.changelog{list-style:none;text-align:left;max-width:640px;margin:12px auto 16
 .msg.err{color:var(--open);font-weight:600}
 .msg.ok{color:var(--green);font-weight:600}
 .by{font-size:12px;color:var(--ink-3)}
-.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;background:var(--green-bg);color:var(--green);border-radius:999px;padding:3px 10px}
 .chip button{background:none;border:none;color:inherit;cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px}
 .minibtn{font-size:13px;font-weight:700;background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:3px 11px;cursor:pointer;color:var(--ink)}
@@ -210,7 +210,7 @@ ol.changelog{list-style:none;text-align:left;max-width:640px;margin:12px auto 16
 .trash-list b{color:var(--ink)}
 .trash-list p{white-space:pre-wrap;color:var(--ink);margin:2px 0 6px}
 .foot-row{display:flex;gap:6px 18px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
-.cform{display:flex;gap:6px;align-items:flex-end}
+.cform{display:flex;gap:8px;align-items:flex-end}
 .cform textarea{flex:1;font:inherit;font-size:14px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 9px;min-height:36px;resize:vertical}
 dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;max-width:380px;width:calc(100% - 32px);margin:auto}
 dialog.who::backdrop{background:rgba(0,0,0,.35)}
@@ -247,7 +247,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 .whoami button{background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:12px;padding:0}
 
 @media(max-width:900px){
-  .board{grid-template-columns:1fr;gap:36px}
+  .board{grid-template-columns:1fr;gap:48px}
 }
 @media(max-width:600px){
   .wrap{padding:0 16px}
@@ -256,11 +256,11 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .brand-txt{display:none}
   .btn{font-size:14px;padding:8px 13px}
   .filters{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .frow{gap:10px;padding-top:10px;padding-bottom:10px;padding-right:12px;overflow:visible}
-  .fscroll{gap:5px;margin-left:-16px;padding-left:16px;padding-right:20px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 22px),transparent)}
+  .frow{padding-top:12px;padding-bottom:12px;overflow:visible}
+  .fscroll{gap:6px;margin:0 -16px;padding:0 16px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
   .fsep{display:none}
-  .toggle-all{margin-left:auto;padding:6px 4px}
-  .hero{padding-top:22px;padding-bottom:16px}
+  .hero{padding-top:28px;padding-bottom:24px}
+  .board{padding-top:28px;padding-bottom:40px}
   .hero h1{font-size:30px}
   .hero p{font-size:15px}
   .cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -269,7 +269,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .fb{padding:4px 9px}
   .panel{padding:14px}
   .col-title{font-size:20px}
-  .chead{padding:12px}
+  .chead{padding:14px 12px}
   .cmeta{padding-left:0}
   .cbody>.cin{padding:0 12px}
   .cin>.cpad{padding-bottom:14px}
@@ -420,7 +420,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <button type="button" class="fb" aria-pressed="false" data-t="Hamburg">📍 Hamburg</button>
     <button type="button" class="fb" aria-pressed="false" data-t="Berlin">📍 Berlin</button>
     </div>
-    <button type="button" class="toggle-all" id="toggle-all">Alle aufklappen</button>
   </div>
 </div>
 
@@ -429,7 +428,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <div class="col-head">
       <div class="col-kicker">📍 Sektionen</div>
       <h2 class="col-title">Können Sektionen selbst umsetzen</h2>
-      <div class="col-tools"><span class="count" id="hc"></span></div>
+      <div class="col-tools"><span class="count" id="hc"></span><button type="button" class="toggle-all" data-col="hh" aria-controls="chh">Alle aufklappen</button></div>
     </div>
     <div id="chh"></div>
   </section>
@@ -438,7 +437,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <div class="col-kicker">🏛️ Gesamtverein</div>
       <h2 class="col-title">Präsidium / JHV</h2>
       <p class="col-sub">Braucht eine Entscheidung im Gesamtverein.</p>
-      <div class="col-tools"><a class="btn btn-light pdf-btn" href="https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf" target="_blank" rel="noopener">📄 Anträge JHV.pdf</a><span class="count" id="jc"></span></div>
+      <div class="col-tools"><a class="btn btn-light pdf-btn" href="https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf" target="_blank" rel="noopener">📄 Anträge JHV.pdf</a><span class="count" id="jc"></span><button type="button" class="toggle-all" data-col="jhv" aria-controls="cjhv">Alle aufklappen</button></div>
     </div>
     <div id="cjhv"></div>
   </section>
