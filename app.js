@@ -703,8 +703,9 @@ window.addEventListener('hashchange', openFromHash);
 // Hilfe-Modal
 (function(){
   var d = document.getElementById('help');
-  document.getElementById('help-btn').addEventListener('click', function(){ d.showModal(); d.scrollTop = 0; });
+  document.getElementById('help-btn').addEventListener('click', function(){ d.showModal(); document.getElementById('help-body').scrollTop = 0; });
   document.getElementById('help-close').addEventListener('click', function(){ d.close(); });
+  document.getElementById('help-x').addEventListener('click', function(){ d.close(); });
   d.addEventListener('click', function(e){ if (e.target === d) d.close(); });
 })();
 

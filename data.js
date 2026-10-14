@@ -38,7 +38,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
-  ["2.24", "14. Okt. 2026", "Neuer Filter „Für mich“: zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Aufgeräumteres Board: kürzere Themen-Namen, Filter auf dem Handy in einer Zeile, „Alle aufklappen“ je Spalte, luftigere Abstände, alle Karten mit schwarzem Rahmen."],
+  ["2.24", "14. Okt. 2026", "Neuer Filter „Für mich“: zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Aufgeräumteres Board: kürzere Themen-Namen, Filter auf dem Handy in einer Zeile, „Alle aufklappen“ je Spalte, luftigere Abstände, alle Karten mit schwarzem Rahmen, übersichtlichere Hilfe."],
   ["2.22", "13. Okt. 2026", "Qualitätsrunde: besser per Tastatur und Screenreader bedienbar, kein seitliches Scrollen auf sehr kleinen Handys, eigene Seite für falsche Links. Auf dem Homescreen eigenes Icon und der Name „ADC Dashboard“."],
   ["2.19", "3. Okt. 2026", "Ideen und Kommentare löschen, mit Papierkorb (30 Tage wiederherstellbar). Impressum und Datenschutz, Schrift lokal statt von Google. Zuverlässiger: Entwürfe gehen nicht verloren, kein Doppelspeichern, nicht mehr bei Google auffindbar."],
   ["2.15", "2. Okt. 2026", "Weichere Bewegung: Ideen gleiten auf und zu, Filter sortieren fließend um, die Seite scrollt weich, Header mit Milchglas."],

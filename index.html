@@ -61,15 +61,22 @@ header{border-bottom:1px solid var(--line);background:rgba(255,255,255,.82);-web
 .hright{display:flex;align-items:center;gap:8px}
 .help-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-size:17px;font-weight:800;cursor:pointer;line-height:1;flex-shrink:0}
 .help-btn:hover{background:var(--ink);color:#fff}
-dialog.help{max-width:500px;max-height:calc(100vh - 32px);overflow-y:auto;padding:24px 24px 20px}
-dialog.help h2{font-size:19px;margin-bottom:14px}
-dialog.help h3{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--line)}
-.hl{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--ink-2);line-height:1.5}
-.hl li{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start}
-.hl .ic{font-size:15px;line-height:1.4;text-align:center}
-.hl b{color:var(--ink)}
-dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;color:var(--ink-2)}
-.help-foot{margin-top:18px;justify-content:space-between}
+dialog.who.help{max-width:580px;width:calc(100% - 32px);max-height:calc(100dvh - 48px);padding:0;overflow:hidden}
+dialog.help[open]{display:flex;flex-direction:column}
+.help-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:26px 28px 18px;border-bottom:1px solid var(--line)}
+dialog.who.help h2{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin:0;outline:none;text-wrap:balance}
+.help-x{flex-shrink:0;width:36px;height:36px;margin:-4px -8px 0 0;border:none;border-radius:50%;background:var(--soft);color:var(--ink);font:inherit;font-size:22px;line-height:1;cursor:pointer}
+.help-x:hover{background:var(--line)}
+.help-body{overflow-y:auto;padding:22px 28px 26px;overscroll-behavior:contain}
+.help-body:focus-visible{outline:2px solid var(--blue);outline-offset:-4px}
+dialog.help h3{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:28px 0 14px}
+.hl{list-style:none;display:flex;flex-direction:column;gap:14px;font-size:15px;color:var(--ink-2);line-height:1.55}
+.hl li,dialog.help .trust{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start}
+.hl .ic,dialog.help .trust .ic{font-size:16px;line-height:1.45;text-align:center}
+.hl b{color:var(--ink);font-weight:700}
+.nw{white-space:nowrap}
+dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.55;color:var(--ink-2)}
+.help-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 28px;border-top:1px solid var(--line);background:#fff}
 .brand img{height:34px;width:auto;display:block}
 .brand-txt{font-size:16px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;padding:8px 15px;border:1.5px solid var(--ink);transition:background .15s,color .15s;white-space:nowrap;cursor:pointer;line-height:1.2}
@@ -270,6 +277,12 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .cta .btn{justify-content:center;padding:8px 10px}
   .cta .btn:first-child{grid-column:1/-1}
   .fb{padding:4px 9px}
+  .help-head{padding:20px 20px 14px}
+  dialog.who.help h2{font-size:19px}
+  .help-body{padding:18px 20px 22px}
+  .hl{font-size:14px;gap:12px}
+  .hl li,dialog.help .trust{gap:10px}
+  .help-foot{padding:12px 20px}
   .mrow{padding-top:12px}
   .mine-hint{font-size:12px}
   .panel{padding:14px}
@@ -317,29 +330,34 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 </header>
 
 <dialog data-lenis-prevent class="who help" id="help" aria-labelledby="help-h">
-  <h2 id="help-h" tabindex="-1" autofocus style="outline:none">So funktioniert das Dashboard</h2>
-  <ul class="hl">
-    <li><span class="ic">👀</span><span><b>Lesen kann jede:r mit dem Link.</b> Bitte verschick ihn nicht leichtfertig.</span></li>
-    <li><span class="ic">✍️</span><span><b>Mitmachen geht mit dem Mitglieder-Code</b> aus der WhatsApp-Gruppe. Einmal Name und Code eingeben, dein Browser merkt sich beides.</span></li>
-  </ul>
-  <h3>Was du tun kannst</h3>
-  <ul class="hl">
-    <li><span class="ic">💡</span><span><b>Neue Idee</b> anlegen, auch <b>anonym</b>: Dann reicht der Code, dein Name wird nicht gespeichert.</span></li>
-    <li><span class="ic">▲</span><span><b>Hochvoten</b>: eine Stimme pro Person, nochmal tippen nimmt sie zurück.</span></li>
-    <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen</b>: Dein Name erscheint an der Idee.</span></li>
-    <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten und <b>Notizen</b> schreiben.</span></li>
-    <li><span class="ic">🗑️</span><span><b>Löschen</b>: Ideen und Kommentare landen 30 Tage im Papierkorb unten auf der Seite und lassen sich dort wiederherstellen.</span></li>
-    <li><span class="ic">📱</span><span><b>Mein Kontakt</b>: Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
-  </ul>
-  <h3>Orientierung</h3>
-  <ul class="hl">
-    <li><span class="ic">📍</span><span><b>Sektionen</b>: was wir selbst anschieben. <b>Gesamtverein</b>: was Präsidium oder JHV entscheiden.</span></li>
-    <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter <b>Ideen, die Mitstreiter:innen suchen</b>.</span></li>
-    <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast.</span></li>
-    <li><span class="ic">🔗</span><span>Filter nach Themen und Sektion. Mit dem Link-Button teilst du eine einzelne Idee.</span></li>
-  </ul>
-  <p class="trust">🤝 Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</p>
-  <div class="form-row help-foot"><button class="btn btn-dark" type="button" id="help-close">Alles klar</button><a class="linkbtn" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">Fragen? WhatsApp-Gruppe</a></div>
+  <div class="help-head">
+    <h2 id="help-h" tabindex="-1" autofocus>So funktioniert das Dashboard</h2>
+    <button class="help-x" type="button" id="help-x" aria-label="Hilfe schließen">×</button>
+  </div>
+  <div class="help-body" id="help-body" tabindex="0">
+    <ul class="hl">
+      <li><span class="ic">👀</span><span><b>Lesen kann jede:r mit dem Link.</b> Bitte verschick ihn nicht leichtfertig.</span></li>
+      <li><span class="ic">✍️</span><span><b>Mitmachen geht mit dem <span class="nw">Mitglieder-Code</span></b> aus der <span class="nw">WhatsApp-Gruppe</span>. Einmal Name und Code eingeben, dein Browser merkt sich beides.</span></li>
+    </ul>
+    <h3>Was du tun kannst</h3>
+    <ul class="hl">
+      <li><span class="ic">💡</span><span><b>Neue Idee</b> anlegen, auch <b>anonym</b>. Dann reicht der Code, dein Name wird nicht gespeichert.</span></li>
+      <li><span class="ic">▲</span><span><b>Hochvoten:</b> eine Stimme pro Person. Nochmal tippen nimmt sie zurück.</span></li>
+      <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen:</b> Dein Name erscheint an der Idee.</span></li>
+      <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten und <b>Notizen</b> schreiben.</span></li>
+      <li><span class="ic">🗑️</span><span><b>Löschen:</b> Ideen und Kommentare liegen danach 30&nbsp;Tage im Papierkorb unten auf der Seite und lassen sich wiederherstellen.</span></li>
+      <li><span class="ic">📱</span><span><b>Mein Kontakt:</b> Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
+    </ul>
+    <h3>Orientierung</h3>
+    <ul class="hl">
+      <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
+      <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen.</span></li>
+      <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Darunter filterst du nach Thema und Sektion.</span></li>
+      <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
+    </ul>
+    <p class="trust"><span class="ic">🤝</span><span>Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</span></p>
+  </div>
+  <div class="help-foot"><button class="btn btn-dark" type="button" id="help-close">Alles klar</button><a class="linkbtn" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">Fragen? WhatsApp-Gruppe</a></div>
 </dialog>
 
 <main id="inhalt" tabindex="-1">
