@@ -88,7 +88,8 @@ dialog.help .trust{margin:20px 0 0;background:var(--soft);border-radius:10px;pad
 /* Filter */
 .filters{position:sticky;top:60px;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .frow{display:flex;gap:8px;align-items:center;padding-top:10px;padding-bottom:10px;overflow-x:auto;scrollbar-width:none}
-.frow::-webkit-scrollbar{display:none}
+.frow::-webkit-scrollbar,.fscroll::-webkit-scrollbar{display:none}
+.fscroll{display:flex;gap:8px;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
 .fb{flex-shrink:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .12s;white-space:nowrap}
 .fb:hover{border-color:var(--ink);color:var(--ink)}
 .fb.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -255,16 +256,17 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .brand-txt{display:none}
   .btn{font-size:14px;padding:8px 13px}
   .filters{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .frow{flex-wrap:wrap;overflow:visible;gap:6px;padding-top:12px;padding-bottom:12px}
+  .frow{gap:10px;padding-top:10px;padding-bottom:10px;padding-right:12px;overflow:visible}
+  .fscroll{gap:5px;margin-left:-16px;padding-left:16px;padding-right:20px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 22px),transparent)}
   .fsep{display:none}
-  .toggle-all{margin-left:0;padding:6px 4px}
+  .toggle-all{margin-left:auto;padding:6px 4px}
   .hero{padding-top:22px;padding-bottom:16px}
   .hero h1{font-size:30px}
   .hero p{font-size:15px}
   .cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .cta .btn{justify-content:center;padding:8px 10px}
   .cta .btn:first-child{grid-column:1/-1}
-  .fb{padding:5px 10px}
+  .fb{padding:4px 9px}
   .panel{padding:14px}
   .col-title{font-size:20px}
   .chead{padding:12px}
@@ -406,16 +408,18 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 
 <div class="filters">
   <div class="wrap frow" id="frow" role="toolbar" aria-label="Filter">
+    <div class="fscroll">
     <button type="button" class="fb on" data-t="all" aria-pressed="true">Alle</button>
     <button type="button" class="fb" aria-pressed="false" data-t="events">🎤 Events</button>
     <button type="button" class="fb" aria-pressed="false" data-t="members">👥 Mitglieder</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="network">🌍 Partner & Öffentlichkeit</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="verein">🏛️ Verein & Struktur</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="network" title="Partner & Öffentlichkeit">🌍 PR</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="verein" title="Verein & Struktur">🏛️ Verein</button>
     <button type="button" class="fb" aria-pressed="false" data-t="jury">⚖️ Jury</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="antrag">📄 JHV-Antrag</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="antrag" title="JHV-Anträge">📄 Anträge</button>
     <span class="fsep"></span>
     <button type="button" class="fb" aria-pressed="false" data-t="Hamburg">📍 Hamburg</button>
     <button type="button" class="fb" aria-pressed="false" data-t="Berlin">📍 Berlin</button>
+    </div>
     <button type="button" class="toggle-all" id="toggle-all">Alle aufklappen</button>
   </div>
 </div>
