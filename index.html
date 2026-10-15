@@ -116,7 +116,6 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .col-title{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
 .col-tools{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;min-height:30px}
 .count{font-size:13px;font-weight:600;color:var(--ink-3)}
-.pdf-btn{font-size:13px;padding:5px 12px}
 .group-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:32px 0 12px;display:flex;align-items:center;gap:10px}
 .group-title:first-of-type{margin-top:0}
 .group-title::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -464,7 +463,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <div class="col-head">
       <div class="col-kicker">🏛️ Gesamtverein</div>
       <h2 class="col-title">Präsidium / JHV</h2>
-      <div class="col-tools"><a class="btn btn-light pdf-btn" href="https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf" target="_blank" rel="noopener">📄 Anträge JHV.pdf</a><span class="count" id="jc"></span><button type="button" class="toggle-all" data-col="jhv" aria-controls="cjhv">Alle aufklappen</button></div>
+      <div class="col-tools"><span class="count" id="jc"></span><button type="button" class="toggle-all" data-col="jhv" aria-controls="cjhv">Alle aufklappen</button></div>
     </div>
     <div id="cjhv"></div>
   </section>

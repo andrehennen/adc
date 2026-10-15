@@ -7,7 +7,6 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 - Repo `andrehennen/adc`, Branch `main` → Vercel deployt automatisch nach https://adc-germany-dashboard.vercel.app/ (alte URL adc-hh-dashboard leitet dorthin weiter)
 - **Standardregel: Jede Änderung am Dashboard wird committed und gepusht**, ohne nachzufragen. Danach kurz sagen, was sich geändert hat.
-- Ändern sich Anträge, wird auch `antraege-jhv.pdf` neu gebaut und gepusht (siehe unten).
 - Der Kompass ist ein separates Repo: `andrehennen/adc-compass` → https://adc-compass.vercel.app/
 - **Niemals** Tokens oder Zugangsdaten in `index.html`, `data.js` oder `app.js` schreiben (GitHub Secret Scanning blockt das, und die Seite ist öffentlich). Einzige Ausnahme: der Supabase **Publishable/anon Key** (`SB_KEY`), der ist dafür gemacht. Den `service_role`/Secret Key und den Mitglieder-Code nie ins Repo.
 
@@ -44,7 +43,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 - **Alles, was aus der Datenbank kommt, mit `esc()` ausgeben** (auch Emoji, Namen, Sektion). Links nur über `linkify(esc(...))`.
 - `vercel.json` setzt Schutz-Header inkl. Content-Security-Policy und `noindex`. **Die CSP erlaubt keine Inline-Scripts** (seit 13.10.2026): kein `<script>…</script>` im HTML, keine `onclick`-Attribute, auch nicht in per JS erzeugtem HTML. Logik gehört in `app.js`. **Neue externe Quellen (Scripts, Fonts, APIs) müssen dort in die CSP**, sonst blockt der Browser sie. Scripts möglichst lokal ablegen (`vendor/`), nicht vom CDN.
-- `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich (nötig für den PDF-Link): **nichts Vertrauliches in diese Datei oder ins Repo schreiben** (interne Einschätzungen, offene Entscheidungen), das gehört in Claudes privaten Projektspeicher.
+- `.vercelignore` hält `CLAUDE.md` und `supabase/` aus dem Deployment. Das Repo selbst ist öffentlich: **nichts Vertrauliches in diese Datei oder ins Repo schreiben** (interne Einschätzungen, offene Entscheidungen), das gehört in Claudes privaten Projektspeicher.
 - `render()` behält ungespeicherte Kommentar-Entwürfe und offene „Nächste Schritte“-Bearbeitungen (`keepDrafts`). Nach erfolgreichem Speichern das Feld leeren bzw. das Formular entfernen, **bevor** `load()` läuft.
 - Kein Auto-Reload, solange etwas Ungespeichertes offen ist (`unsaved()`).
 - Speichern-Buttons während des Requests deaktivieren (Doppelklick).
@@ -81,8 +80,6 @@ Jedes Ticket ist ein Objekt:
 | `bisher` | Bisher passiert, mit ` \| ` getrennt |
 | `rahmen` | Leitlinien, mit ` \| ` getrennt |
 | `antrag` | JHV-Antragstext (im Dashboard mit Kopierbutton) |
-| `antragPdf` | Nur-PDF-Fassung, überschreibt `antrag` im PDF |
-| `antragTitel` | Nur-PDF-Titel, überschreibt `n` im PDF |
 | `orig` | Originalidee(n) aus der Sammlung, wörtlich |
 
 Status-Labels: 💡 Idee · 📋 Geplant · ⚡ In Arbeit · 📝 Entwurf vorbereitet · 🔍 Prüfung abgeschlossen · ✅ Wird gemacht! · 🟢 Live, wird getestet · ✅ Abgeschlossen
@@ -108,7 +105,6 @@ Feste Links:
 - 🧭 ADC Kompass: https://adc-compass.vercel.app/
 - 💡 Idee vorschlagen: öffnet das Vorschlagsfeld auf der Seite (Fallback ohne Supabase: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls). Im ausgeklappten Feld steht ein Hinweis mit Link auf die alte Sli.do-Sammlung.
 - 💬 WhatsApp Gruppe: https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
-- 📄 Anträge JHV.pdf: https://github.com/andrehennen/adc/raw/main/antraege-jhv.pdf (der relative Pfad funktionierte auf Vercel nicht)
 - Footer: „Version x.y · Changelog“ (aufklappbar) und „Entwickelt von André Hennen, Curious Company“ (verlinkt auf https://curiouscompany.de); darunter Links zu `/impressum` und `/datenschutz`
 - **Impressum & Datenschutz** (`impressum.html`, `datenschutz.html`, eigenständige Seiten, über `cleanUrls` ohne `.html` erreichbar). Anbieter ist der ADC e. V. (Angaben von adc.de), Ansprechpartner André (andre.hennen@adc.de). **Ändert sich, was gespeichert wird oder wohin die Seite Daten schickt (neuer Dienst, neues Feld), die Datenschutzseite mit anpassen.**
 
@@ -117,20 +113,10 @@ Feste Links:
 - Liste `var CL = [...]` in `data.js`, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.
 - Bei jeder für Nutzer:innen sichtbaren Änderung (Funktion, Design, größere Inhaltsrunde) einen Eintrag ergänzen. Mehrere Änderungen am selben Tag dürfen in einen Eintrag.
 - Neue Funktion oder größere Überarbeitung: Minor (2.2 → 2.3). Komplett neues Design/Konzept: Major (→ 3.0). Reine Ticket-Updates (Status, Owner, Next Steps) brauchen keinen Eintrag.
-- Texte knapp halten, keine unnötigen Zeilen. Anträge (`antrag`, `antragPdf`) und Originalideen (`orig`) bleiben wörtlich.
+- Texte knapp halten, keine unnötigen Zeilen. Anträge (`antrag`) und Originalideen (`orig`) bleiben wörtlich.
 
-## JHV-Anträge & PDF (`antraege-jhv.pdf`)
+## JHV-Anträge
 
-- Antragsteller-Formulierung immer: **„André Hennen, stellvertretend für die Ideen aus der Sektion Hamburg, beantragt …“**
-- Reihenfolge im PDF: Satzungsänderungen zuerst.
-- Aktuell 4 Anträge:
-  1. Alle Wahlen digital (Satzungsänderung)
-  2. Abstimmungen vereinfachen (Satzungsänderung, § 6.5)
-  3. ADC Artist Shop – freie Arbeiten von Mitgliedern (A24-Shop als Referenz, ausdrücklich kein ADC-Logo-Merch)
-  4. Jury-Kandidatur um Arbeiten ergänzen (im PDF nur Variante A)
-- PDF-Layout (reportlab), ADC-CI:
-  - schwarzes Cover mit ADC-Logo
-  - Headlines Times-Bold, Fließtext Helvetica
-  - Kopfzeile „ADC“ / „JHV-Anträge · Entwurfsfassung“, Seitenzahlen
-  - keine Emojis (sie werden im PDF als Kästchen gerendert)
-- Das alte Build-Skript ist nicht im Repo. Beim nächsten Neubau ein Skript `tools/build_pdf.py` anlegen, das die Anträge aus `data.js` liest, und es mit einchecken.
+- Antragsteller-Formulierung für neue Anträge: **„André Hennen, stellvertretend für die Ideen aus der Sektion Hamburg, beantragt …“**
+- JHV 15.10.2026: Die Satzungsänderungen „Abstimmungen vereinfachen“ (§ 6.5) und „Alle Wahlen digital“ (§ 7.2, § 7.5.2) wurden angenommen, im Wortlaut von Rechtsanwalt Oliver Brexl. Im Feld `antrag` steht jeweils der beschlossene Text.
+- Das PDF `antraege-jhv.pdf` und der Button dazu wurden danach entfernt.
