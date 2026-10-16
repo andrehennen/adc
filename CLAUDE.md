@@ -115,6 +115,8 @@ Feste Links:
 - Routen nur als Links (Google Maps, Apple Karten), nichts eingebettet. Adresssuche über `/api/geocode` (serverseitig Nominatim, nur Hamburg, nur per Button).
 - Speicher: Tabelle `jury_locations` (`supabase/010_jury_map.sql`), Schreiben per `save_jury_location`/`delete_jury_location` mit Mitglieder-Code. Löschen blendet nur aus (`deleted`), Wiederherstellen im Table Editor. Alle mit Code dürfen alle Orte bearbeiten, auch „Zugeordnete Jury“.
 - **Abend-Treffpunkt:** Konstante `TREFF` oben in `jury.js` (Name, Adresse, lat/lng, Info). Solange `null`, zeigt die Seite „steht noch nicht fest“.
+- **Demo-Orte:** `DEMO` oben in `jury.js` (3 Beispiele, IDs negativ, nicht bearbeitbar, Badge „Demo-Eintrag“). Entfernen mit `DEMO = []`, sobald echte Orte da sind.
+- „Ort anbieten“ versucht den Speicher neu zu laden, falls er beim Seitenaufruf nicht erreichbar war.
 - Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
 
 ## Changelog & Versionen

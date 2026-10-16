@@ -301,7 +301,7 @@ for (const mode of ['down', 'noConfig']) {
   page.on('dialog', d => d.accept());
   await page.goto(ORIGIN + '/jury', { waitUntil: 'networkidle' });
   await page.waitForSelector('#ort-2'); await page.waitForTimeout(1500);
-  ok('Jury Map: Karte und Pins laden', await page.locator('.maplibregl-canvas').count() === 1 && await page.locator('.maplibregl-marker').count() === 1);
+  ok('Jury Map: Karte und Pins laden, Demo-Orte ohne Bearbeiten', await page.locator('.maplibregl-canvas').count() === 1 && await page.locator('.maplibregl-marker').count() === 4 && await page.locator('#ort--1').count() === 1 && await page.locator('#ort--1 [data-edit]').count() === 0);
   ok('Jury Map: XSS aus der Datenbank wird nicht ausgeführt', !(await page.evaluate(() => window.__xss)) && await page.locator('#locs img, #locs script').count() === 0);
   await page.click('#add-btn'); await login(page); await page.waitForSelector('#form-panel:not([hidden])');
   await page.fill('#f-ort', 'QA Agentur, Raum Elbe'); await page.fill('#f-adresse', 'Glashüttenstraße 38');
@@ -319,7 +319,17 @@ for (const mode of ['down', 'noConfig']) {
     await page.click(`[data-edit="${saved.id}"]`); await page.click('#f-del'); await page.waitForTimeout(1000);
     ok('Jury Map: Ort löschen', saved.deleted && await page.locator('#ort-' + saved.id).count() === 0);
   }
-  ok('Jury Map: keine JS-, CSP- oder Ladefehler', log.length === 0, log.join(' | '));
+  // abgebrochene Kachel-Abrufe beim Zoomen sind normal
+  const jlog = log.filter(l => !/pmtiles net::ERR_ABORTED/.test(l));
+  ok('Jury Map: keine JS-, CSP- oder Ladefehler', jlog.length === 0, jlog.join(' | '));
+  // Speicher beim Laden weg, beim Klick wieder da: „Ort anbieten“ versucht es neu
+  const p2 = await ctx.newPage();
+  store.db.down = true;
+  await p2.goto(ORIGIN + '/jury', { waitUntil: 'networkidle' }); await p2.waitForTimeout(800);
+  const demoOnly = await p2.locator('.loc[data-id]').count();
+  store.db.down = false;
+  await p2.click('#add-btn'); await p2.waitForTimeout(800);
+  ok('Jury Map: Speicher erst weg, dann „Ort anbieten“ lädt neu und öffnet das Formular', demoOnly === 3 && await p2.locator('#form-panel').isVisible(), 'Demo-Karten: ' + demoOnly);
   await ctx.close();
 }
 

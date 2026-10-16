@@ -29,8 +29,9 @@ for (const [vp, w, h] of [['handy', 375, 812], ['desktop', 1440, 900]]) {
   await noInstallHint(ctx);
   for (const p of ['/impressum', '/datenschutz', '/gibtsnicht', '/jury']) {
     const page = await ctx.newPage();
-    await page.goto(ORIGIN + p, { waitUntil: 'networkidle' });
-    if (p === '/jury') await page.waitForTimeout(1500);
+    // Die Karte lädt Kacheln nach, darum bei /jury nicht auf Netzruhe warten
+    await page.goto(ORIGIN + p, { waitUntil: p === '/jury' ? 'load' : 'networkidle' });
+    if (p === '/jury') await page.waitForTimeout(2500);
     await run(page, vp + p); await page.close();
   }
   const page = await ctx.newPage();

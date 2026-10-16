@@ -30,8 +30,9 @@ for (const [name, engine, opts] of MATRIX) {
 
   for (const p of ['/impressum', '/datenschutz', '/gibtsnicht', '/jury']) {
     const page = await ctx.newPage(); const log = watch(page);
-    await page.goto(ORIGIN + p, { waitUntil: 'networkidle' });
-    if (p === '/jury') await page.waitForTimeout(1500);
+    // Die Karte lädt Kacheln nach, darum bei /jury nicht auf Netzruhe warten
+    await page.goto(ORIGIN + p, { waitUntil: p === '/jury' ? 'load' : 'networkidle' });
+    if (p === '/jury') await page.waitForTimeout(2500);
     const of = await overflow(page);
     await shot(page, p.slice(1));
     add(p, p === '/gibtsnicht' ? log.filter(l => !/404/.test(l)) : log, of);

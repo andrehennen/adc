@@ -55,7 +55,8 @@ export function watch(page) {
   const log = [];
   page.on('pageerror', e => log.push('JS-Fehler: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' || /Content Security Policy|CSP/i.test(m.text())) log.push('Konsole ' + m.type() + ': ' + m.text().slice(0, 300)); });
-  page.on('requestfailed', r => log.push('Abruf fehlgeschlagen: ' + r.url().slice(0, 120) + ' ' + (r.failure() || {}).errorText));
+  // Kartenkacheln, die beim Zoomen abgebrochen werden, sind kein Fehler
+  page.on('requestfailed', r => /\.pmtiles$/.test(r.url()) && /ERR_ABORTED|cancelled/i.test((r.failure() || {}).errorText || '') ? null : log.push('Abruf fehlgeschlagen: ' + r.url().slice(0, 120) + ' ' + (r.failure() || {}).errorText));
   page.on('response', r => { if (r.status() >= 400) log.push('HTTP ' + r.status() + ': ' + r.url().slice(0, 120)); });
   return log;
 }

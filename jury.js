@@ -7,7 +7,15 @@ var MAP_STAND = '2026-10';   // Stand der Kartendatei map/hamburg-<stand>.pmtile
 // {name:'Get Together der Sektion Hamburg', adresse:'Musterstraße 1, 20457 Hamburg', lat:53.55, lng:9.99, info:'Am Vorabend ab 19 Uhr'}
 var TREFF = null;
 
-var fitted = false;
+// Demo-Orte zum Ausprobieren (nur auf der Seite, nicht im Speicher, nicht bearbeitbar).
+// Entfernen, sobald echte Orte eingetragen sind: DEMO = [].
+var DEMO = [
+  {id:-1, demo:true, ort:'Demo: Agentur am Hafen', firma:'Beispiel GmbH', adresse:'Am Sandtorkai, 20457 Hamburg', lat:53.5436, lng:9.9897, raeume:3, plaetze:10, internet:true, catering:'ja', tage:'alle Jury-Tage', jury:'Film', notiz:'Nur ein Beispiel, damit man die Karte ausprobieren kann.', created_by:'Demo'},
+  {id:-2, demo:true, ort:'Demo: Studio Schanze', firma:'Beispiel Studio', adresse:'Schulterblatt, 20357 Hamburg', lat:53.5617, lng:9.9617, raeume:1, plaetze:12, internet:true, catering:'teilweise', tage:'Mo–Mi', jury:null, notiz:null, created_by:'Demo'},
+  {id:-3, demo:true, ort:'Demo: Loft Ottensen', firma:null, adresse:'Bahrenfelder Straße, 22765 Hamburg', lat:53.5545, lng:9.9283, raeume:2, plaetze:8, internet:false, catering:'nein', tage:null, jury:null, notiz:null, created_by:'Demo'}
+];
+
+var fitted = false, loaded = false;
 var LOCS = [], CONTACTS = null, ME = {}, map = null, markers = {}, draft = null, editing = null, selId = null, popup = null, SB_ON = false;
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -35,22 +43,27 @@ function api(fn, args){
   });
 }
 function load(){
-  if (!SB_URL || !SB_KEY) { renderList('Der Speicher ist gerade nicht erreichbar. Bitte versuch es später nochmal.'); return Promise.resolve(false); }
+  if (!SB_URL || !SB_KEY) { setLocs([]); loaded = true; renderPins(); renderList('Der Speicher ist gerade nicht erreichbar. Bitte versuch es später nochmal.'); return Promise.resolve(false); }
   return Promise.all([
     sbFetch('jury_locations?select=id,ort,firma,adresse,lat,lng,raeume,plaetze,internet,catering,tage,jury,notiz,created_by,created_at,deleted&deleted=is.false&order=created_at'),
     ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null)
   ]).then(function(r){
-    LOCS = r[0].filter(function(l){ return !l.deleted; });
-    LOCS.forEach(function(l, i){ l.nr = i + 1; });
+    setLocs(r[0].filter(function(l){ return !l.deleted; }));
     CONTACTS = r[1];
-    SB_ON = true;
+    SB_ON = true; loaded = true;
     renderList(); renderPins();
     return true;
   }).catch(function(e){
     console.warn('Speicher nicht erreichbar', e);
+    setLocs([]); loaded = true; renderPins();
     renderList('Der Speicher ist gerade nicht erreichbar. Bitte versuch es später nochmal.');
     return false;
   });
+}
+
+function setLocs(real){
+  LOCS = real.concat(DEMO);
+  LOCS.forEach(function(l, i){ l.nr = i + 1; });
 }
 
 // --- Kontakte (wie im Dashboard: voller Name, akzent- und großschreibungsunabhängig) ---
@@ -110,20 +123,20 @@ function card(l){
   if (n) near.push('Nächster Jury-Ort: <b>' + esc(n.o.ort) + '</b>, ' + walk(n.d));
   if (TREFF) near.push('Zum Abend-Treffpunkt: ' + walk(dTreff));
   return '<li class="loc" id="ort-' + l.id + '" data-id="' + l.id + '">'
-    + '<button class="lhead" type="button" data-fly="' + l.id + '" aria-label="' + esc(l.ort) + ' auf der Karte zeigen"><span class="num">' + l.nr + '</span><span><span class="lname">' + esc(l.ort) + '</span>'
+    + '<button class="lhead" type="button" data-fly="' + l.id + '" title="Auf der Karte zeigen"><span class="num">' + l.nr + '</span><span><span class="lname">' + esc(l.ort) + '</span>'
     + '<span class="sub" style="display:block">' + (l.firma ? esc(l.firma) + ' · ' : '') + esc(l.adresse) + '</span></span></button>'
     + '<div class="lbody">' + tags(l)
     + (l.tage ? '<div>📅 ' + esc(l.tage) + '</div>' : '')
     + (l.jury ? '<div>⚖️ Jury: <b>' + esc(l.jury) + '</b></div>' : '')
     + (l.notiz ? '<div>' + linkify(esc(l.notiz)) + '</div>' : '')
     + (near.length ? '<div class="near">' + near.join('<br>') + '</div>' : '')
-    + '<div class="lfoot">' + routeLinks(l) + (SB_ON ? '<button class="linkbtn" type="button" data-edit="' + l.id + '">✏️ Bearbeiten</button>' : '') + '</div>'
-    + '<div class="by">Eingetragen von ' + who(l.created_by) + '</div>'
+    + '<div class="lfoot">' + routeLinks(l) + (SB_ON && !l.demo ? '<button class="linkbtn" type="button" data-edit="' + l.id + '">✏️ Bearbeiten</button>' : '') + '</div>'
+    + (l.demo ? '<div class="by">🧪 Demo-Eintrag zum Ausprobieren</div>' : '<div class="by">Eingetragen von ' + who(l.created_by) + '</div>')
     + '</div></li>';
 }
 function treffCard(){
   if (!TREFF) return '<li class="loc empty">🌙 <b>Abend-Treffpunkt:</b> steht noch nicht fest. Sobald es ihn gibt, erscheint er hier und auf der Karte.</li>';
-  return '<li class="loc treff" id="ort-treff"><button class="lhead" type="button" data-fly="treff" aria-label="Abend-Treffpunkt auf der Karte zeigen"><span class="num">★</span><span><span class="lname">🌙 ' + esc(TREFF.name) + '</span>'
+  return '<li class="loc treff" id="ort-treff"><button class="lhead" type="button" data-fly="treff" title="Auf der Karte zeigen"><span class="num">★</span><span><span class="lname">🌙 ' + esc(TREFF.name) + '</span>'
     + '<span class="sub" style="display:block">' + esc(TREFF.adresse) + '</span></span></button>'
     + '<div class="lbody">' + (TREFF.info ? '<div>' + esc(TREFF.info) + '</div>' : '') + '<div class="lfoot">' + routeLinks(TREFF) + '</div></div></li>';
 }
@@ -133,7 +146,7 @@ function renderList(err){
   $('count').textContent = LOCS.length ? LOCS.length + (LOCS.length === 1 ? ' Ort' : ' Orte') + (r ? ' · ' + r + ' Räume' : '') : '';
   var h = treffCard();
   if (err) h += '<li class="loc empty">' + esc(err) + '</li>';
-  else if (!LOCS.length) h += '<li class="loc empty">Noch keine Orte eingetragen. Biete den ersten an: <b>📍 Ort anbieten</b> oben.</li>';
+  else if (!LOCS.some(function(l){ return !l.demo; })) h += '<li class="loc empty">Noch keine echten Orte eingetragen. Biete den ersten an: <b>📍 Ort anbieten</b> oben.' + (DEMO.length ? ' Die Demo-Orte unten zeigen, wie es aussieht.' : '') + '</li>';
   h += LOCS.map(card).join('');
   ul.innerHTML = h;
   if (selId) select(selId, false);
@@ -203,7 +216,7 @@ function renderPins(){
     markers.treff = new maplibregl.Marker({element: t, anchor: 'bottom'}).setLngLat([TREFF.lng, TREFF.lat]).addTo(map);
   }
   // Beim ersten Laden alle Orte ins Bild holen
-  if (!fitted && SB_ON && !editing) {
+  if (!fitted && loaded && !editing) {
     fitted = true;
     var pts = LOCS.map(function(l){ return [l.lng, l.lat]; });
     if (TREFF) pts.push([TREFF.lng, TREFF.lat]);
@@ -279,7 +292,14 @@ function closeForm(){
   Object.keys(markers).forEach(function(k){ markers[k].getElement().hidden = false; });
 }
 $('add-btn').addEventListener('click', function(){
-  if (!SB_ON) return alert('Der Speicher ist gerade nicht erreichbar. Bitte versuch es später nochmal.');
+  // Speicher war beim Laden nicht erreichbar: erst neu versuchen, dann aufgeben
+  if (!SB_ON) {
+    var b = this; b.disabled = true;
+    return load().then(function(ok){
+      b.disabled = false;
+      if (ok) openForm(null); else alert('Der Speicher ist gerade nicht erreichbar. Bitte versuch es später nochmal.');
+    });
+  }
   if (!$('form-panel').hidden && editing && !editing.id) return closeForm();
   openForm(null);
 });
