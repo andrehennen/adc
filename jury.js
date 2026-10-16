@@ -11,7 +11,7 @@ var TREFF = null;
 // Entfernen, sobald echte Orte eingetragen sind: DEMO = [].
 var DEMO = [
   {id:-1, demo:true, ort:'Demo: Agentur am Hafen', firma:'Beispiel GmbH', adresse:'Am Sandtorkai, 20457 Hamburg', lat:53.5436, lng:9.9897, raeume:3, plaetze:10, internet:true, catering:'ja', tage:'alle Jury-Tage', jury:'Film', notiz:'Nur ein Beispiel, damit man die Karte ausprobieren kann.', created_by:'Demo'},
-  {id:-2, demo:true, ort:'Demo: Studio Schanze', firma:'Beispiel Studio', adresse:'Schulterblatt, 20357 Hamburg', lat:53.5617, lng:9.9617, raeume:1, plaetze:12, internet:true, catering:'teilweise', tage:'Mo–Mi', jury:null, notiz:null, created_by:'Demo'},
+  {id:-2, demo:true, ort:'Demo: Studio Schanze', firma:'Beispiel Studio', adresse:'Schulterblatt, 20357 Hamburg', lat:53.5617, lng:9.9617, raeume:1, plaetze:12, internet:true, catering:'teilweise', tage:'Mo–Mi', jury:'Digital', notiz:null, created_by:'Demo'},
   {id:-3, demo:true, ort:'Demo: Loft Ottensen', firma:null, adresse:'Bahrenfelder Straße, 22765 Hamburg', lat:53.5545, lng:9.9283, raeume:2, plaetze:8, internet:false, catering:'nein', tage:null, jury:null, notiz:null, created_by:'Demo'}
 ];
 
@@ -146,7 +146,7 @@ function renderList(err){
   $('count').textContent = LOCS.length ? LOCS.length + (LOCS.length === 1 ? ' Ort' : ' Orte') + (r ? ' · ' + r + ' Räume' : '') : '';
   var h = treffCard();
   if (err) h += '<li class="loc empty">' + esc(err) + '</li>';
-  else if (!LOCS.some(function(l){ return !l.demo; })) h += '<li class="loc empty">Noch keine echten Orte eingetragen. Biete den ersten an: <b>📍 Ort anbieten</b> oben.' + (DEMO.length ? ' Die Demo-Orte unten zeigen, wie es aussieht.' : '') + '</li>';
+  else if (!LOCS.some(function(l){ return !l.demo; })) h += '<li class="loc empty">Noch keine echten Orte eingetragen. Biete den ersten an: <b>📍 Ort anbieten</b>.' + (DEMO.length ? ' Die Demo-Orte unten zeigen, wie es aussieht.' : '') + '</li>';
   h += LOCS.map(card).join('');
   ul.innerHTML = h;
   if (selId) select(selId, false);
@@ -170,15 +170,11 @@ function initMap(){
     style.glyphs = o + style.glyphs;
     style.sprite = o + style.sprite;
     style.sources.protomaps.url = 'pmtiles://' + o + '/map/hamburg-' + MAP_STAND + '.pmtiles';
-    var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
     map = new maplibregl.Map({
       container: 'map', style: style, center: [9.985, 53.556], zoom: 12.3, minZoom: 10.5, maxZoom: 17.5,
       maxBounds: [[9.80, 53.47], [10.16, 53.66]], attributionControl: {compact: true},
-      cooperativeGestures: touch, dragRotate: false, pitchWithRotate: false, fadeDuration: REDUCED ? 0 : 300,
+      dragRotate: false, pitchWithRotate: false, fadeDuration: REDUCED ? 0 : 300,
       locale: {
-        'CooperativeGesturesHandler.MobileHelpText': 'Mit zwei Fingern verschieben und zoomen',
-        'CooperativeGesturesHandler.WindowsHelpText': 'Strg + Scrollen zum Zoomen',
-        'CooperativeGesturesHandler.MacHelpText': '⌘ + Scrollen zum Zoomen',
         'NavigationControl.ZoomIn': 'Hineinzoomen', 'NavigationControl.ZoomOut': 'Herauszoomen',
         'AttributionControl.ToggleAttribution': 'Quellen anzeigen'
       }
@@ -191,6 +187,8 @@ function initMap(){
   }).catch(mapFail);
 }
 function mapFail(){ $('mapbox').insertAdjacentHTML('beforeend', '<div class="mapfail">Die Karte lässt sich gerade nicht laden. Die Orte stehen in der Liste.</div>'); }
+// Pin-Beschriftung: „Jury 2: Film“, solange keine Jury feststeht „Ort 2“
+function pinLabel(l){ return l.jury ? 'Jury ' + l.nr + ': ' + l.jury : 'Ort ' + l.nr; }
 function pinEl(label, cls){
   var el = document.createElement('div');
   el.className = 'pin' + (cls ? ' ' + cls : '');
@@ -202,15 +200,15 @@ function renderPins(){
   Object.keys(markers).forEach(function(k){ markers[k].remove(); });
   markers = {};
   LOCS.forEach(function(l){
-    var el = pinEl(l.nr, l.id === selId ? 'sel' : '');
-    el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', l.nr + ': ' + l.ort);
+    var el = pinEl(pinLabel(l), (l.id === selId ? 'sel ' : '') + (l.demo ? 'demo' : ''));
+    el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', pinLabel(l) + ', ' + l.ort);
     function go(e){ e.stopPropagation(); select(l.id, true); showPopup(l); }
     el.addEventListener('click', go);
     el.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(e); } });
     markers[l.id] = new maplibregl.Marker({element: el, anchor: 'bottom'}).setLngLat([l.lng, l.lat]).addTo(map);
   });
   if (TREFF) {
-    var t = pinEl('★', 'treff');
+    var t = pinEl('🌙 Treffpunkt', 'treff');
     t.setAttribute('role', 'button'); t.setAttribute('tabindex', '0'); t.setAttribute('aria-label', 'Abend-Treffpunkt: ' + TREFF.name);
     t.addEventListener('click', function(e){ e.stopPropagation(); select('treff', true); showPopup(TREFF, true); });
     markers.treff = new maplibregl.Marker({element: t, anchor: 'bottom'}).setLngLat([TREFF.lng, TREFF.lat]).addTo(map);
@@ -227,9 +225,9 @@ function renderPins(){
 function showPopup(l, isTreff){
   if (popup) popup.remove();
   var n = isTreff ? null : nearest(l);
-  popup = new maplibregl.Popup({offset: [0, -40], closeButton: false, maxWidth: '260px'})
+  popup = new maplibregl.Popup({offset: [0, -34], closeButton: false, maxWidth: '260px'})
     .setLngLat([l.lng, l.lat])
-    .setHTML('<b>' + esc(isTreff ? '🌙 ' + l.name : l.nr + '. ' + l.ort) + '</b>' + (l.firma ? '<div>' + esc(l.firma) + '</div>' : '')
+    .setHTML('<b>' + esc(isTreff ? '🌙 ' + l.name : pinLabel(l)) + '</b>' + '<div>' + esc(isTreff ? l.adresse : l.ort) + '</div>'
       + (n ? '<div class="by">Nächster Jury-Ort: ' + esc(n.o.ort) + ', ' + walk(n.d) + '</div>' : ''))
     .addTo(map);
 }
@@ -240,14 +238,13 @@ function select(id, scroll){
   var c = $('ort-' + id);
   if (!c) return;
   c.classList.add('sel');
-  if (scroll && window.matchMedia('(min-width: 901px)').matches) c.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'nearest'});
+  if (scroll && $('form-panel').hidden) c.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'nearest'});
 }
 function fly(id){
   var l = id === 'treff' ? TREFF : LOCS.filter(function(x){ return x.id === id; })[0];
   if (!l) return;
   select(id, false);
   if (!map) return;
-  if (!window.matchMedia('(min-width: 901px)').matches) $('mapbox').scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'start'});
   map.flyTo({center: [l.lng, l.lat], zoom: Math.max(map.getZoom(), 15), duration: REDUCED ? 0 : 900});
   showPopup(l, id === 'treff');
 }
@@ -259,13 +256,15 @@ function setDraft(lat, lng, fly){
   if (map) {
     if (!draft) {
       draft = new maplibregl.Marker({element: pinEl('+', 'draft'), anchor: 'bottom', draggable: true}).setLngLat([lng, lat]).addTo(map);
-      draft.on('dragend', function(){ var p = draft.getLngLat(); editing.lat = p.lat; editing.lng = p.lng; pinMsg('Pin gesetzt. Du kannst ihn auf der Karte verschieben.', true); });
+      draft.on('dragend', function(){ var p = draft.getLngLat(); editing.lat = p.lat; editing.lng = p.lng; pinMsg('✓ Pin verschoben.', true); });
     } else draft.setLngLat([lng, lat]);
     if (fly) map.flyTo({center: [lng, lat], zoom: 16, duration: REDUCED ? 0 : 900});
   }
   $('maphint').hidden = true;
-  pinMsg('Pin gesetzt. Du kannst ihn auf der Karte verschieben.', true);
+  $('f-step').className = 'step done';
+  pinMsg('✓ Pin gesetzt. Du kannst ihn auf der Karte verschieben.', true);
 }
+function hintMap(){ var h = $('maphint'); if (!map || !editing) return; h.hidden = false; h.classList.remove('pulse'); void h.offsetWidth; h.classList.add('pulse'); }
 function pinMsg(t, ok){ var p = $('f-pin'); p.textContent = t; p.className = 'pinstate' + (ok ? ' ok' : ''); }
 function radio(name, v){ Array.prototype.forEach.call(document.querySelectorAll('[name=' + name + ']'), function(r){ r.checked = r.value === v; }); }
 function radioVal(name){ var r = document.querySelector('[name=' + name + ']:checked'); return r ? r.value : ''; }
@@ -281,13 +280,16 @@ function openForm(l){
     if (draft) { draft.remove(); draft = null; }
     if (l) { setDraft(l.lat, l.lng, false); if (markers[l.id]) markers[l.id].getElement().hidden = true; }
     else { pinMsg('Noch kein Pin. Such die Adresse oder tippe auf die Karte.', false); $('maphint').hidden = !map; }
-    $('form-panel').hidden = false;
-    $('f-ort').focus();
-    $('form-panel').scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'start'});
+    $('f-step').className = 'step' + (l ? ' done' : '');
+    $('view-intro').hidden = true; $('view-list').hidden = true; $('form-panel').hidden = false;
+    $('side').scrollTop = 0;
+    if (popup) popup.remove();
+    $('f-ort').focus({preventScroll: true});
   });
 }
 function closeForm(){
   editing = null; $('form-panel').hidden = true; $('maphint').hidden = true;
+  $('view-intro').hidden = false; $('view-list').hidden = false; $('f-msg').textContent = ''; $('f-msg').className = 'msg';
   if (draft) { draft.remove(); draft = null; }
   Object.keys(markers).forEach(function(k){ markers[k].getElement().hidden = false; });
 }
@@ -304,14 +306,16 @@ $('add-btn').addEventListener('click', function(){
   openForm(null);
 });
 $('f-cancel').addEventListener('click', closeForm);
+$('f-back').addEventListener('click', closeForm);
 $('f-find').addEventListener('click', function(){
   var q = $('f-adresse').value.trim(), btn = this, hits = $('f-hits');
   if (q.length < 3) { pinMsg('Bitte zuerst eine Adresse eingeben.', false); return; }
   if (!/hamburg/i.test(q)) q += ', Hamburg';
   btn.disabled = true; pinMsg('Suche …', false);
-  fetch('/api/geocode?q=' + encodeURIComponent(q)).then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; }).then(function(list){
+  fetch('/api/geocode?q=' + encodeURIComponent(q)).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(list){
     btn.disabled = false;
-    if (!list.length) { hits.hidden = true; pinMsg('Nichts gefunden. Prüf die Schreibweise oder tippe auf die Karte, um den Pin selbst zu setzen.', false); return; }
+    if (!list) { hits.hidden = true; pinMsg('Die Adresssuche ist gerade nicht erreichbar. Tippe auf die Karte, um den Pin selbst zu setzen.', false); hintMap(); return; }
+    if (!list.length) { hits.hidden = true; pinMsg('Nichts gefunden. Prüf die Schreibweise oder tippe auf die Karte, um den Pin selbst zu setzen.', false); hintMap(); return; }
     if (list.length === 1) { hits.hidden = true; setDraft(list[0].lat, list[0].lng, true); return; }
     hits.innerHTML = list.map(function(h, i){ return '<li><button type="button" data-i="' + i + '">📍 ' + esc(h.name) + '</button></li>'; }).join('');
     hits.hidden = false; pinMsg('Mehrere Treffer, bitte wählen:', false);
@@ -327,7 +331,7 @@ $('lform').addEventListener('submit', function(e){
   m.className = 'msg err';
   if (ort.length < 2) { m.textContent = 'Bitte einen Namen für den Ort.'; $('f-ort').focus(); return; }
   if (adr.length < 3) { m.textContent = 'Bitte die Adresse eintragen.'; $('f-adresse').focus(); return; }
-  if (editing.lat == null) { m.textContent = 'Bitte noch den Pin setzen: Adresse suchen oder auf die Karte tippen.'; return; }
+  if (editing.lat == null) { m.textContent = 'Bitte noch den Pin setzen: Adresse suchen oder auf die Karte tippen.'; $('f-step').className = 'step miss'; $('f-step').scrollIntoView({block: 'nearest'}); hintMap(); return; }
   if (sb.disabled) return;
   var net = radioVal('f-net');
   var args = {
@@ -342,7 +346,12 @@ $('lform').addEventListener('submit', function(e){
       sb.disabled = false; m.textContent = '';
       closeForm();
       return load().then(function(){ fly(+id); });
-    }, function(err){ sb.disabled = false; m.className = 'msg err'; m.textContent = err.message; });
+    }, function(err){
+      sb.disabled = false; m.className = 'msg err';
+      m.textContent = 'Speichern hat nicht geklappt: ' + err.message + (/Mitglieder-Code/.test(err.message) ? ' Beim nächsten Speichern fragen wir den Code neu ab.' : '');
+      m.scrollIntoView({block: 'nearest'});
+      console.error('save_jury_location', err);
+    });
   });
 });
 $('f-del').addEventListener('click', function(){
@@ -380,6 +389,18 @@ $('wform').addEventListener('submit', function(e){
   }, function(err){ wm.className = 'msg err'; wm.textContent = err.message; });
 });
 $('w-cancel').addEventListener('click', function(){ whoCb = null; $('who').close(); });
+
+// Unerwartete Fehler sichtbar machen, solange das Formular offen ist (sonst merkt man nur „geht nicht“)
+window.addEventListener('error', function(e){
+  if (!editing) return;
+  var m = $('f-msg'); m.className = 'msg err'; m.textContent = 'Technischer Fehler: ' + (e.message || 'unbekannt') + '. Bitte Screenshot an André.';
+  $('f-submit').disabled = false;
+});
+window.addEventListener('unhandledrejection', function(e){
+  if (!editing) return;
+  var m = $('f-msg'); m.className = 'msg err'; m.textContent = 'Technischer Fehler: ' + ((e.reason && e.reason.message) || 'unbekannt') + '. Bitte Screenshot an André.';
+  $('f-submit').disabled = false;
+});
 
 // --- Start ---
 initMap();

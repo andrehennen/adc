@@ -117,6 +117,8 @@ Feste Links:
 - **Abend-Treffpunkt:** Konstante `TREFF` oben in `jury.js` (Name, Adresse, lat/lng, Info). Solange `null`, zeigt die Seite „steht noch nicht fest“.
 - **Demo-Orte:** `DEMO` oben in `jury.js` (3 Beispiele, IDs negativ, nicht bearbeitbar, Badge „Demo-Eintrag“). Entfernen mit `DEMO = []`, sobald echte Orte da sind.
 - „Ort anbieten“ versucht den Speicher neu zu laden, falls er beim Seitenaufruf nicht erreichbar war.
+- **Aufbau (seit 16.10.2026):** App-Layout ohne Seiten-Scroll. Karte links (Handy: oben), Seitenleiste rechts (Handy: unten) mit eigenem Scrollbereich. Formular „Ort anbieten“ öffnet in der Seitenleiste, die Karte bleibt sichtbar zum Pin-Setzen. Infotexte stecken eingeklappt unter „Wie läuft das ab?“.
+- Pins zeigen „Jury 2: Film“, ohne Jury „Ort 2“ (`pinLabel`).
 - Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
 
 ## Changelog & Versionen
