@@ -9,7 +9,7 @@ const ok = (name, cond, extra) => { results.push((cond ? 'OK   ' : 'FEHLER ') + 
 
 function fakeStore(seedXss) {
   const now = () => new Date().toISOString();
-  const db = { helpers: [], comments: [], tickets: [], step_edits: [], votes: [], contacts: [], trash: [], seq: 10 };
+  const db = { helpers: [], comments: [], tickets: [], step_edits: [], votes: [], contacts: [], trash: [], jury_locations: [], seq: 10 };
   if (seedXss) {
     db.tickets.push({ id: 1, s: 'hh', sektion: XSS, emoji: XSS, title: 'XSS-Titel ' + XSS, body: XSS + ' https://example.com/"onmouseover="window.__xss=1', x: XSS, tags: ['events', XSS], created_by: XSS, created_at: now(), updated_by: XSS, updated_at: now(), deleted: false });
     db.helpers.push({ ticket: 'neu-1', name: XSS, created_at: now() });
@@ -25,7 +25,7 @@ function fakeStore(seedXss) {
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' } });
     if (db.down) return route.abort('internetdisconnected');
     const t = u.pathname.replace('/rest/v1/', '');
-    if (!t.startsWith('rpc/')) return json((db[t] || []).filter(r => !(t === 'tickets' && r.deleted)));
+    if (!t.startsWith('rpc/')) return json((db[t] || []).filter(r => !((t === 'tickets' || t === 'jury_locations') && r.deleted)));
     const a = JSON.parse(req.postData() || '{}'), fn = t.slice(4);
     calls.push(fn);
     if (a.p_code !== CODE) return json({ code: '28000', message: 'Falscher Mitglieder-Code' }, 403);
@@ -46,6 +46,12 @@ function fakeStore(seedXss) {
       case 'restore_ticket': db.tickets.find(t => t.id === a.p_id).deleted = false; return json(null);
       case 'set_next_steps': db.step_edits.unshift({ ticket: a.p_ticket, body: a.p_body, base: a.p_base, name: a.p_name, created_at: now() }); return json(null);
       case 'save_contact': db.contacts = db.contacts.filter(c => c.name !== a.p_name).concat({ name: a.p_name, email: a.p_email, phone: a.p_phone }); return json(null);
+      case 'save_jury_location': {
+        const f = { ort: a.p_ort, firma: a.p_firma || null, adresse: a.p_adresse, lat: a.p_lat, lng: a.p_lng, raeume: a.p_raeume, plaetze: a.p_plaetze, internet: a.p_internet, catering: a.p_catering || null, tage: a.p_tage || null, jury: a.p_jury || null, notiz: a.p_notiz || null };
+        if (a.p_id) { Object.assign(db.jury_locations.find(l => l.id === a.p_id), f, { updated_by: a.p_name }); return json(a.p_id); }
+        const id = ++db.seq; db.jury_locations.push({ id, ...f, created_by: a.p_name, created_at: now(), deleted: false }); return json(id);
+      }
+      case 'delete_jury_location': db.jury_locations.find(l => l.id === a.p_id).deleted = true; return json(null);
       case 'delete_contact': db.contacts = db.contacts.filter(c => c.name !== a.p_name); return json(null);
     }
     return json({ message: 'unbekannt: ' + fn }, 404);
@@ -277,6 +283,43 @@ for (const mode of ['down', 'noConfig']) {
   await page.$$eval('.toggle-all', bs => bs.forEach(b => b.click())); await page.waitForTimeout(600);
   const small = await page.evaluate(() => { const m = {}; document.querySelectorAll('a, button, input, textarea, [tabindex="0"]').forEach(e => { const r = e.getBoundingClientRect(); if (!r.width || getComputedStyle(e).visibility === 'hidden') return; if (r.width < 24 || r.height < 24) { const inline = getComputedStyle(e).display === 'inline' && e.closest('p, li, .txt, .quote, .legal, .by, .edited'); if (inline) return; const k = (e.tagName + '.' + (e.className || e.id)).slice(0, 40); m[k] = (m[k] || 0) + 1; m[k + ' Maß'] = Math.round(r.width) + '×' + Math.round(r.height); } }); return m; });
   ok('Zielgrößen ≥ 24 px', Object.keys(small).length === 0, JSON.stringify(small));
+  await ctx.close();
+}
+
+// 5b. Jury Map: Ort eintragen (Pin über Adresssuche), bearbeiten, löschen; Datenbank-Inhalte nur als Text
+{
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'de-DE' });
+  const store = fakeStore(true), geo = [];
+  store.db.jury_locations.push({ id: 2, ort: XSS, firma: XSS, adresse: XSS, lat: 53.55, lng: 9.99, raeume: 1, plaetze: 2, internet: true, catering: 'ja', tage: XSS, jury: XSS, notiz: XSS + ' https://a.b/"onmouseover="window.__xss=1', created_by: XSS, created_at: new Date().toISOString(), deleted: false });
+  await serveLocal(ctx, { api: (route, u) => {
+    if (u.pathname === '/api/config') return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ url: 'https://qa.supabase.co', key: 'sb_publishable_qa' }) });
+    if (u.pathname === '/api/geocode') { geo.push(u.searchParams.get('q')); return route.fulfill({ contentType: 'application/json', body: JSON.stringify([{ name: 'Glashüttenstraße 38, St. Pauli, Hamburg', lat: 53.5622, lng: 9.9646 }]) }); }
+    return route.fulfill({ contentType: 'application/json', body: '{}' });
+  } });
+  await ctx.route('https://qa.supabase.co/**', store.handler);
+  const page = await ctx.newPage(); const log = watch(page);
+  page.on('dialog', d => d.accept());
+  await page.goto(ORIGIN + '/jury', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#ort-2'); await page.waitForTimeout(1500);
+  ok('Jury Map: Karte und Pins laden', await page.locator('.maplibregl-canvas').count() === 1 && await page.locator('.maplibregl-marker').count() === 1);
+  ok('Jury Map: XSS aus der Datenbank wird nicht ausgeführt', !(await page.evaluate(() => window.__xss)) && await page.locator('#locs img, #locs script').count() === 0);
+  await page.click('#add-btn'); await login(page); await page.waitForSelector('#form-panel:not([hidden])');
+  await page.fill('#f-ort', 'QA Agentur, Raum Elbe'); await page.fill('#f-adresse', 'Glashüttenstraße 38');
+  await page.click('#f-submit'); const msg1 = await page.textContent('#f-msg');
+  await page.click('#f-find'); await page.waitForTimeout(600);
+  await page.fill('#f-raeume', '2');
+  await page.click('label.opt:has(input[name=f-net][value="1"])');
+  await page.click('#f-submit'); await page.waitForTimeout(1000);
+  const saved = store.db.jury_locations.find(l => l.ort === 'QA Agentur, Raum Elbe');
+  ok('Jury Map: Pin ist Pflicht, Adresssuche setzt ihn, Speichern', /Pin/.test(msg1) && geo[0] === 'Glashüttenstraße 38, Hamburg' && saved && saved.lat === 53.5622 && saved.raeume === 2 && saved.internet === true && saved.created_by === 'Qa Testerin', JSON.stringify({ msg1, geo, saved }));
+  ok('Jury Map: neuer Ort in der Liste, Formular zu', !!saved && await page.locator('#ort-' + saved.id).count() === 1 && await page.locator('#form-panel').isHidden());
+  if (saved) {
+    await page.click(`[data-edit="${saved.id}"]`); await page.fill('#f-jury', 'Film'); await page.click('#f-submit'); await page.waitForTimeout(1000);
+    ok('Jury Map: Ort bearbeiten', saved.jury === 'Film' && /Film/.test(await page.textContent('#ort-' + saved.id)));
+    await page.click(`[data-edit="${saved.id}"]`); await page.click('#f-del'); await page.waitForTimeout(1000);
+    ok('Jury Map: Ort löschen', saved.deleted && await page.locator('#ort-' + saved.id).count() === 0);
+  }
+  ok('Jury Map: keine JS-, CSP- oder Ladefehler', log.length === 0, log.join(' | '));
   await ctx.close();
 }
 

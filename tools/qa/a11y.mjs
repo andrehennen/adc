@@ -27,9 +27,10 @@ for (const [vp, w, h] of [['handy', 375, 812], ['desktop', 1440, 900]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'de-DE', bypassCSP: true });
   if (!LIVE) await serveLocal(ctx);
   await noInstallHint(ctx);
-  for (const p of ['/impressum', '/datenschutz', '/gibtsnicht']) {
+  for (const p of ['/impressum', '/datenschutz', '/gibtsnicht', '/jury']) {
     const page = await ctx.newPage();
     await page.goto(ORIGIN + p, { waitUntil: 'networkidle' });
+    if (p === '/jury') await page.waitForTimeout(1500);
     await run(page, vp + p); await page.close();
   }
   const page = await ctx.newPage();

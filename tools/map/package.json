@@ -1,0 +1,8 @@
+{
+  "name": "adc-jury-map-style",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@protomaps/basemaps": "5.7.2"
+  }
+}

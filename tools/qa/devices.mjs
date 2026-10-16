@@ -28,9 +28,10 @@ for (const [name, engine, opts] of MATRIX) {
   const add = (state, log, of) => { if (log.length || of.length) res.push({ geraet: name, zustand: state, fehler: [...new Set(log)], quer: of }); };
   const shot = async (page, state) => { if (SHOTS) await page.screenshot({ path: `${OUT}/${name}-${state}.png`, fullPage: state !== 'hilfe' && state !== 'wer' }); };
 
-  for (const p of ['/impressum', '/datenschutz', '/gibtsnicht']) {
+  for (const p of ['/impressum', '/datenschutz', '/gibtsnicht', '/jury']) {
     const page = await ctx.newPage(); const log = watch(page);
     await page.goto(ORIGIN + p, { waitUntil: 'networkidle' });
+    if (p === '/jury') await page.waitForTimeout(1500);
     const of = await overflow(page);
     await shot(page, p.slice(1));
     add(p, p === '/gibtsnicht' ? log.filter(l => !/404/.test(l)) : log, of);

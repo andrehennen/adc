@@ -108,6 +108,15 @@ Feste Links:
 - Footer: „Version x.y · Changelog“ (aufklappbar) und „Entwickelt von André Hennen, Curious Company“ (verlinkt auf https://curiouscompany.de); darunter Links zu `/impressum` und `/datenschutz`
 - **Impressum & Datenschutz** (`impressum.html`, `datenschutz.html`, eigenständige Seiten, über `cleanUrls` ohne `.html` erreichbar). Anbieter ist der ADC e. V. (Angaben von adc.de), Ansprechpartner André (andre.hennen@adc.de). **Ändert sich, was gespeichert wird oder wohin die Seite Daten schickt (neuer Dienst, neues Feld), die Datenschutzseite mit anpassen.**
 
+## Jury Map (`/jury`, seit 16.10.2026)
+
+- „Hamburg ADC Jury Map“: Orte für die dezentralen Jurys 2027 in Hamburg. Eigene Seite `jury.html` + `jury.js`, Button „🗺️ Jury Map“ im Dashboard-Kopf neben dem Kompass.
+- **Karte selbst gehostet, kein Google:** MapLibre (`vendor/maplibre-gl-csp-*.js`, CSP-Build mit eigenem Worker) + PMTiles (`vendor/pmtiles-*.js`). Kartendaten OpenStreetMap/Protomaps als eine Datei `map/hamburg-<stand>.pmtiles` (nur Zentrum Hamburg, Zoom bis 14), Stil `map/style-<stand>.json`, Schriften/Symbole in `map/fonts`, `map/sprites`. Stil neu bauen und Karte aktualisieren: siehe Kopf von `tools/map/build_style.mjs`; danach `MAP_STAND` in `jury.js` anpassen (neuer Dateiname, weil `/map/` ein Jahr gecacht wird).
+- Routen nur als Links (Google Maps, Apple Karten), nichts eingebettet. Adresssuche über `/api/geocode` (serverseitig Nominatim, nur Hamburg, nur per Button).
+- Speicher: Tabelle `jury_locations` (`supabase/010_jury_map.sql`), Schreiben per `save_jury_location`/`delete_jury_location` mit Mitglieder-Code. Löschen blendet nur aus (`deleted`), Wiederherstellen im Table Editor. Alle mit Code dürfen alle Orte bearbeiten, auch „Zugeordnete Jury“.
+- **Abend-Treffpunkt:** Konstante `TREFF` oben in `jury.js` (Name, Adresse, lat/lng, Info). Solange `null`, zeigt die Seite „steht noch nicht fest“.
+- Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
+
 ## Changelog & Versionen
 
 - Liste `var CL = [...]` in `data.js`, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.

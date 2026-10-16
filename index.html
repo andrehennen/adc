@@ -78,6 +78,7 @@ dialog.help h3{font-size:12px;font-weight:700;letter-spacing:.06em;text-transfor
 dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.55;color:var(--ink-2)}
 .help-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 28px;border-top:1px solid var(--line);background:#fff}
 .brand img{height:34px;width:auto;display:block}
+.hide-s{display:inline}
 .brand-txt{font-size:16px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;padding:8px 15px;border:1.5px solid var(--ink);transition:background .15s,color .15s;white-space:nowrap;cursor:pointer;line-height:1.2}
 .btn-dark{background:var(--ink);color:#fff}
@@ -259,6 +260,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .board{grid-template-columns:1fr;gap:48px}
 }
 @media(max-width:600px){
+  .hide-s{display:none}
   .wrap{padding:0 16px}
   .hbar{height:56px}
   .brand img{height:30px}
@@ -305,7 +307,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-@media(max-width:359px){.cta{grid-template-columns:1fr}}
+@media(max-width:359px){.cta{grid-template-columns:1fr}.hide-xs{display:none}}
 .skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;text-decoration:none}
 .skip:focus{left:12px}
 .linkbtn,.permalink,.copy{min-height:24px}
@@ -323,7 +325,8 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     </a>
     <div class="hright">
       <button class="help-btn" id="help-btn" type="button" aria-label="Hilfe: So funktioniert das Dashboard" title="So funktioniert's">?</button>
-      <a class="btn btn-dark" href="https://adc-compass.vercel.app/" target="_blank" rel="noopener">🧭 ADC Kompass</a>
+      <a class="btn btn-light" href="/jury" aria-label="Hamburg ADC Jury Map">🗺️<span class="hide-xs"> Jury Map</span></a>
+      <a class="btn btn-dark" href="https://adc-compass.vercel.app/" target="_blank" rel="noopener">🧭 <span class="hide-s">ADC </span>Kompass</a>
     </div>
   </div>
 </header>
@@ -352,6 +355,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
       <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen.</span></li>
       <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Darunter filterst du nach Thema und Sektion.</span></li>
+      <li><span class="ic">🗺️</span><span><b>Jury Map:</b> Orte für die Jurys 2027 in Hamburg. Sieh nach, welche Jurys in der Nähe tagen, oder biete einen Raum deiner Agentur an.</span></li>
       <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
     </ul>
     <p class="trust"><span class="ic">🤝</span><span>Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</span></p>

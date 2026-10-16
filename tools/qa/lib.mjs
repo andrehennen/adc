@@ -10,7 +10,8 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.woff2': 'font/woff2',
   '.png': 'image/png', '.ico': 'image/vnd.microsoft.icon', '.webmanifest': 'application/manifest+json; charset=utf-8',
-  '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+  '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml',
+  '.json': 'application/json; charset=utf-8', '.pbf': 'application/x-protobuf', '.pmtiles': 'application/octet-stream' };
 const IGNORED = ['CLAUDE.md', 'supabase', 'tools'];
 
 function vercelHeaders() {
@@ -36,7 +37,16 @@ export async function serveLocal(context, opt = {}) {
       if (fs.existsSync(nf)) return route.fulfill({ status: 404, headers: { ...headers, 'content-type': TYPES['.html'] }, body: fs.readFileSync(nf) });
       return route.fulfill({ status: 404, headers, body: 'NOT_FOUND' });
     }
-    return route.fulfill({ status: 200, headers: { ...headers, 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }, body: fs.readFileSync(f) });
+    const type = TYPES[path.extname(f)] || 'application/octet-stream';
+    // Teilabrufe (Range) wie bei Vercel, die Jury-Karte (PMTiles) lädt nur Ausschnitte
+    const range = /^bytes=(\d+)-(\d*)$/.exec(route.request().headers()['range'] || '');
+    if (range) {
+      const size = fs.statSync(f).size, start = +range[1], end = Math.min(range[2] ? +range[2] : size - 1, size - 1);
+      const fd = fs.openSync(f, 'r'), buf = Buffer.alloc(end - start + 1);
+      fs.readSync(fd, buf, 0, buf.length, start); fs.closeSync(fd);
+      return route.fulfill({ status: 206, headers: { ...headers, 'content-type': type, 'accept-ranges': 'bytes', 'content-range': `bytes ${start}-${end}/${size}`, 'content-length': String(buf.length) }, body: buf });
+    }
+    return route.fulfill({ status: 200, headers: { ...headers, 'content-type': type }, body: fs.readFileSync(f) });
   });
 }
 

@@ -34,6 +34,11 @@ npm run tempo      # Ladezeit der Live-Seite
 | Ladezeit Startseite (Handy-Profil, Labor) | LCP ca. 0,5 s, CLS 0,01, 104 kB, keine Cookies |
 | Externe Links | alle erreichbar |
 
+## Nachtrag 16.10.2026 (Jury Map)
+
+- `/jury` ist in HTML-Prüfung, axe, Geräten und Abläufen enthalten (7 neue Prüfungen, 71 von 71). `lib.mjs` beantwortet jetzt Teilabrufe (Range), die die Karte braucht.
+- Gegen den lokalen Stand meldet `devices.mjs` auf `/jury` HTTP 404 für `jury_locations`, bis `supabase/010_jury_map.sql` ausgeführt ist. Sonst ohne Befund.
+
 ## Entfällt
 
 - SEO/GEO, Sitemap, strukturierte Daten, Search Console: Die Seite ist absichtlich nicht auffindbar.

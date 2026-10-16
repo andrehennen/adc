@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico?v=2" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex, nofollow">
+<title>Hamburg ADC Jury Map</title>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/vendor/maplibre-gl-5.24.0.css">
+<style>
+/* Inter (SIL Open Font License), lokal ausgeliefert statt über Google Fonts */
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/inter-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/inter-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  --bg:#ffffff;--soft:#f4f4f2;--line:#e2e2df;--line-strong:#c9c9c5;
+  --ink:#0a0a0a;--ink-2:#3d3d3d;--ink-3:#6b6b6b;
+  --open:#b42318;--green:#12703f;--green-bg:#e2f5ea;--blue:#1d4fbf;--amber:#875400;--amber-bg:#fdf1d8;
+  --radius:12px;--ease:cubic-bezier(.32,.72,0,1);--ease-out:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+button,a,.opt{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font-family:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+.skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;text-decoration:none}
+.skip:focus{left:12px}
+
+header{border-bottom:1px solid var(--line);background:rgba(255,255,255,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);position:sticky;top:0;z-index:50}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.brand{display:flex;align-items:center;text-decoration:none}
+.brand img{height:34px;width:auto;display:block}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;padding:8px 15px;border:1.5px solid var(--ink);white-space:nowrap;cursor:pointer;line-height:1.2;transition:background .2s var(--ease-out),color .2s,transform .25s var(--ease)}
+.btn:active{transform:scale(.95)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:#333;border-color:#333}
+.btn-light{background:#fff;color:var(--ink)}
+.btn-light:hover{background:var(--soft)}
+
+.hero{padding-top:40px;padding-bottom:28px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.hero h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.035em;line-height:1.02;margin-top:6px}
+.hero p{font-size:16px;color:var(--ink-2);max-width:720px;margin-top:10px;line-height:1.5}
+.cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.facts{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.facts li{background:var(--soft);border-radius:var(--radius);padding:14px 16px;font-size:14px;color:var(--ink-2);line-height:1.45}
+.facts b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+
+.panel{border:1.5px solid var(--ink);border-radius:var(--radius);padding:18px;margin-top:20px;max-width:760px;background:#fff}
+.panel h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+.form{display:flex;flex-direction:column;gap:10px}
+.form label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.form input[type=text],.form input[type=number],.form input:not([type]),.form textarea{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;width:100%}
+.form input:focus,.form textarea:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+.form textarea{min-height:64px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.form .btn{padding:7px 14px;font-size:13px}
+.addr{display:flex;gap:8px}
+.addr input{flex:1;min-width:0}
+.hits{list-style:none;display:flex;flex-direction:column;gap:4px}
+.hits button{width:100%;text-align:left;font:inherit;font-size:14px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--ink)}
+.hits button:hover{border-color:var(--ink)}
+.pinstate{font-size:13px;color:var(--ink-3)}
+.pinstate.ok{color:var(--green);font-weight:600}
+.opts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.opts .lbl{font-size:13px;font-weight:600;color:var(--ink-2);margin-right:4px}
+.opt{position:relative;cursor:pointer}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:inline-block;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--ink-2);background:#fff}
+.opt input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.opt input:focus-visible+span{outline:2px solid var(--blue);outline-offset:1px}
+.msg{font-size:13px;color:var(--ink-3)}
+.msg.err{color:var(--open);font-weight:600}
+.by{font-size:12px;color:var(--ink-3)}
+.linkbtn{background:none;border:none;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:13px;padding:0;min-height:24px}
+.linkbtn:hover{color:var(--ink)}
+
+/* Karte + Liste */
+.jm{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:28px;padding-top:8px;padding-bottom:56px;align-items:start}
+.mapbox{scroll-margin-top:72px;position:sticky;top:76px;height:calc(100vh - 96px);min-height:420px;border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden;background:#d4d4d0}
+#map{position:absolute;inset:0}
+.maphint{position:absolute;left:12px;right:12px;top:12px;z-index:2;background:var(--ink);color:#fff;font-size:13px;font-weight:600;border-radius:999px;padding:8px 14px;text-align:center;pointer-events:none}
+.mapfail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--ink-2);font-size:14px}
+.list-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.list-head h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.count{font-size:13px;font-weight:600;color:var(--ink-3)}
+.locs{list-style:none;display:flex;flex-direction:column;gap:12px}
+.loc{border:1.5px solid var(--ink);border-radius:var(--radius);padding:14px 16px;background:#fff;scroll-margin-top:80px;transition:box-shadow .2s}
+.loc.sel{box-shadow:0 0 0 3px var(--ink)}
+.loc.treff{background:var(--ink);color:#fff}
+.loc.treff .sub,.loc.treff .near{color:#c9c9c5}
+.loc.empty{border-style:dashed;border-color:var(--line-strong);color:var(--ink-2);font-size:14px}
+.lhead{display:flex;gap:12px;align-items:flex-start;width:100%;background:none;border:none;text-align:left;font:inherit;color:inherit;cursor:pointer;padding:0}
+.lhead:focus-visible{outline:2px solid var(--blue);outline-offset:4px;border-radius:6px}
+.num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.loc.treff .num{background:#fff;color:var(--ink)}
+.lname{font-size:16px;font-weight:700;line-height:1.3;letter-spacing:-.01em}
+.sub{font-size:13px;color:var(--ink-3);margin-top:2px}
+.lbody{padding-left:40px;margin-top:8px;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--ink-2)}
+.loc.treff .lbody{color:#fff}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--ink-2);white-space:nowrap}
+.tag.ok{background:var(--green-bg);color:var(--green)}
+.tag.warn{background:var(--amber-bg);color:var(--amber)}
+.near{font-size:13px;color:var(--ink-3)}
+.near b{color:inherit}
+.lfoot{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:13px}
+.lfoot a{text-underline-offset:3px}
+.ci{text-decoration:none;margin-left:4px}
+
+/* Pins: äußeres Element gehört MapLibre (setzt die Position per transform), die Form sitzt innen */
+.pin{width:32px;height:40px;cursor:pointer;display:flex;justify-content:center}
+.pin i{position:relative;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);font:normal 800 12px/1 'Inter',sans-serif;transition:transform .2s var(--ease)}
+.pin i::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-6px;border:6px solid transparent;border-top:6px solid var(--ink);border-bottom:0}
+.pin:hover i,.pin:focus-visible i{transform:scale(1.12)}
+.pin:focus-visible{outline:none}
+.pin:focus-visible i{outline:2px solid var(--blue);outline-offset:2px}
+.pin.sel i{background:#fff;color:var(--ink);border-color:var(--ink);transform:scale(1.15)}
+.pin.sel i::after{border-top-color:var(--ink)}
+.pin.treff i{width:36px;height:36px;background:#fff;color:var(--ink);border:3px solid var(--ink);font-size:16px}
+.pin.treff{height:46px}
+.pin.draft i{background:var(--blue);font-size:18px;animation:bob 1.4s var(--ease) infinite}
+.pin.draft i::after{border-top-color:var(--blue)}
+@keyframes bob{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 8px rgba(29,79,191,.18)}}
+.maplibregl-popup-content{font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:10px 14px;box-shadow:0 6px 22px rgba(0,0,0,.18)}
+.maplibregl-popup-content b{font-size:14px}
+.maplibregl-popup-content .by{margin-top:2px}
+.maplibregl-ctrl-attrib{font-size:11px}
+
+dialog.who{border:1px solid var(--ink);border-radius:var(--radius);padding:18px;max-width:380px;width:calc(100% - 32px);margin:auto}
+dialog.who::backdrop{background:rgba(0,0,0,.35)}
+dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
+dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
+dialog[open]{animation:pop .38s var(--ease)}
+.panel:not([hidden]){animation:drop .4s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color:var(--ink-3);text-align:center}
+.legal{margin-top:6px}
+.legal a{color:inherit;text-underline-offset:3px}
+
+@media(max-width:900px){
+  .jm{grid-template-columns:1fr;gap:24px}
+  .mapbox{position:relative;top:0;height:58vh;min-height:340px}
+  .facts{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .wrap{padding:0 16px}
+  .hbar{height:56px}
+  .brand img{height:30px}
+  .hero{padding-top:28px;padding-bottom:20px}
+  .hero h1{font-size:30px}
+  .hero p{font-size:15px}
+  .cta{display:grid;grid-template-columns:1fr 1fr}
+  .cta .btn{justify-content:center;padding:8px 10px}
+  .panel{padding:14px}
+  .grid2{grid-template-columns:1fr}
+  .lbody{padding-left:0}
+}
+@media(max-width:359px){.cta{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after,*::backdrop{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#inhalt">Zum Inhalt</a>
+
+<header>
+  <div class="wrap hbar">
+    <a class="brand" href="/" aria-label="ADC Dashboard Startseite"><img src="data:image/png;base64,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" alt="ADC"></a>
+    <a class="btn btn-light" href="/">← Dashboard</a>
+  </div>
+</header>
+
+<main id="inhalt" tabindex="-1">
+<section class="wrap hero">
+  <div class="kicker">⚖️ ADC Wettbewerb 2027</div>
+  <h1>Hamburg ADC Jury Map</h1>
+  <p>2027 tagen die Jurys dezentral in Hamburg, in Räumen von Agenturen und Firmen. Hier sammeln wir alle Orte. So sehen benachbarte Jurys, wer in der Pause um die Ecke sitzt, und abends kommen alle an einem Treffpunkt zusammen.</p>
+  <div class="cta">
+    <button class="btn btn-dark" id="add-btn" type="button">📍 Ort anbieten</button>
+    <a class="btn btn-light" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">💬 WhatsApp Gruppe</a>
+  </div>
+  <ul class="facts">
+    <li><b>🏢 Was ein Jury-Ort braucht</b>Platz für eine Jury, stabiles Internet und Catering. Die Organisation liegt bei Jury-Vorsitz und Jury, mit Support vom ADC Office.</li>
+    <li><b>🌙 Abends</b>Am Vorabend lädt die Sektion Hamburg zum Get Together, dabei entsteht das Jury-Foto. Der Treffpunkt steht auf der Karte, sobald er feststeht.</li>
+    <li><b>🏆 Grand Prix &amp; Sonderjurys</b>Grand-Prix-Tag und Sonderjurys (u. a. Creative Impact) organisiert das ADC Office.</li>
+  </ul>
+
+  <div class="panel" id="form-panel" hidden>
+    <h2 id="f-head">📍 Ort anbieten</h2>
+    <p class="by" style="margin-bottom:12px">Was du einträgst, sehen alle mit dem Link. Bitte nur Orte eintragen, die ihr wirklich anbieten könnt.</p>
+    <form class="form" id="lform" novalidate>
+      <div class="grid2">
+        <label class="f">Name des Orts *<input id="f-ort" type="text" maxlength="100" placeholder="z. B. Agentur XY, Konferenzraum Elbe" required></label>
+        <label class="f">Agentur / Firma<input id="f-firma" type="text" maxlength="100" placeholder="z. B. Agentur XY"></label>
+      </div>
+      <label class="f" for="f-adresse">Adresse *</label>
+      <div class="addr"><input id="f-adresse" type="text" maxlength="160" placeholder="Straße Hausnummer, PLZ Hamburg" required autocomplete="address-line1"><button class="btn btn-light" type="button" id="f-find">🔎 Auf Karte finden</button></div>
+      <ul class="hits" id="f-hits" hidden></ul>
+      <div class="pinstate" id="f-pin">Noch kein Pin. Such die Adresse oder tippe auf die Karte.</div>
+      <div class="grid2">
+        <label class="f">Räume<input id="f-raeume" type="number" min="0" max="99" inputmode="numeric" placeholder="z. B. 2"></label>
+        <label class="f">Plätze pro Raum<input id="f-plaetze" type="number" min="0" max="999" inputmode="numeric" placeholder="z. B. 12"></label>
+      </div>
+      <div class="opts" role="radiogroup" aria-label="Stabiles Internet">
+        <span class="lbl">📶 Stabiles Internet</span>
+        <label class="opt"><input type="radio" name="f-net" value="1"><span>Ja</span></label>
+        <label class="opt"><input type="radio" name="f-net" value="0"><span>Nein</span></label>
+        <label class="opt"><input type="radio" name="f-net" value="" checked><span>Weiß nicht</span></label>
+      </div>
+      <div class="opts" role="radiogroup" aria-label="Catering">
+        <span class="lbl">🍽️ Catering</span>
+        <label class="opt"><input type="radio" name="f-cat" value="ja"><span>Ja</span></label>
+        <label class="opt"><input type="radio" name="f-cat" value="teilweise"><span>Teilweise</span></label>
+        <label class="opt"><input type="radio" name="f-cat" value="nein"><span>Nein</span></label>
+        <label class="opt"><input type="radio" name="f-cat" value="" checked><span>Weiß nicht</span></label>
+      </div>
+      <div class="grid2">
+        <label class="f">📅 Verfügbar<input id="f-tage" type="text" maxlength="200" placeholder="z. B. alle Jury-Tage, nur Mo–Mi"></label>
+        <label class="f">⚖️ Zugeordnete Jury<input id="f-jury" type="text" maxlength="100" placeholder="wird später vergeben"></label>
+      </div>
+      <label class="f">Notiz<textarea id="f-notiz" maxlength="1000" placeholder="z. B. Ansprechpartner:in vor Ort, Barrierefreiheit, Zugang am Wochenende"></textarea></label>
+      <div class="form-row"><button class="btn btn-dark" type="submit" id="f-submit">Ort speichern</button><button class="btn btn-light" type="button" id="f-cancel">Abbrechen</button><button class="linkbtn" type="button" id="f-del" hidden>🗑️ Ort löschen</button><span class="msg" id="f-msg" role="status"></span></div>
+    </form>
+  </div>
+</section>
+
+<div class="wrap jm">
+  <div class="mapbox" id="mapbox">
+    <div id="map" role="region" aria-label="Karte der Jury-Orte in Hamburg"></div>
+    <div class="maphint" id="maphint" hidden>Tippe auf die Karte, um den Pin zu setzen</div>
+  </div>
+  <section aria-labelledby="list-h">
+    <div class="list-head"><h2 id="list-h">Jury-Orte</h2><span class="count" id="count"></span></div>
+    <ul class="locs" id="locs"><li class="loc empty">Lade Orte …</li></ul>
+  </section>
+</div>
+</main>
+
+<dialog class="who" id="who" aria-labelledby="who-h">
+  <form class="form" id="wform" method="dialog">
+    <h2 id="who-h">Wer bist du?</h2>
+    <p>Einmalig Name und Mitglieder-Code (aus der WhatsApp-Gruppe) eingeben. Dein Browser merkt sich beides, auch fürs Dashboard.</p>
+    <input id="w-name" type="text" maxlength="60" placeholder="Vor- und Nachname" aria-label="Vor- und Nachname" required autocomplete="name">
+    <input id="w-code" type="text" placeholder="Mitglieder-Code" aria-label="Mitglieder-Code" required autocomplete="off">
+    <p class="by" style="margin:2px 0 0">Was du einträgst, sehen alle mit dem Link. Mehr dazu im <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a>.</p>
+    <div class="form-row"><button class="btn btn-dark" type="submit" value="ok">Weiter</button><button class="btn btn-light" type="button" id="w-cancel">Abbrechen</button><span class="msg" id="w-msg"></span></div>
+  </form>
+</dialog>
+
+<footer>
+  <div class="wrap">
+    <div>Karte: © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende · <a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> · <a href="https://maplibre.org" target="_blank" rel="noopener">MapLibre</a></div>
+    <div class="legal">Entwickelt von André Hennen, <a href="https://curiouscompany.de" target="_blank" rel="noopener">Curious Company</a></div>
+    <div class="legal"><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></div>
+  </div>
+</footer>
+
+<script src="/vendor/maplibre-gl-csp-5.24.0.js"></script>
+<script src="/vendor/pmtiles-4.5.0.js"></script>
+<script src="/jury.js"></script>
+</body>
+</html>
