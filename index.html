@@ -307,7 +307,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-@media(max-width:359px){.cta{grid-template-columns:1fr}.hide-xs{display:none}}
+@media(max-width:359px){.cta{grid-template-columns:1fr}}
 .skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;text-decoration:none}
 .skip:focus{left:12px}
 .linkbtn,.permalink,.copy{min-height:24px}
@@ -325,7 +325,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     </a>
     <div class="hright">
       <button class="help-btn" id="help-btn" type="button" aria-label="Hilfe: So funktioniert das Dashboard" title="So funktioniert's">?</button>
-      <a class="btn btn-light" href="/jury" aria-label="Hamburg ADC Jury Map">🗺️<span class="hide-xs"> Jury Map</span></a>
       <a class="btn btn-dark" href="https://adc-compass.vercel.app/" target="_blank" rel="noopener">🧭 <span class="hide-s">ADC </span>Kompass</a>
     </div>
   </div>
@@ -355,7 +354,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
       <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen.</span></li>
       <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Darunter filterst du nach Thema und Sektion.</span></li>
-      <li><span class="ic">🗺️</span><span><b>Jury Map:</b> Orte für die Jurys 2027 in Hamburg. Sieh nach, welche Jurys in der Nähe tagen, oder biete einen Raum deiner Agentur an.</span></li>
       <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
     </ul>
     <p class="trust"><span class="ic">🤝</span><span>Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</span></p>
