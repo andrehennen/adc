@@ -122,6 +122,11 @@ Feste Links:
 - Pins zeigen „Jury 2: Film“, ohne Jury „Ort 2“ (`pinLabel`).
 - Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
 
+## Zuletzt passiert (`UP` in `data.js`)
+
+- Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", t:"Ein Satz"}`), neue Online-Ideen und online abgehakte Schritte (automatisch).
+- **Bei jeder inhaltlichen Änderung an einer Idee (Status, Termin, Beschluss, neue Idee im Board) einen `UP`-Eintrag ergänzen**, neueste zuerst, höchstens 5 behalten. Keine Software-/Plattform-Updates, die gehören in den Changelog. Die `id` muss eine bestehende Ticket-ID sein (Slug, max. 60 Zeichen), sonst wird der Eintrag nicht angezeigt.
+
 ## Changelog & Versionen
 
 - Liste `var CL = [...]` in `data.js`, neueste Version zuerst: `["2.2", "1. Okt. 2026", "Kurzbeschreibung"]`.

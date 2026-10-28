@@ -37,7 +37,15 @@ var D = [
 ];
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
+// Inhaltliche Updates für „Zuletzt passiert“ (nur Inhalte, keine Software-Updates), neueste zuerst, höchstens 5 behalten
+var UP = [
+  {d:"2026-10-28", id:"creative-club-wiederbeleben-talents-praesentieren-arbeiten-b", t:"Wird gemacht: am 2.11. im Design Zentrum Hamburg."},
+  {d:"2026-10-28", id:"adc-beats-kultur-musik-u-a-reeperbahn-festival", t:"Nach Berlin soll ADC Beats jetzt auch in Hamburg stattfinden."},
+  {d:"2026-10-15", id:"alle-wahlen-digital-remote-nachvollziehbar-dokumentierbar", t:"Von der JHV angenommen, ebenso „Abstimmungen vereinfachen“."}
+];
+
 var CL = [
+  ["2.27", "28. Okt. 2026", "Neu unter den Filtern: „Zuletzt passiert“ mit den letzten drei inhaltlichen Updates."],
   ["2.26", "28. Okt. 2026", "Nächste Schritte lassen sich abhaken und wandern dann nach „Bisher passiert“. Stimmen zählen bei der Sortierung jetzt vor „hat Verantwortliche:n“."],
   ["2.25", "16. Okt. 2026", "Neu: Hamburg ADC Jury Map. Alle Orte für die Jurys 2027 auf einer Karte, mit Fußweg zur nächsten Jury und Route in Google Maps oder Apple Karten. Mitglieder können Räume ihrer Agentur eintragen."],
   ["2.24", "14. Okt. 2026", "Neuer Filter „Für mich“: zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Aufgeräumteres Board: kürzere Themen-Namen, Filter auf dem Handy in einer Zeile, „Alle aufklappen“ je Spalte, luftigere Abstände, alle Karten mit schwarzem Rahmen, übersichtlichere Hilfe."],

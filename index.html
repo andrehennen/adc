@@ -112,6 +112,15 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 
 /* Board */
 .board{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-top:36px;padding-bottom:56px}
+.news{padding-top:24px}
+.news+.board{padding-top:24px}
+.news-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+#news-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.45}
+#news-list li{display:flex;gap:10px}
+.news-d{flex-shrink:0;width:52px;color:var(--ink-3);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
+#news-list a{color:var(--ink);font-weight:700;text-decoration:none}
+#news-list a:hover{text-decoration:underline}
+#news-list a:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
 .col-head{margin-bottom:20px}
 .col-kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .col-title{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
@@ -365,6 +374,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <ul class="hl">
       <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
       <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen. Innerhalb eines Status stehen Ideen mit mehr Stimmen weiter oben.</span></li>
+      <li><span class="ic">🆕</span><span><b>Zuletzt passiert</b> unter den Filtern zeigt die drei neuesten inhaltlichen Updates. Ein Tipp öffnet die Idee.</span></li>
       <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Darunter filterst du nach Thema und Sektion.</span></li>
       <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
     </ul>
@@ -463,6 +473,8 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     </div>
   </div>
 </div>
+
+<div class="wrap news" id="news" hidden><h2 class="news-h">🆕 Zuletzt passiert</h2><ul id="news-list"></ul></div>
 
 <div class="wrap board">
   <section>
