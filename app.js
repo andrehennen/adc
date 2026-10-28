@@ -11,7 +11,8 @@ var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",draft:"
 var SW = {done:8, doing:7, live:6, active:5, draft:4, checked:3, planned:2, idea:1};
 var CHEV = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>';
 var active = 'all';
-var mineOn = false;  // Filter „Für mich“, lässt sich mit den Themen-Filtern kombinieren
+var mineOn = false;  // Filter „Für mich“, lässt sich mit den Themen-Filtern kombinieren; Zustand pro Browser in localStorage „adc-mine“
+function saveMine(){ try { if (mineOn) localStorage.setItem('adc-mine', '1'); else localStorage.removeItem('adc-mine'); } catch(e) {} }
 var openSet = {};
 
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -208,7 +209,7 @@ function isMine(i){
     || (!!i.online && norm(i.online.created_by) === me);
 }
 function syncMine(){
-  if (!ME.name) mineOn = false;
+  if (!ME.name && mineOn) { mineOn = false; saveMine(); }
   var b = document.getElementById('mine-btn'), n = ME.name ? all().filter(isMine).length : 0;
   b.classList.toggle('on', mineOn);
   b.setAttribute('aria-pressed', mineOn ? 'true' : 'false');
@@ -543,8 +544,8 @@ document.getElementById('frow').addEventListener('click', function(e){
 });
 
 document.getElementById('mine-btn').addEventListener('click', function(){
-  if (mineOn) { mineOn = false; return flipRender(); }
-  whoami(function(){ mineOn = true; flipRender(); });
+  if (mineOn) { mineOn = false; saveMine(); return flipRender(); }
+  whoami(function(){ mineOn = true; saveMine(); flipRender(); });
 });
 
 function openFromHash(){
@@ -635,6 +636,7 @@ function openForm(t){
 
 function initStore(){
   document.getElementById('mine-btn').hidden = false;
+  try { mineOn = !!ME.name && localStorage.getItem('adc-mine') === '1'; } catch(e) {}
   var tb = document.getElementById('trash-btn');
   tb.hidden = false;
   tb.addEventListener('click', function(){

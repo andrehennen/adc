@@ -242,6 +242,12 @@ for (const mode of ['down', 'noConfig']) {
   await page.click('.fb[data-t=all]'); await page.waitForTimeout(900);
   await page.click('#mine-btn'); await page.waitForTimeout(900);
   ok('Zweiter Klick zeigt wieder alle', await page.locator('.card').count() >= 30);
+  await page.click('#mine-btn'); await page.waitForTimeout(600);
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible'); await page.waitForTimeout(600);
+  ok('„Für mich“ bleibt nach Neuladen aktiv', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && await page.locator('.card').count() < 30);
+  await page.click('#mine-btn'); await page.waitForTimeout(600);
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible'); await page.waitForTimeout(600);
+  ok('„Für mich“ bleibt nach Neuladen aus', await page.getAttribute('#mine-btn', 'aria-pressed') === 'false' && await page.locator('.card').count() >= 30);
   // Mitmachen landet in „Für mich“
   const other = page.locator('.card:not(:has-text("André Hennen")) .chead').first();
   const oid = await other.evaluate(e => e.parentElement.id); await other.click(); await page.waitForTimeout(800);
@@ -249,8 +255,7 @@ for (const mode of ['down', 'noConfig']) {
   await page.click('#mine-btn'); await page.waitForTimeout(1000);
   ok('Mitgemachte Idee erscheint unter „Für mich“', await page.locator('#' + oid).count() === 1);
   await page.evaluate(() => { localStorage.setItem('adc-me', JSON.stringify({ name: 'Niemand Hier', code: 'qa-code' })); });
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible');
-  await page.click('#mine-btn'); await page.waitForTimeout(1000);
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible'); await page.waitForTimeout(1000);
   ok('Ohne eigene Ideen: freundlicher Hinweis statt leerer Spalte', (await page.textContent('#chh')).includes('Hier bist du noch bei keiner Idee dabei'));
   await ctx.close();
 }
