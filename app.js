@@ -258,8 +258,8 @@ function mkcard(i){
     ? '<button class="vote'+(myVote ? ' on' : '')+(bumpId === i.id && myVote ? ' bump' : '')+'" data-vote="1" title="'+esc(vtitle)+(myVote ? ' · Klick nimmt deine Stimme zurück' : ' · Hochvoten')+'" aria-pressed="'+myVote+'">▲ '+vn+'</button>'
     : (vn ? '<span class="vote" title="'+esc(vtitle)+'">▲ '+vn+'</span>' : '');
   var hl = HELP[i.id] || [], cl = COMM[i.id] || [];
-  var owner = i.owner ? '<span>👤 '+esc(i.owner)+'</span>' : (hl.length ? '' : '<span class="owner-open">👤 Noch offen</span>');
-  if (hl.length) owner += '<span>🙋 '+esc(hl.map(function(h){ return h.name; }).join(', '))+'</span>';
+  var owner = i.owner ? '<span class="mo">👤 '+esc(i.owner)+'</span>' : (hl.length ? '' : '<span class="owner-open mo">👤 Noch offen</span>');
+  if (hl.length) owner += '<span class="mo">🙋 '+esc(hl.map(function(h){ return h.name; }).join(', '))+'</span>';
   if (cl.length) owner += '<span>💬 '+cl.length+'</span>';
   var sek = i.sektion ? '<span>📍 '+esc(i.sektion)+'</span>' : '';
   var tags = i.t.map(function(t){ return TL[t]; }).join(' · ');
@@ -274,8 +274,8 @@ function mkcard(i){
       + hl.map(function(h){ return nameChip(h.name, '', norm(h.name) === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : ''); }).join('')
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
       + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
-      + (CONTACTS && !ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(contactFor)
-          ? '<div class="edited">Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben rechts über das Profil-Symbol (👤).</div>' : '')
+      + (CONTACTS && ME.name && ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(function(n){ return norm(n) === me; }) && !contactFor(ME.name)
+          ? '<div class="edited">Du hast noch keine Kontaktdaten hinterlegt. Trag sie oben rechts über 👤 ein, damit dich andere erreichen.</div>' : '')
       + '</div>';
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
@@ -289,8 +289,8 @@ function mkcard(i){
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
   if (i.bisher || doneS.length) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+(i.bisher ? bullets(i.bisher,'|') : '')+(doneS.length ? todoList(doneS, items, canTick) : '')+'</div></div>';
   if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag" data-lenis-prevent aria-label="JHV-Antrag (Entwurf): '+esc(i.n)+'">'+esc(i.antrag)+'</div></div>';
-  if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
-  if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent aria-label="Originalidee: '+esc(i.n)+'">'+linkify(esc(i.orig))+'</div></div>';
+  if (i.f || tags) body += '<div class="sec facts">'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span>'+tags+'</span>' : '')+'</div>';
+  if (i.orig) body += '<details class="sec orig"><summary>💬 Originalidee anzeigen</summary><div class="quote" data-lenis-prevent aria-label="Originalidee: '+esc(i.n)+'">'+linkify(esc(i.orig))+'</div></details>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
     + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+(c.id ? '<button class="cdel" data-cdel="'+(+c.id)+'" title="Kommentar löschen" aria-label="Kommentar löschen">🗑️</button>' : '')+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
     + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
@@ -474,7 +474,6 @@ function keepDrafts(){
 }
 function unsaved(){
   if (document.querySelector('dialog[open], .sform')) return true;
-  if (!document.getElementById('suggest').hidden || !document.getElementById('profile').hidden) return true;
   return Array.prototype.some.call(document.querySelectorAll('.card textarea'), function(t){ return !!t.value; });
 }
 // „Zuletzt passiert“: inhaltliche Updates aus UP (data.js), neue Online-Ideen und abgehakte Schritte, die neuesten 3
@@ -613,10 +612,11 @@ function loadTrash(){
 }
 
 // Formular für neues bzw. bestehendes Online-Ticket öffnen
-var editing = null;
+var editing = null, sugDlg = null;
 function openForm(t){
   editing = t;
-  var f = document.getElementById('sform'), p = document.getElementById('suggest');
+  var f = document.getElementById('sform'), p = document.getElementById('suggest'), origin = document.activeElement;
+  sugDlg = sugDlg || dlgAnim(p);
   f.reset();
   document.getElementById('s-head').textContent = t ? '✏️ Idee bearbeiten' : '💡 Neue Idee';
   document.getElementById('s-del').hidden = !t;
@@ -628,11 +628,11 @@ function openForm(t){
   document.getElementById('s-x').value = t && t.x || '';
   f.querySelector('[name=s-s][value="'+(t ? t.s : 'hh')+'"]').checked = true;
   f.querySelector('[name=s-sek][value="'+(t && t.sektion || '')+'"]').checked = true;
-  Array.prototype.forEach.call(f.querySelectorAll('[name=s-t]'), function(c){ c.checked = !!t && t.t.indexOf(c.value) >= 0; });
-  p.hidden = false;
-  scrollToEl(p);
+  Array.prototype.forEach.call(f.querySelectorAll('[name="s-t[]"]'), function(c){ c.checked = !!t && t.t.indexOf(c.value) >= 0; });
+  if (!p.open) sugDlg.open(origin && origin !== document.body ? origin : null);
   document.getElementById('s-title').focus({preventScroll:true});
 }
+function closeForm(){ editing = null; if (sugDlg) sugDlg.close(); }
 
 function initStore(){
   document.getElementById('mine-btn').hidden = false;
@@ -647,11 +647,10 @@ function initStore(){
   sbtn.removeAttribute('target'); sbtn.href = '#vorschlag';
   sbtn.addEventListener('click', function(e){
     e.preventDefault();
-    var p = document.getElementById('suggest');
-    if (!p.hidden && !editing) { p.hidden = true; return; }
     openForm(null);
   });
-  document.getElementById('s-cancel').addEventListener('click', function(){ document.getElementById('suggest').hidden = true; editing = null; });
+  document.getElementById('s-cancel').addEventListener('click', closeForm);
+  document.getElementById('s-close').addEventListener('click', closeForm);
   document.getElementById('sform').addEventListener('submit', function(e){
     e.preventDefault();
     var f = document.getElementById('sform'), m = document.getElementById('s-msg');
@@ -664,7 +663,7 @@ function initStore(){
       p_title: title,
       p_body: document.getElementById('s-body').value,
       p_x: document.getElementById('s-x').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean).join('\n'),
-      p_tags: Array.prototype.map.call(f.querySelectorAll('[name=s-t]:checked'), function(c){ return c.value; })
+      p_tags: Array.prototype.map.call(f.querySelectorAll('[name="s-t[]"]:checked'), function(c){ return c.value; })
     };
     var anon = !editing && document.getElementById('s-anon').checked;
     whoami(function(){
@@ -676,8 +675,8 @@ function initStore(){
       if (isEdit) args.p_id = editing.online.id;
       api(isEdit ? 'update_ticket' : 'create_ticket', args).then(function(newId){
         var id = isEdit ? editing.id : 'neu-' + newId;
-        editing = null; sbm.disabled = false;
-        document.getElementById('suggest').hidden = true;
+        sbm.disabled = false;
+        closeForm();
         m.textContent = '';
         return load().then(function(){ openTicket(id); });
       }, function(err){ sbm.disabled = false; m.className = 'msg err'; m.textContent = err.message; });
@@ -688,18 +687,15 @@ function initStore(){
     var t = editing;
     whoami(function(){
       api('delete_ticket', {p_name:ME.name, p_id:t.online.id}).then(function(){
-        editing = null; document.getElementById('suggest').hidden = true; afterTrash();
+        closeForm(); afterTrash();
       }, alertErr);
     });
   });
   var pb = document.getElementById('profile-btn');
   pb.hidden = false;
+  var profDlg = dlgAnim(document.getElementById('profile'));
   pb.addEventListener('click', function(){
     whoami(function(){
-      var p = document.getElementById('profile');
-      p.hidden = !p.hidden;
-      if (p.hidden) return;
-      setTimeout(function(){ scrollToEl(p); }, 50);
       var c = CONTACTS && (CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.name); })[0]
                         || (ME.oldName && CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.oldName); })[0]));
       document.getElementById('p-email').value = c && c.email || '';
@@ -707,6 +703,7 @@ function initStore(){
       document.getElementById('p-del').hidden = !c;
       document.getElementById('p-msg').textContent = 'Gespeichert unter: ' + ME.name;
       document.getElementById('p-msg').className = 'msg';
+      profDlg.open(pb);
     });
   });
   document.getElementById('pform').addEventListener('submit', function(e){
@@ -721,11 +718,10 @@ function initStore(){
     }).then(function(){
       if (ME.oldName) { delete ME.oldName; saveMe(); }
       m.className = 'msg ok'; m.textContent = '✓ Gespeichert'; document.getElementById('p-del').hidden = false; load();
+      setTimeout(function(){ profDlg.close(); }, 900);
     }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
   });
-  function closeProfile(){ document.getElementById('profile').hidden = true; pb.focus({preventScroll:true}); }
-  document.getElementById('p-close').addEventListener('click', closeProfile);
-  document.getElementById('profile').addEventListener('keydown', function(e){ if (e.key === 'Escape') closeProfile(); });
+  document.getElementById('p-close').addEventListener('click', function(){ profDlg.close(); });
   document.getElementById('p-del').addEventListener('click', function(){
     if (!confirm('Deine Kontaktdaten löschen?')) return;
     api('delete_contact', {p_name:ME.name, p_token:ME.token || ''}).then(function(){
@@ -764,37 +760,47 @@ openFromHash();
 }).catch(function(){})).then(load);
 window.addEventListener('hashchange', openFromHash);
 
-// Hilfe-Modal: wächst aus dem „?“-Knopf und schrumpft wieder hinein. Beim ersten Besuch öffnet es sich als Tutorial.
-var TUTORIAL = false;
-(function(){
-  var d = document.getElementById('help'), btn = document.getElementById('help-btn'), closing = false;
-  function fromBtn(){
-    var b = btn.getBoundingClientRect(), r = d.getBoundingClientRect();
+// Dialoge (Hilfe, Kontaktdaten, Neue Idee) wachsen aus dem Knopf, der sie öffnet, und schrumpfen beim Schließen dorthin zurück.
+// Alle Schließwege inkl. Escape laufen über close().
+function dlgAnim(d){
+  var origin = null, closing = false;
+  function from(){
+    if (!origin || !origin.isConnected || !origin.getClientRects().length) return 'translateY(16px) scale(.96)';
+    var b = origin.getBoundingClientRect(), r = d.getBoundingClientRect();
     return 'translate('+Math.round(b.left + b.width/2 - r.left - r.width/2)+'px,'+Math.round(b.top + b.height/2 - r.top - r.height/2)+'px) scale(.06)';
   }
   function backdrop(k, o){ try { d.animate(k, Object.assign({pseudoElement:'::backdrop'}, o)); } catch(e) {} }
-  function openHelp(){
-    d.showModal(); document.getElementById('help-body').scrollTop = 0;
+  function open(el){
+    origin = el || null;
+    if (!d.open) d.showModal();
+    var b = d.querySelector('.help-body'); if (b) b.scrollTop = 0;
     if (REDUCED || !d.animate) return;
-    d.animate([{transform:fromBtn(), opacity:0}, {transform:'none', opacity:1}], {duration:480, easing:EASE});
+    d.animate([{transform:from(), opacity:0}, {transform:'none', opacity:1}], {duration:480, easing:EASE});
     backdrop([{opacity:0}, {opacity:1}], {duration:400});
   }
-  function closeHelp(){
+  function close(){
     if (!d.open || closing) return;
     if (REDUCED || !d.animate) return d.close();
     closing = true;
-    var a = d.animate([{transform:'none', opacity:1}, {transform:fromBtn(), opacity:0}], {duration:240, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+    var a = d.animate([{transform:'none', opacity:1}, {transform:from(), opacity:0}], {duration:240, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
     backdrop([{opacity:1}, {opacity:0}], {duration:240, fill:'forwards'});
     function done(){ if (!closing) return; closing = false; d.close(); a.cancel(); d.getAnimations({subtree:true}).forEach(function(x){ x.cancel(); }); }
     a.onfinish = done; setTimeout(done, 400);
   }
-  btn.addEventListener('click', openHelp);
-  document.getElementById('help-close').addEventListener('click', closeHelp);
-  document.getElementById('help-x').addEventListener('click', closeHelp);
-  d.addEventListener('click', function(e){ if (e.target === d) closeHelp(); });
-  d.addEventListener('cancel', function(e){ e.preventDefault(); closeHelp(); });
+  d.addEventListener('cancel', function(e){ e.preventDefault(); close(); });
+  return {open:open, close:close};
+}
+
+// Hilfe: beim ersten Besuch als Tutorial
+var TUTORIAL = false;
+(function(){
+  var d = document.getElementById('help'), btn = document.getElementById('help-btn'), dlg = dlgAnim(d);
+  btn.addEventListener('click', function(){ dlg.open(btn); });
+  document.getElementById('help-close').addEventListener('click', dlg.close);
+  document.getElementById('help-x').addEventListener('click', dlg.close);
+  d.addEventListener('click', function(e){ if (e.target === d) dlg.close(); });
   try { TUTORIAL = !localStorage.getItem('adc-help'); if (TUTORIAL) localStorage.setItem('adc-help', 'seen'); } catch(e) {}
-  if (TUTORIAL) setTimeout(function(){ if (!document.querySelector('dialog[open]')) openHelp(); }, 900);
+  if (TUTORIAL) setTimeout(function(){ if (!document.querySelector('dialog[open]')) dlg.open(btn); }, 900);
 })();
 
 // Hinweis: auf den Homescreen legen / Lesezeichen setzen. Nur beim ersten Besuch;

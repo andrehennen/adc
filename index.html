@@ -158,6 +158,16 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .chev svg{width:13px;height:13px}
 .card.open .chev{transform:rotate(180deg);background:var(--ink);color:#fff}
 .cmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;padding-left:28px;font-size:13px;color:var(--ink-2)}
+.card.open .cmeta .mo{display:none}
+.card.open .cmeta:not(:has(>:not(.mo))){display:none}
+.facts{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:13px;color:var(--ink-2)}
+.orig>summary{display:inline-flex;align-items:center;gap:6px;min-height:24px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;list-style:none}
+.orig>summary::-webkit-details-marker{display:none}
+.orig>summary::after{content:"▾";font-size:11px}
+.orig[open]>summary::after{content:"▴"}
+.orig>summary:hover{color:var(--ink)}
+.orig>summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.orig .quote{margin-top:8px}
 .owner-open{color:var(--open);font-weight:600}
 
 .cbody{display:none;overflow:hidden}
@@ -258,8 +268,9 @@ dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 .opt span{display:inline-block;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--ink-2);background:#fff}
 .opt input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
 .opt input:focus-visible+span{outline:2px solid var(--blue);outline-offset:1px}
-.anon{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);cursor:pointer}
-.form .anon input{width:auto;accent-color:var(--ink)}
+.anon{display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;margin-top:2px}
+.form .anon input{width:18px;height:18px;margin:1px 0 0;flex-shrink:0;accent-color:var(--ink)}
+.anon-hint{display:block;font-size:12px;font-weight:400;color:var(--ink-3);margin-top:1px}
 .form input.emo{width:52px;text-align:center;font-size:18px;padding:6px}
 .vote{position:absolute;top:10px;right:12px;z-index:2;display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;line-height:1.35}
 .vote:hover{border-color:var(--ink);color:var(--ink)}
@@ -314,7 +325,6 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .hl{font-size:14px;gap:12px}
   .hl li,dialog.help .trust{gap:10px}
   .help-foot{padding:12px 20px}
-  .panel{padding:14px}
   .col-title{font-size:20px}
   .chead{padding:14px 12px}
   .cmeta{padding-left:0}
@@ -330,9 +340,9 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 /* Modals und Panels: weich einblenden */
 dialog[open]{animation:pop .38s var(--ease)}
-#help[open]{animation:none}
+dialog.anim[open]{animation:none}
+dialog.who.help.dlg-s{max-width:440px}
 dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
-.panel:not([hidden]){animation:drop .4s var(--ease)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
@@ -360,7 +370,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   </div>
 </header>
 
-<dialog data-lenis-prevent class="who help" id="help" aria-labelledby="help-h">
+<dialog data-lenis-prevent class="who help anim" id="help" aria-labelledby="help-h">
   <div class="help-head">
     <h2 id="help-h" tabindex="-1" autofocus>So funktioniert das Dashboard</h2>
     <button class="help-x" type="button" id="help-x" aria-label="Hilfe schließen">×</button>
@@ -392,49 +402,61 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="help-foot"><button class="btn btn-dark" type="button" id="help-close">Alles klar</button><a class="linkbtn" href="https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t" target="_blank" rel="noopener">Fragen? WhatsApp-Gruppe</a></div>
 </dialog>
 
+<dialog data-lenis-prevent class="who help anim dlg-s" id="profile" aria-labelledby="p-h">
+  <div class="help-head">
+    <h2 id="p-h">👤 Meine Kontaktdaten</h2>
+    <button class="help-x" type="button" id="p-close" aria-label="Kontaktdaten schließen">×</button>
+  </div>
+  <div class="help-body">
+    <p class="by" style="margin-bottom:12px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
+    <form class="form" id="pform">
+      <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" aria-label="E-Mail" autocomplete="email">
+      <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" aria-label="WhatsApp-Nummer" autocomplete="tel">
+      <div class="form-row"><button class="btn btn-dark" type="submit">Speichern</button><button class="btn btn-light" type="button" id="p-del" hidden>Löschen</button><span class="msg" id="p-msg"></span></div>
+    </form>
+  </div>
+</dialog>
+
+<dialog data-lenis-prevent class="who help anim" id="suggest" aria-labelledby="s-head">
+  <div class="help-head">
+    <h2 id="s-head">💡 Neue Idee</h2>
+    <button class="help-x" type="button" id="s-close" aria-label="Formular schließen">×</button>
+  </div>
+  <div class="help-body">
+      <form class="form" id="sform">
+        <div class="form-row"><input id="s-emoji" class="emo" type="text" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" type="text" maxlength="140" placeholder="Deine Idee in einem Satz" aria-label="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
+        <textarea id="s-body" maxlength="2000" placeholder="Beschreibung (optional): was, warum, für wen?"></textarea>
+        <textarea id="s-x" maxlength="3000" placeholder="Nächste Schritte (optional), einer pro Zeile"></textarea>
+        <div class="opts" role="radiogroup" aria-label="Wer setzt um?">
+          <label class="opt"><input type="radio" name="s-s" value="hh" checked><span>📍 Sektionen</span></label>
+          <label class="opt"><input type="radio" name="s-s" value="jhv"><span>🏛️ Gesamtverein / JHV</span></label>
+        </div>
+        <div class="opts" role="radiogroup" aria-label="Sektion">
+          <label class="opt"><input type="radio" name="s-sek" value="" checked><span>Keine Sektion</span></label>
+          <label class="opt"><input type="radio" name="s-sek" value="Hamburg"><span>📍 Hamburg</span></label>
+          <label class="opt"><input type="radio" name="s-sek" value="Berlin"><span>📍 Berlin</span></label>
+        </div>
+        <div class="opts" role="group" aria-label="Themen">
+          <label class="opt"><input type="checkbox" name="s-t[]" value="events"><span>🎤 Events</span></label>
+          <label class="opt"><input type="checkbox" name="s-t[]" value="members"><span>👥 Mitglieder</span></label>
+          <label class="opt"><input type="checkbox" name="s-t[]" value="network"><span>🌍 PR</span></label>
+          <label class="opt"><input type="checkbox" name="s-t[]" value="verein"><span>🏛️ Verein</span></label>
+          <label class="opt"><input type="checkbox" name="s-t[]" value="jury"><span>⚖️ Jury</span></label>
+        </div>
+        <label class="anon" id="s-anon-row"><input type="checkbox" id="s-anon"><span>Anonym einreichen<span class="anon-hint">Dein Name wird nicht gespeichert, es reicht der Code.</span></span></label>
+        <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Idee speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Idee löschen</button><span class="msg" id="s-msg"></span></div>
+      </form>
+      <div class="whoami" id="whoami"></div>
+      <p class="by" style="margin-top:8px">Ältere Ideen aus der ersten Sammlung: <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">Sli.do</a></p>
+  </div>
+</dialog>
+
 <main id="inhalt" tabindex="-1">
 <section class="wrap hero">
   <h1>Dein ADC Dashboard</h1>
   <p>Was läuft, wer sich kümmert &amp; wo du mitmachen kannst.</p>
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
-  </div>
-  <div class="panel" id="profile" hidden>
-    <div class="panel-head"><h2>👤 Meine Kontaktdaten</h2><button class="help-x" type="button" id="p-close" aria-label="Kontaktdaten schließen" title="Schließen">×</button></div>
-    <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
-    <form class="form" id="pform">
-      <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">
-      <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" autocomplete="tel">
-      <div class="form-row"><button class="btn btn-dark" type="submit">Speichern</button><button class="btn btn-light" type="button" id="p-del" hidden>Löschen</button><span class="msg" id="p-msg"></span></div>
-    </form>
-  </div>
-  <div class="panel" id="suggest" hidden>
-    <h2 id="s-head">💡 Neue Idee</h2>
-    <form class="form" id="sform">
-      <div class="form-row"><input id="s-emoji" class="emo" type="text" maxlength="4" value="💡" aria-label="Emoji"><input id="s-title" type="text" maxlength="140" placeholder="Deine Idee in einem Satz" aria-label="Deine Idee in einem Satz" required style="flex:1;width:auto"></div>
-      <textarea id="s-body" maxlength="2000" placeholder="Beschreibung (optional): was, warum, für wen?"></textarea>
-      <textarea id="s-x" maxlength="3000" placeholder="Nächste Schritte (optional), einer pro Zeile"></textarea>
-      <div class="opts" role="radiogroup" aria-label="Wer setzt um?">
-        <label class="opt"><input type="radio" name="s-s" value="hh" checked><span>📍 Sektionen</span></label>
-        <label class="opt"><input type="radio" name="s-s" value="jhv"><span>🏛️ Gesamtverein / JHV</span></label>
-      </div>
-      <div class="opts" role="radiogroup" aria-label="Sektion">
-        <label class="opt"><input type="radio" name="s-sek" value="" checked><span>Keine Sektion</span></label>
-        <label class="opt"><input type="radio" name="s-sek" value="Hamburg"><span>📍 Hamburg</span></label>
-        <label class="opt"><input type="radio" name="s-sek" value="Berlin"><span>📍 Berlin</span></label>
-      </div>
-      <div class="opts" role="group" aria-label="Themen">
-        <label class="opt"><input type="checkbox" name="s-t" value="events"><span>🎤 Events</span></label>
-        <label class="opt"><input type="checkbox" name="s-t" value="members"><span>👥 Mitglieder</span></label>
-        <label class="opt"><input type="checkbox" name="s-t" value="network"><span>🌍 PR</span></label>
-        <label class="opt"><input type="checkbox" name="s-t" value="verein"><span>🏛️ Verein</span></label>
-        <label class="opt"><input type="checkbox" name="s-t" value="jury"><span>⚖️ Jury</span></label>
-      </div>
-      <label class="anon" id="s-anon-row"><input type="checkbox" id="s-anon"> Anonym einreichen <span class="by">(dein Name wird nicht gespeichert)</span></label>
-      <div class="form-row"><button class="btn btn-dark" type="submit" id="s-submit">Idee speichern</button><button class="btn btn-light" type="button" id="s-cancel">Abbrechen</button><button class="linkbtn" type="button" id="s-del" hidden>🗑️ Idee löschen</button><span class="msg" id="s-msg"></span></div>
-    </form>
-    <div class="whoami" id="whoami"></div>
-    <p class="by" style="margin-top:8px">Ältere Ideen aus der ersten Sammlung: <a href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">Sli.do</a></p>
   </div>
 </section>
 
