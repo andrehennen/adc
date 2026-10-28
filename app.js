@@ -274,7 +274,7 @@ function mkcard(i){
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
       + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
       + (CONTACTS && !ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(contactFor)
-          ? '<div class="edited">Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben über „📱 Mein Kontakt“.</div>' : '')
+          ? '<div class="edited">Noch keine Kontaktdaten hinterlegt. Eintragen kann man sie oben rechts über das Profil-Symbol (👤).</div>' : '')
       + '</div>';
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
