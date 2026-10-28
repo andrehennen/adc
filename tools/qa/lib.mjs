@@ -80,4 +80,4 @@ export const overflow = page => page.evaluate(() => {
   return out.slice(0, 8);
 });
 
-export const noInstallHint = context => context.addInitScript(() => { try { localStorage.setItem('adc-install', JSON.stringify({ s: 'done' })); } catch (e) {} });
+export const noInstallHint = context => context.addInitScript(() => { try { localStorage.setItem('adc-install', JSON.stringify({ s: 'done' })); localStorage.setItem('adc-help', 'seen'); } catch (e) {} });

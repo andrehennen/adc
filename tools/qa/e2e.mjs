@@ -348,6 +348,22 @@ for (const mode of ['down', 'noConfig']) {
   ok('prefers-reduced-motion: Karte öffnet ohne Animation', await c.evaluate(e => e.classList.contains('open')) && anims === 0, anims + ' Animationen');
   await ctx.close();
 }
+// 6b. Erster Besuch: Hilfe als Tutorial, danach nicht mehr; „Zuletzt passiert“ mit letztem Update
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'de-DE' });
+  await serveLocal(ctx, { api: (route, u) => route.fulfill({ contentType: 'application/json', body: u.pathname === '/api/config' ? '{}' : '{"date":"2026-10-12T10:38:19Z"}' }) });
+  await ctx.addInitScript(() => { try { localStorage.setItem('adc-install', JSON.stringify({ s: 'done' })); } catch (e) {} });
+  const page = await ctx.newPage(); const log = watch(page);
+  await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' }); await page.waitForTimeout(1600);
+  ok('Erster Besuch: Hilfe öffnet sich als Tutorial', await page.evaluate(() => document.getElementById('help').open));
+  ok('„Zuletzt passiert“ zeigt höchstens 3 Einträge und das letzte Update', await page.evaluate(() => { const n = document.querySelectorAll('#news-list li').length; return n > 0 && n <= 3 && /Letztes Update: 12\. Oktober 2026/.test(document.getElementById('last-update').textContent); }));
+  await page.click('#help-close'); await page.waitForTimeout(500);
+  ok('„Alles klar“ schließt die Hilfe (animiert)', await page.evaluate(() => !document.getElementById('help').open));
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(1600);
+  ok('Zweiter Besuch: kein Tutorial mehr', await page.evaluate(() => !document.getElementById('help').open) && !log.some(l => /JS-Fehler/.test(l)), log.join(' | '));
+  await ctx.close();
+}
+
 await browser.close();
 
 // 7. Safari/iPhone: Kernablauf einmal in WebKit

@@ -128,6 +128,7 @@ fetch('/api/updated')
     if (!c || !c.date) return;
     var d = new Date(c.date);
     document.getElementById('last-update').textContent = 'Letztes Update: ' + d.toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('news').hidden = false;
   }).catch(function(){});
 
 // --- Bewegung ----------------------------------------------------------------
@@ -492,7 +493,7 @@ function newsItems(){
 }
 function renderNews(){
   var n = newsItems(), box = document.getElementById('news');
-  box.hidden = !n.length;
+  box.hidden = !n.length && !document.getElementById('last-update').textContent;
   document.getElementById('news-list').innerHTML = n.map(function(x){
     return '<li><span class="news-d">'+esc(x.at.toLocaleDateString('de-DE',{day:'numeric',month:'short'}))+'</span><span><a href="#'+esc(x.i.id)+'">'+esc(x.i.e+' '+x.i.n.replace(/\s*\(.*\)\s*$/,''))+'</a> · '+esc(x.t)+'</span></li>';
   }).join('');
@@ -757,13 +758,37 @@ openFromHash();
 }).catch(function(){})).then(load);
 window.addEventListener('hashchange', openFromHash);
 
-// Hilfe-Modal
+// Hilfe-Modal: wächst aus dem „?“-Knopf und schrumpft wieder hinein. Beim ersten Besuch öffnet es sich als Tutorial.
+var TUTORIAL = false;
 (function(){
-  var d = document.getElementById('help');
-  document.getElementById('help-btn').addEventListener('click', function(){ d.showModal(); document.getElementById('help-body').scrollTop = 0; });
-  document.getElementById('help-close').addEventListener('click', function(){ d.close(); });
-  document.getElementById('help-x').addEventListener('click', function(){ d.close(); });
-  d.addEventListener('click', function(e){ if (e.target === d) d.close(); });
+  var d = document.getElementById('help'), btn = document.getElementById('help-btn'), closing = false;
+  function fromBtn(){
+    var b = btn.getBoundingClientRect(), r = d.getBoundingClientRect();
+    return 'translate('+Math.round(b.left + b.width/2 - r.left - r.width/2)+'px,'+Math.round(b.top + b.height/2 - r.top - r.height/2)+'px) scale(.06)';
+  }
+  function backdrop(k, o){ try { d.animate(k, Object.assign({pseudoElement:'::backdrop'}, o)); } catch(e) {} }
+  function openHelp(){
+    d.showModal(); document.getElementById('help-body').scrollTop = 0;
+    if (REDUCED || !d.animate) return;
+    d.animate([{transform:fromBtn(), opacity:0}, {transform:'none', opacity:1}], {duration:480, easing:EASE});
+    backdrop([{opacity:0}, {opacity:1}], {duration:400});
+  }
+  function closeHelp(){
+    if (!d.open || closing) return;
+    if (REDUCED || !d.animate) return d.close();
+    closing = true;
+    var a = d.animate([{transform:'none', opacity:1}, {transform:fromBtn(), opacity:0}], {duration:240, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+    backdrop([{opacity:1}, {opacity:0}], {duration:240, fill:'forwards'});
+    function done(){ if (!closing) return; closing = false; d.close(); a.cancel(); d.getAnimations({subtree:true}).forEach(function(x){ x.cancel(); }); }
+    a.onfinish = done; setTimeout(done, 400);
+  }
+  btn.addEventListener('click', openHelp);
+  document.getElementById('help-close').addEventListener('click', closeHelp);
+  document.getElementById('help-x').addEventListener('click', closeHelp);
+  d.addEventListener('click', function(e){ if (e.target === d) closeHelp(); });
+  d.addEventListener('cancel', function(e){ e.preventDefault(); closeHelp(); });
+  try { TUTORIAL = !localStorage.getItem('adc-help'); if (TUTORIAL) localStorage.setItem('adc-help', 'seen'); } catch(e) {}
+  if (TUTORIAL) setTimeout(function(){ if (!document.querySelector('dialog[open]')) openHelp(); }, 900);
 })();
 
 // Hinweis: auf den Homescreen legen / Lesezeichen setzen. Nur beim ersten Besuch;
@@ -776,6 +801,7 @@ window.addEventListener('hashchange', openFromHash);
   if (standalone) { if (!st || st.s !== 'installed') save({s:'installed'}); return; }
   window.addEventListener('appinstalled', function(){ save({s:'installed'}); var d = document.getElementById('install'); if (d.open) d.close(); });
   if (st && (st.s === 'installed' || st.s === 'done' || (st.s === 'later' && Date.now() - st.t < 14*864e5))) return;
+  if (TUTORIAL) return;   // beim ersten Besuch läuft die Hilfe als Tutorial, der Hinweis kommt beim nächsten Besuch
 
   var deferred = null;
   window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; });

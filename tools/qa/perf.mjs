@@ -8,7 +8,7 @@ for (const path of ['/', '/datenschutz']) {
   for (let i = 0; i < 3; i++) {
     const ctx = await b.newContext({ ...devices['Pixel 7'], locale: 'de-DE' });
     await ctx.addInitScript(() => {
-      try { localStorage.setItem('adc-install', '{"s":"done"}'); } catch (e) {}
+      try { localStorage.setItem('adc-install', '{"s":"done"}'); localStorage.setItem('adc-help', 'seen'); } catch (e) {}
       window.__m = { lcp: 0, cls: 0, long: 0 };
       new PerformanceObserver(l => { for (const e of l.getEntries()) window.__m.lcp = e.startTime; }).observe({ type: 'largest-contentful-paint', buffered: true });
       new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__m.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
