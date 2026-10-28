@@ -67,7 +67,7 @@ Jedes Ticket ist ein Objekt:
 | Feld | Bedeutung |
 |---|---|
 | `s` | `"hh"` = Sektionen (linke Spalte), `"jhv"` = Gesamtverein / Präsidium / JHV (rechte Spalte) |
-| `sektion` | `"Hamburg"` / `"Berlin"` (optional, für den Sektionsfilter) |
+| `sektion` | `"Hamburg"` / `"Berlin"` / `"Berlin & Hamburg"` (optional, für den Sektionsfilter; mit ` & ` erscheint das Ticket in beiden) |
 | `e` | Emoji |
 | `n` | Titel (aus ihm wird auch die Ticket-ID für Deep-Links `#slug` und Speicher gebildet) |
 | `id` | Optional: feste Ticket-ID, wenn der Titel geändert wurde |

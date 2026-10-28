@@ -218,7 +218,7 @@ function filtered(){
   var A = all();
   var r = active === 'all' ? A :
           active === 'antrag' ? A.filter(function(i){ return !!i.antrag; }) :
-          (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return i.sektion === active; }) :
+          (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return (i.sektion || '').split(' & ').indexOf(active) >= 0; }) :
           A.filter(function(i){ return i.t.indexOf(active) >= 0; });
   if (mineOn) r = r.filter(isMine);
   return r.sort(function(a,b){
