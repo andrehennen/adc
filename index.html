@@ -201,7 +201,8 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 
 footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:13px;color:var(--ink-3);text-align:center}
 .foot-btn{background:none;border:none;font:inherit;font-weight:600;color:var(--ink-2);cursor:pointer;padding:4px 2px}
-.foot-btn::after{content:" ▾"}
+button.foot-btn::after{content:" ▾"}
+a.foot-btn{text-decoration:none}
 .foot-btn[aria-expanded="true"]{color:var(--ink)}
 .foot-btn[aria-expanded="true"]::after{content:" ▴"}
 .foot-btn:hover{color:var(--ink)}
