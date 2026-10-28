@@ -94,6 +94,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
+- Header rechts: „📱“ (`#profile-btn`, Kontaktdaten, nur mit Speicher) und „?“. „💬 WhatsApp-Gruppe“ steht nur noch im Footer und in der Hilfe. „Für mich“ ist der erste Chip in der Filterzeile (`.fb.mine`, ohne `data-t`; der Filter-Handler reagiert nur auf `.fb[data-t]`).
 - Hilfe-Button „?“ im Header öffnet das Modal `#help` mit den wichtigsten Funktionen. **Bei neuen Funktionen dort mitpflegen.** Es wächst animiert aus dem „?“ und schrumpft beim Schließen dorthin zurück (`openHelp`/`closeHelp`, alle Schließwege inkl. Escape laufen über `closeHelp`). Beim ersten Besuch öffnet es sich automatisch als Tutorial (`localStorage` `adc-help` = `seen`).
 - Installations-Hinweis (Modal `#install`): ab dem zweiten Besuch (beim ersten läuft das Tutorial), je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
 - Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (lokal in `vendor/lenis.min.js`, Version 1.3.26, MIT; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
@@ -105,7 +106,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 Feste Links:
 - 🧭 ADC Kompass: https://adc-compass.vercel.app/
 - 💡 Idee vorschlagen: öffnet das Vorschlagsfeld auf der Seite (Fallback ohne Supabase: https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls). Im ausgeklappten Feld steht ein Hinweis mit Link auf die alte Sli.do-Sammlung.
-- 💬 WhatsApp Gruppe: https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
+- 💬 WhatsApp Gruppe (Footer, Hilfe): https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t
 - Footer: „Version x.y · Changelog“ (aufklappbar) und „Entwickelt von André Hennen, Curious Company“ (verlinkt auf https://curiouscompany.de); darunter Links zu `/impressum` und `/datenschutz`
 - **Impressum & Datenschutz** (`impressum.html`, `datenschutz.html`, eigenständige Seiten, über `cleanUrls` ohne `.html` erreichbar). Anbieter ist der ADC e. V. (Angaben von adc.de), Ansprechpartner André (andre.hennen@adc.de). **Ändert sich, was gespeichert wird oder wohin die Seite Daten schickt (neuer Dienst, neues Feld), die Datenschutzseite mit anpassen.**
 
@@ -124,7 +125,7 @@ Feste Links:
 
 ## Zuletzt passiert (`UP` in `data.js`)
 
-- Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", t:"Ein Satz"}`), neue Online-Ideen und online abgehakte Schritte (automatisch).
+- Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", k:"Kurztitel", t:"Ein kurzer Satz ohne Punkt"}`; jeder Eintrag ist eine Zeile, auf dem Handy wird abgeschnitten, also kurz halten), neue Online-Ideen und online abgehakte Schritte (automatisch).
 - **Bei jeder inhaltlichen Änderung an einer Idee (Status, Termin, Beschluss, neue Idee im Board) einen `UP`-Eintrag ergänzen**, neueste zuerst, höchstens 5 behalten. Keine Software-/Plattform-Updates, die gehören in den Changelog. Die `id` muss eine bestehende Ticket-ID sein (Slug, max. 60 Zeichen), sonst wird der Eintrag nicht angezeigt.
 
 ## Changelog & Versionen

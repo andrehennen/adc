@@ -480,7 +480,7 @@ function unsaved(){
 function newsItems(){
   var r = [], byId = {};
   all().forEach(function(i){ byId[i.id] = i; });
-  (typeof UP !== 'undefined' ? UP : []).forEach(function(u){ if (byId[u.id]) r.push({at:new Date(u.d+'T12:00:00'), i:byId[u.id], t:u.t}); });
+  (typeof UP !== 'undefined' ? UP : []).forEach(function(u){ if (byId[u.id]) r.push({at:new Date(u.d+'T12:00:00'), i:byId[u.id], t:u.t, k:u.k}); });
   ONLINE.forEach(function(i){ r.push({at:new Date(i.online.created_at), i:i, t:'Neue Idee von '+i.online.created_by}); });
   D.forEach(function(i){
     var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
@@ -495,7 +495,7 @@ function renderNews(){
   var n = newsItems(), box = document.getElementById('news');
   box.hidden = !n.length && !document.getElementById('last-update').textContent;
   document.getElementById('news-list').innerHTML = n.map(function(x){
-    return '<li><span class="news-d">'+esc(x.at.toLocaleDateString('de-DE',{day:'numeric',month:'short'}))+'</span><span><a href="#'+esc(x.i.id)+'">'+esc(x.i.e+' '+x.i.n.replace(/\s*\(.*\)\s*$/,''))+'</a> · '+esc(x.t)+'</span></li>';
+    return '<li><a href="#'+esc(x.i.id)+'"><span class="news-d">'+esc(x.at.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}))+'</span><span class="news-t"><b>'+esc(x.i.e+' '+(x.k || x.i.n.replace(/\s*\(.*\)\s*$/,'').replace(/\s*[–:].*$/,'')))+'</b> · '+esc(x.t)+'</span></a></li>';
   }).join('');
 }
 
@@ -535,10 +535,10 @@ Array.prototype.forEach.call(document.querySelectorAll('.toggle-all'), function(
 });
 
 document.getElementById('frow').addEventListener('click', function(e){
-  var b = e.target.closest('.fb');
+  var b = e.target.closest('.fb[data-t]');
   if (!b) return;
   active = b.dataset.t;
-  document.querySelectorAll('.fb').forEach(function(x){ x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+  document.querySelectorAll('.fb[data-t]').forEach(function(x){ x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
   flipRender();
 });
 
@@ -634,7 +634,7 @@ function openForm(t){
 }
 
 function initStore(){
-  document.getElementById('mrow').hidden = false;
+  document.getElementById('mine-btn').hidden = false;
   var tb = document.getElementById('trash-btn');
   tb.hidden = false;
   tb.addEventListener('click', function(){
@@ -697,6 +697,7 @@ function initStore(){
       var p = document.getElementById('profile');
       p.hidden = !p.hidden;
       if (p.hidden) return;
+      setTimeout(function(){ scrollToEl(p); }, 50);
       var c = CONTACTS && (CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.name); })[0]
                         || (ME.oldName && CONTACTS.filter(function(x){ return norm(x.name) === norm(ME.oldName); })[0]));
       document.getElementById('p-email').value = c && c.email || '';

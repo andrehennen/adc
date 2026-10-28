@@ -37,14 +37,16 @@ var D = [
 ];
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
-// Inhaltliche Updates für „Zuletzt passiert“ (nur Inhalte, keine Software-Updates), neueste zuerst, höchstens 5 behalten
+// Inhaltliche Updates für „Zuletzt passiert“ (nur Inhalte, keine Software-Updates), neueste zuerst, höchstens 5 behalten.
+// k = kurzer Titel fürs Handy (eine Zeile), t = ein kurzer Satz ohne Punkt
 var UP = [
-  {d:"2026-10-28", id:"creative-club-wiederbeleben-talents-praesentieren-arbeiten-b", t:"Wird gemacht: am 2.11. im Design Zentrum Hamburg."},
-  {d:"2026-10-28", id:"adc-beats-kultur-musik-u-a-reeperbahn-festival", t:"Nach Berlin soll ADC Beats jetzt auch in Hamburg stattfinden."},
-  {d:"2026-10-15", id:"alle-wahlen-digital-remote-nachvollziehbar-dokumentierbar", t:"Von der JHV angenommen, ebenso „Abstimmungen vereinfachen“."}
+  {d:"2026-10-28", id:"creative-club-wiederbeleben-talents-praesentieren-arbeiten-b", k:"Creative Club", t:"2.11. im Design Zentrum Hamburg"},
+  {d:"2026-10-28", id:"adc-beats-kultur-musik-u-a-reeperbahn-festival", k:"ADC Beats", t:"Kommt auch nach Hamburg"},
+  {d:"2026-10-15", id:"alle-wahlen-digital-remote-nachvollziehbar-dokumentierbar", k:"Wahlen digital", t:"Von der JHV angenommen, ebenso „Abstimmungen vereinfachen“"}
 ];
 
 var CL = [
+  ["2.28", "28. Okt. 2026", "Aufgeräumter Einstieg: kürzeres Intro, „Mein Kontakt“ oben rechts im Header, „Für mich“ als Filter, „Zuletzt passiert“ einzeilig, kompaktere Spaltenköpfe. Auf dem Handy ist die erste Idee jetzt nach einem Bildschirm zu sehen."],
   ["2.27", "28. Okt. 2026", "Neu unter den Filtern: „Zuletzt passiert“ mit den letzten drei inhaltlichen Updates und dem Datum des letzten Updates. Beim ersten Besuch öffnet sich die Hilfe als kurze Einführung, sie wächst aus dem „?“ und verschwindet wieder dorthin."],
   ["2.26", "28. Okt. 2026", "Nächste Schritte lassen sich abhaken und wandern dann nach „Bisher passiert“. Stimmen zählen bei der Sortierung jetzt vor „hat Verantwortliche:n“."],
   ["2.25", "16. Okt. 2026", "Neu: Hamburg ADC Jury Map. Alle Orte für die Jurys 2027 auf einer Karte, mit Fußweg zur nächsten Jury und Route in Google Maps oder Apple Karten. Mitglieder können Räume ihrer Agentur eintragen."],
