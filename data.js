@@ -46,6 +46,7 @@ var UP = [
 ];
 
 var CL = [
+  ["2.30", "29. Okt. 2026", "Einfachere Filter: Intern, Extern, Jury und die Städte. Das Kommentarfeld öffnet sich erst auf „Kommentieren“."],
   ["2.29", "29. Okt. 2026", "Kontaktdaten und „Neue Idee“ öffnen als Fenster direkt am Knopf, die Seite springt nicht mehr nach oben. Kontaktdaten schließen sich nach dem Speichern. Aufgeräumtere Karten: Namen nicht doppelt, Aufwand und Themen in einer Zeile, Originalidee eingeklappt."],
   ["2.28", "28. Okt. 2026", "Aufgeräumter Einstieg: kürzeres Intro, „Mein Kontakt“ oben rechts im Header, „Für mich“ als Filter, „Zuletzt passiert“ einzeilig, kompaktere Spaltenköpfe. Auf dem Handy ist die erste Idee jetzt nach einem Bildschirm zu sehen."],
   ["2.27", "28. Okt. 2026", "Neu unter den Filtern: „Zuletzt passiert“ mit den letzten drei inhaltlichen Updates und dem Datum des letzten Updates. Beim ersten Besuch öffnet sich die Hilfe als kurze Einführung, sie wächst aus dem „?“ und verschwindet wieder dorthin."],

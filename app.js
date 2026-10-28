@@ -6,6 +6,10 @@ var SB_KEY = '';
 (function(){
 var WA = 'https://chat.whatsapp.com/FXO2e2MOiaY0qElp6SQVUc?mode=gi_t';
 var TL = {events:"🎤 Events",members:"👥 Mitglieder",network:"🌍 PR",verein:"🏛️ Verein",jury:"⚖️ Jury"};
+// Filter-Gruppen: Themen im Datenmodell (t) → Intern / Extern / Jury
+var TG = {events:"intern", members:"intern", verein:"intern", network:"extern", jury:"jury"};
+var GL = {intern:"🏠 Intern", extern:"🌍 Extern", jury:"⚖️ Jury"};
+function groups(i){ var g = []; (i.t || []).forEach(function(t){ var x = TG[t]; if (x && g.indexOf(x) < 0) g.push(x); }); return ['intern','extern','jury'].filter(function(x){ return g.indexOf(x) >= 0; }); }
 var FL = {easy:"🟢 Leicht umsetzbar",medium:"🟡 Mittlerer Aufwand",complex:"🔴 Komplex / langfristig"};
 var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",draft:"📝 Entwurf vorbereitet",checked:"🔍 Prüfung abgeschlossen",doing:"✅ Wird gemacht!",live:"🟢 Live, wird getestet",done:"✅ Abgeschlossen"};
 var SW = {done:8, doing:7, live:6, active:5, draft:4, checked:3, planned:2, idea:1};
@@ -219,9 +223,8 @@ function votes(i){ return (i.v || 0) + (VOTES[i.id] || []).length; }
 function filtered(){
   var A = all();
   var r = active === 'all' ? A :
-          active === 'antrag' ? A.filter(function(i){ return !!i.antrag; }) :
           (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return (i.sektion || '').split(' & ').indexOf(active) >= 0; }) :
-          A.filter(function(i){ return i.t.indexOf(active) >= 0; });
+          A.filter(function(i){ return groups(i).indexOf(active) >= 0; });
   if (mineOn) r = r.filter(isMine);
   return r.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
@@ -262,7 +265,7 @@ function mkcard(i){
   if (hl.length) owner += '<span class="mo">🙋 '+esc(hl.map(function(h){ return h.name; }).join(', '))+'</span>';
   if (cl.length) owner += '<span>💬 '+cl.length+'</span>';
   var sek = i.sektion ? '<span>📍 '+esc(i.sektion)+'</span>' : '';
-  var tags = i.t.map(function(t){ return TL[t]; }).join(' · ');
+  var tags = groups(i).map(function(g){ return GL[g]; }).join(' · ');
 
   var body = '';
   if (!i.owner && !hl.length) body += '<div class="sec"><div class="helpbox"><span>Noch niemand verantwortlich. Lust, das zu übernehmen?</span>'+(SB_ON ? '<button data-join="1">🙋 Ich übernehme</button>' : '<a href="'+WA+'" target="_blank" rel="noopener">💬 Melde dich</a>')+'</div></div>';
@@ -293,7 +296,8 @@ function mkcard(i){
   if (i.orig) body += '<details class="sec orig"><summary>💬 Originalidee anzeigen</summary><div class="quote" data-lenis-prevent aria-label="Originalidee: '+esc(i.n)+'">'+linkify(esc(i.orig))+'</div></details>';
   if (SB_ON) body += '<div class="sec"><div class="lbl">💬 Notizen & Kommentare</div>'
     + (cl.length ? '<div class="clist">'+cl.map(function(c){ return '<div class="cm"><span class="by"><b>'+esc(c.name)+'</b> · '+fmtDate(c.created_at)+(c.id ? '<button class="cdel" data-cdel="'+(+c.id)+'" title="Kommentar löschen" aria-label="Kommentar löschen">🗑️</button>' : '')+'</span><p>'+linkify(esc(c.body))+'</p></div>'; }).join('')+'</div>' : '')
-    + '<form class="cform" data-cform="1"><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" required></textarea><button class="minibtn" type="submit">Speichern</button></form></div>';
+    + '<button class="minibtn" type="button" data-cwrite="1">💬 Kommentieren</button>'
+    + '<form class="cform" data-cform="1" hidden><textarea maxlength="2000" placeholder="Notiz oder Kommentar …" aria-label="Notiz oder Kommentar" required></textarea><div class="form-row"><button class="minibtn" type="submit">Speichern</button><button class="linkbtn" type="button" data-ccancel="1">Abbrechen</button></div></form></div>';
   if (i.online) body += '<div class="sec edited">Angelegt von '+esc(i.online.created_by)+' · '+fmtDate(i.online.created_at)
     + (i.online.updated_by ? ' · zuletzt bearbeitet von '+esc(i.online.updated_by)+' · '+fmtDate(i.online.updated_at) : '')
     + (SB_ON ? ' · <button class="linkbtn" data-tedit="1">✏️ Idee bearbeiten</button> · <button class="linkbtn" data-tdel="1">🗑️ Löschen</button>' : '') + '</div>';
@@ -380,7 +384,9 @@ function mkcard(i){
     if (!confirm('Idee „'+i.n+'“ löschen? Sie bleibt 30 Tage im Papierkorb (unten auf der Seite) und lässt sich dort wiederherstellen.')) return;
     whoami(function(){ td.disabled = true; api('delete_ticket', {p_name:ME.name, p_id:i.online.id}).then(afterTrash, function(err){ td.disabled = false; alertErr(err); }); });
   });
-  var cf = el.querySelector('[data-cform]');
+  var cf = el.querySelector('[data-cform]'), cw = el.querySelector('[data-cwrite]');
+  if (cw) cw.addEventListener('click', function(){ cw.hidden = true; cf.hidden = false; cf.querySelector('textarea').focus(); });
+  if (cf) cf.querySelector('[data-ccancel]').addEventListener('click', function(){ cf.querySelector('textarea').value = ''; cf.hidden = true; cw.hidden = false; cw.focus(); });
   if (cf) cf.addEventListener('submit', function(e){
     e.preventDefault();
     var ta = cf.querySelector('textarea'), txt = ta.value.trim();
@@ -466,6 +472,7 @@ function keepDrafts(){
   return function(){
     d.forEach(function(x){
       var c = document.getElementById(x.id); if (!c) return;
+      var cw = c.querySelector('[data-cwrite]'); if (cw && x.c) cw.click();
       var t = c.querySelector('[data-cform] textarea'); if (t && x.c) t.value = x.c;
       var eb = c.querySelector('[data-edit]');
       if (x.e !== null && eb) { eb.click(); var e = c.querySelector('.sform textarea'); if (e) e.value = x.e; }
@@ -611,6 +618,15 @@ function loadTrash(){
   });
 }
 
+// Intern/Extern/Jury aus dem Formular → Themen im Datenmodell; beim Bearbeiten bleiben Events/Verein erhalten, solange „Intern“ an ist
+function formTags(f){
+  var on = Array.prototype.map.call(f.querySelectorAll('[name="s-t[]"]:checked'), function(c){ return c.value; }), r = [];
+  if (on.indexOf('intern') >= 0) { var keep = editing ? editing.t.filter(function(t){ return TG[t] === 'intern'; }) : []; r = r.concat(keep.length ? keep : ['members']); }
+  if (on.indexOf('extern') >= 0) r.push('network');
+  if (on.indexOf('jury') >= 0) r.push('jury');
+  return r;
+}
+
 // Formular für neues bzw. bestehendes Online-Ticket öffnen
 var editing = null, sugDlg = null;
 function openForm(t){
@@ -628,7 +644,8 @@ function openForm(t){
   document.getElementById('s-x').value = t && t.x || '';
   f.querySelector('[name=s-s][value="'+(t ? t.s : 'hh')+'"]').checked = true;
   f.querySelector('[name=s-sek][value="'+(t && t.sektion || '')+'"]').checked = true;
-  Array.prototype.forEach.call(f.querySelectorAll('[name="s-t[]"]'), function(c){ c.checked = !!t && t.t.indexOf(c.value) >= 0; });
+  var tg = t ? groups(t) : [];
+  Array.prototype.forEach.call(f.querySelectorAll('[name="s-t[]"]'), function(c){ c.checked = tg.indexOf(c.value) >= 0; });
   if (!p.open) sugDlg.open(origin && origin !== document.body ? origin : null);
   document.getElementById('s-title').focus({preventScroll:true});
 }
@@ -663,7 +680,7 @@ function initStore(){
       p_title: title,
       p_body: document.getElementById('s-body').value,
       p_x: document.getElementById('s-x').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean).join('\n'),
-      p_tags: Array.prototype.map.call(f.querySelectorAll('[name="s-t[]"]:checked'), function(c){ return c.value; })
+      p_tags: formTags(f)
     };
     var anon = !editing && document.getElementById('s-anon').checked;
     whoami(function(){

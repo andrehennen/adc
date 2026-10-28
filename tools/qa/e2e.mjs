@@ -100,19 +100,21 @@ const browser = await chromium.launch({ channel: 'chromium' });
   // Karte öffnen, kommentieren
   await page.locator('#' + id + ' .chead').click(); await page.waitForTimeout(800);
   const card = page.locator('#' + id);
+  await card.locator('[data-cwrite]').click();
   await card.locator('[data-cform] textarea').fill('Entwurf, der ein Neuzeichnen überleben muss');
   await page.locator('.fb[data-t=all]').click(); await page.waitForTimeout(900);
   ok('Kommentar-Entwurf überlebt Neuzeichnen (Filterklick)', await card.locator('[data-cform] textarea').inputValue() === 'Entwurf, der ein Neuzeichnen überleben muss');
   ok('Karte bleibt nach Neuzeichnen offen', await card.evaluate(c => c.classList.contains('open')));
   store.db.failNext = true;
-  await card.locator('[data-cform] button').click(); await page.waitForTimeout(600);
-  ok('Serverfehler beim Speichern: Meldung, Text bleibt erhalten, Knopf wieder aktiv', dialogs.some(d => d.includes('Testfehler')) && await card.locator('[data-cform] textarea').inputValue() !== '' && await card.locator('[data-cform] button').isEnabled(), dialogs.join(' | '));
-  await card.locator('[data-cform] button').click();
+  await card.locator('[data-cform] button[type=submit]').click(); await page.waitForTimeout(600);
+  ok('Serverfehler beim Speichern: Meldung, Text bleibt erhalten, Knopf wieder aktiv', dialogs.some(d => d.includes('Testfehler')) && await card.locator('[data-cform] textarea').inputValue() !== '' && await card.locator('[data-cform] button[type=submit]').isEnabled(), dialogs.join(' | '));
+  await card.locator('[data-cform] button[type=submit]').click();
   await page.waitForFunction(i => document.getElementById(i).querySelector('.cm'), id, { timeout: 5000 }).catch(() => {});
   ok('Kommentar gespeichert, Feld geleert', await card.locator('.cm').count() === 1 && await card.locator('[data-cform] textarea').inputValue() === '');
   // Doppelklick
+  await card.locator('[data-cwrite]').click();
   await card.locator('[data-cform] textarea').fill('Doppelklick-Test');
-  await card.locator('[data-cform] button').dblclick(); await page.waitForTimeout(800);
+  await card.locator('[data-cform] button[type=submit]').dblclick(); await page.waitForTimeout(800);
   ok('Doppelklick speichert nur einmal', store.db.comments.filter(c => c.body === 'Doppelklick-Test').length === 1, 'Anzahl ' + store.db.comments.filter(c => c.body === 'Doppelklick-Test').length);
   // Mitmachen
   const join = card.locator('[data-join]');
@@ -150,11 +152,12 @@ const browser = await chromium.launch({ channel: 'chromium' });
   await page.fill('#s-title', 'QA-Idee mit Umlauten äöü & <Zeichen>');
   await page.fill('#s-body', 'Beschreibung\nzweite Zeile https://example.com/pfad?a=1&b=2.');
   await page.fill('#s-x', '1. erster\n\n  zweiter  ');
-  await page.check('input[name="s-t[]"][value=events]', { force: true });
+  await page.check('input[name="s-t[]"][value=intern]', { force: true });
   await page.click('#s-submit');
   await page.waitForSelector('.card[id^=neu-]', { timeout: 5000 }).catch(() => {});
   const neu = page.locator('.card[id^=neu-]').first();
   ok('Neue Idee angelegt, aufgeklappt, mit Badge „Neu"', await neu.count() === 1 && await neu.evaluate(c => c.classList.contains('open')) && (await neu.textContent()).includes('Neu'));
+  ok('„Intern“ im Formular speichert das Thema „members“', store.db.tickets.some(t => t.title.startsWith('QA-Idee mit') && JSON.stringify(t.tags) === '["members"]'), JSON.stringify(store.db.tickets.map(t => t.tags)));
   ok('Sonderzeichen korrekt dargestellt', (await neu.locator('.cname').textContent()) === 'QA-Idee mit Umlauten äöü & <Zeichen>');
   ok('Link in der Beschreibung klickbar, Satzpunkt nicht im Link', await neu.locator('a[href="https://example.com/pfad?a=1&b=2"]').count() === 1);
   await page.waitForTimeout(500);
@@ -230,7 +233,7 @@ for (const mode of ['down', 'noConfig']) {
   const n = await page.locator('.card').count();
   ok(`Speicher weg (${mode}): Seite zeigt alle festen Ideen, Sli.do-Link statt Formular, keine JS-Fehler`, n >= 30 && (await page.getAttribute('#suggest-btn', 'href')).includes('sli.do') && await page.locator('#profile-btn').isHidden() && await page.locator('#mine-btn').isHidden() && !log.some(l => /JS-Fehler/.test(l)), n + ' Karten; ' + log.join(' | '));
   await page.locator('.card .chead').first().click(); await page.waitForTimeout(700);
-  ok(`Speicher weg (${mode}): Karte ohne Schreib-Knöpfe, mit WhatsApp-Hinweis wo nötig`, await page.locator('.card.open [data-cform], .card.open [data-edit]').count() === 0);
+  ok(`Speicher weg (${mode}): Karte ohne Schreib-Knöpfe, mit WhatsApp-Hinweis wo nötig`, await page.locator('.card.open [data-cform], .card.open [data-cwrite], .card.open [data-edit]').count() === 0);
   await ctx.close();
 }
 
@@ -386,8 +389,9 @@ await browser.close();
   await page.locator('.card').first().locator('.vote').click();
   await login(page); await page.waitForTimeout(900);
   await page.locator('.card .chead').first().click(); await page.waitForTimeout(900);
+  await page.locator('.card.open [data-cwrite]').click();
   await page.locator('.card.open [data-cform] textarea').fill('WebKit-Kommentar');
-  await page.locator('.card.open [data-cform] button').click(); await page.waitForTimeout(900);
+  await page.locator('.card.open [data-cform] button[type=submit]').click(); await page.waitForTimeout(900);
   ok('WebKit (iPhone-Breite): Anmelden, Voten, Kommentieren', store.db.votes.length === 1 && store.db.comments.length === 1 && !log.some(l => /JS-Fehler/.test(l)), log.join(' | '));
   await ctx.close(); await wk.close();
 }
