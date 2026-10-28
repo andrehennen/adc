@@ -723,6 +723,9 @@ function initStore(){
       m.className = 'msg ok'; m.textContent = '✓ Gespeichert'; document.getElementById('p-del').hidden = false; load();
     }, function(err){ m.className = 'msg err'; m.textContent = err.message; });
   });
+  function closeProfile(){ document.getElementById('profile').hidden = true; pb.focus({preventScroll:true}); }
+  document.getElementById('p-close').addEventListener('click', closeProfile);
+  document.getElementById('profile').addEventListener('keydown', function(e){ if (e.key === 'Escape') closeProfile(); });
   document.getElementById('p-del').addEventListener('click', function(){
     if (!confirm('Deine Kontaktdaten löschen?')) return;
     api('delete_contact', {p_name:ME.name, p_token:ME.token || ''}).then(function(){

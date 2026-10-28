@@ -215,6 +215,8 @@ ol.changelog{list-style:none;text-align:left;max-width:640px;margin:12px auto 16
 /* Speicherfunktionen */
 .panel{margin-top:16px;border:1px solid var(--ink);border-radius:var(--radius);padding:16px;max-width:760px}
 .panel h2{font-size:17px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.panel-head .help-x{margin:-6px -6px 0 0}
 .form{display:flex;flex-direction:column;gap:8px}
 .form input,.form textarea{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;width:100%}
 .form input:focus,.form textarea:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
@@ -397,7 +399,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
   </div>
   <div class="panel" id="profile" hidden>
-    <h2>👤 Meine Kontaktdaten</h2>
+    <div class="panel-head"><h2>👤 Meine Kontaktdaten</h2><button class="help-x" type="button" id="p-close" aria-label="Kontaktdaten schließen" title="Schließen">×</button></div>
     <p class="by" style="margin-bottom:10px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" autocomplete="email">

@@ -175,6 +175,9 @@ const browser = await chromium.launch({ channel: 'chromium' });
   await page.click('#profile-btn'); await page.waitForTimeout(300);
   await page.click('#pform button[type=submit]');
   ok('Kontakt ohne Angaben wird abgelehnt', (await page.textContent('#p-msg')).includes('Bitte E-Mail oder WhatsApp'));
+  await page.click('#p-close'); await page.waitForTimeout(200);
+  ok('Kontakt-Panel lässt sich mit × schließen', await page.locator('#profile').isHidden());
+  await page.click('#profile-btn'); await page.waitForTimeout(300);
   await page.fill('#p-email', 'qa@example.com'); await page.click('#pform button[type=submit]'); await page.waitForTimeout(700);
   ok('Kontakt gespeichert', store.db.contacts.some(c => c.email === 'qa@example.com') && (await page.textContent('#p-msg')).includes('Gespeichert'));
   // Ungespeichertes: kein Auto-Reload
