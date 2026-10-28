@@ -123,6 +123,13 @@ const browser = await chromium.launch({ channel: 'chromium' });
     await eb.click(); await card.locator('.sform textarea').fill('Schritt eins\nSchritt zwei');
     await card.locator('.sform button[type=submit]').click(); await page.waitForTimeout(700);
     ok('Nächste Schritte online bearbeitet', (await card.locator('[data-steps]').textContent()).includes('Schritt zwei') && (await card.locator('[data-steps]').textContent()).includes('Bearbeitet von Qa Testerin'));
+    // Abhaken → „Bisher passiert“, wieder öffnen
+    await card.locator('[data-steps] [data-tick]').first().check({ force: true }); await page.waitForTimeout(700);
+    const body1 = store.db.step_edits[0].body;
+    ok('Schritt abhaken speichert ihn als erledigt', /^✓ Schritt eins \(erledigt: Qa Testerin, \d{1,2}\.\d{1,2}\.\d{4}\)\nSchritt zwei$/.test(body1), body1);
+    ok('Abgehakter Schritt steht unter „Bisher passiert“', !(await card.locator('[data-steps]').textContent()).includes('Schritt eins') && await card.locator('.todo li.done', { hasText: 'Schritt eins' }).count() === 1);
+    await card.locator('.todo li.done [data-tick]').first().uncheck({ force: true }); await page.waitForTimeout(700);
+    ok('Haken entfernen macht ihn wieder offen', store.db.step_edits[0].body === 'Schritt eins\nSchritt zwei' && (await card.locator('[data-steps]').textContent()).includes('Schritt eins'), store.db.step_edits[0].body);
   }
   // Kommentar löschen → Papierkorb → wiederherstellen
   await card.locator('.cdel').first().click(); await page.waitForTimeout(700);

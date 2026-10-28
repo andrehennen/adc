@@ -38,6 +38,7 @@ var D = [
 
 // Changelog: neueste Version zuerst. Bei jeder sichtbaren Änderung ergänzen.
 var CL = [
+  ["2.26", "28. Okt. 2026", "Nächste Schritte lassen sich abhaken und wandern dann nach „Bisher passiert“. Stimmen zählen bei der Sortierung jetzt vor „hat Verantwortliche:n“."],
   ["2.25", "16. Okt. 2026", "Neu: Hamburg ADC Jury Map. Alle Orte für die Jurys 2027 auf einer Karte, mit Fußweg zur nächsten Jury und Route in Google Maps oder Apple Karten. Mitglieder können Räume ihrer Agentur eintragen."],
   ["2.24", "14. Okt. 2026", "Neuer Filter „Für mich“: zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Aufgeräumteres Board: kürzere Themen-Namen, Filter auf dem Handy in einer Zeile, „Alle aufklappen“ je Spalte, luftigere Abstände, alle Karten mit schwarzem Rahmen, übersichtlichere Hilfe."],
   ["2.22", "13. Okt. 2026", "Qualitätsrunde: besser per Tastatur und Screenreader bedienbar, kein seitliches Scrollen auf sehr kleinen Handys, eigene Seite für falsche Links. Auf dem Homescreen eigenes Icon und der Name „ADC Dashboard“."],

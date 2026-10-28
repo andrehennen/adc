@@ -226,9 +226,10 @@ function filtered(){
     if (!a.prio && b.prio) return 1;
     var sa = SW[a.status||'idea']||0, sb = SW[b.status||'idea']||0;
     if (sa !== sb) return sb - sa;
+    var va = votes(a), vb = votes(b);
+    if (va !== vb) return vb - va;
     var oa = (a.owner || (HELP[a.id]||[]).length)?1:0, ob = (b.owner || (HELP[b.id]||[]).length)?1:0;
-    if (oa !== ob) return ob - oa;
-    return votes(b) - votes(a);
+    return ob - oa;
   });
 }
 
@@ -277,12 +278,14 @@ function mkcard(i){
   }
   var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
   var steps = se ? se.body : i.x;
+  var items = stepItems(steps), openS = items.filter(function(s){ return !s.done; }), doneS = items.filter(function(s){ return s.done; });
+  var canTick = SB_ON && !i.online;
   if (i.body) body += '<div class="sec"><div class="lbl">📝 Beschreibung</div><div class="txt"><p style="white-space:pre-wrap">'+linkify(esc(i.body))+'</p></div></div>';
   body += '<div class="sec" data-steps="1"><div class="lbl-row"><div class="lbl">👉 Nächste Schritte</div>'+(SB_ON && !i.online ? '<button class="copy" data-edit="1">✏️ Bearbeiten</button>' : '')+'</div><div class="txt">'
-    + (steps ? bullets(steps) : '<p class="by">Noch keine. Ergänze sie über „Idee bearbeiten“.</p>')+'</div>'
+    + (openS.length ? (canTick ? todoList(openS, items, true) : bullets(openS.map(stepLine).join('\n'))) : '<p class="by">'+(doneS.length ? 'Alles erledigt.' : 'Noch keine.')+' Ergänze sie über „'+(canTick ? 'Bearbeiten' : 'Idee bearbeiten')+'“.</p>')+'</div>'
     + (se ? '<div class="edited">Bearbeitet von '+esc(se.name)+' · '+fmtDate(se.created_at)+'</div>' : '') + '</div>';
   if (i.rahmen) body += '<div class="sec"><div class="lbl">🎯 Leitlinien</div><div class="txt">'+bullets(i.rahmen,'|')+'</div></div>';
-  if (i.bisher) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+bullets(i.bisher,'|')+'</div></div>';
+  if (i.bisher || doneS.length) body += '<div class="sec"><div class="lbl">✅ Bisher passiert</div><div class="txt">'+(i.bisher ? bullets(i.bisher,'|') : '')+(doneS.length ? todoList(doneS, items, canTick) : '')+'</div></div>';
   if (i.antrag) body += '<div class="sec"><div class="lbl-row"><div class="lbl">📄 JHV-Antrag (Entwurf)</div><button class="copy" data-copy="1">Text kopieren</button></div><div class="antrag" data-lenis-prevent aria-label="JHV-Antrag (Entwurf): '+esc(i.n)+'">'+esc(i.antrag)+'</div></div>';
   if (i.f || tags) body += '<div class="sec"><div class="lbl">'+(i.f ? '⏱️ Aufwand' : '🏷️ Themen')+'</div>'+(i.f ? '<span class="pill ef-'+i.f+'">'+FL[i.f]+'</span>' : '')+(tags ? '<span class="txt" style="'+(i.f ? 'margin-left:10px;' : '')+'font-size:13px">'+tags+'</span>' : '')+'</div>';
   if (i.orig) body += '<div class="sec"><div class="lbl">💬 Originalidee(n)</div><div class="quote" data-lenis-prevent aria-label="Originalidee: '+esc(i.n)+'">'+linkify(esc(i.orig))+'</div></div>';
@@ -353,6 +356,17 @@ function mkcard(i){
       });
     });
   });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-tick]'), function(cb){
+    cb.addEventListener('change', function(){
+      var want = cb.checked; cb.checked = !want;
+      whoami(function(){
+        var it = stepItems(steps), s = it[+cb.dataset.tick]; if (!s) return;
+        s.done = want; s.by = want ? ME.name : ''; s.at = want ? new Date().toLocaleDateString('de-DE') : '';
+        cb.checked = want; cb.disabled = true;
+        api('set_next_steps', {p_ticket:i.id, p_name:ME.name, p_body:it.map(stepLine).join('\n'), p_base:i.x}).then(load, function(err){ cb.checked = !want; cb.disabled = false; alertErr(err); });
+      });
+    });
+  });
   Array.prototype.forEach.call(el.querySelectorAll('[data-cdel]'), function(b){
     b.addEventListener('click', function(){
       if (!confirm('Kommentar löschen? Er bleibt 30 Tage im Papierkorb (unten auf der Seite) und lässt sich dort wiederherstellen.')) return;
@@ -389,6 +403,25 @@ function markScroll(card){
 }
 
 // Text der Nächsten Schritte als eine Zeile pro Schritt (für das Bearbeitungsfeld)
+// Nächste Schritte als To-dos: erledigte Zeilen beginnen mit „✓“, dahinter optional „(erledigt: Name, TT.MM.JJJJ)“
+var DONE_RE = /^✓\s*(.*?)(?:\s+\(erledigt: (.+?), (\d{1,2}\.\d{1,2}\.\d{4})\))?$/;
+function stepItems(text){
+  if (!text) return [];
+  return bulletsPlain(text).split('\n').map(function(l){ return l.replace(/^\s*(\d+\.|[-•*])\s+/,'').trim(); }).filter(Boolean).map(function(l){
+    var m = l.match(DONE_RE);
+    return m ? {t:m[1], done:true, by:m[2]||'', at:m[3]||''} : {t:l, done:false};
+  });
+}
+function stepLine(s){ return s.done ? '✓ '+s.t+(s.by ? ' (erledigt: '+s.by+', '+s.at+')' : '') : s.t; }
+function todoList(items, all, tick){
+  return '<ul class="todo">'+items.map(function(s){
+    var k = all.indexOf(s);
+    return '<li'+(s.done ? ' class="done"' : '')+'>'
+      + (tick ? '<span class="tick"><input type="checkbox" data-tick="'+k+'"'+(s.done ? ' checked' : '')+' aria-label="'+esc((s.done ? 'Wieder offen: ' : 'Erledigt: ')+s.t)+'"><span aria-hidden="true"></span></span>' : '<span class="tick" aria-hidden="true">'+(s.done ? '✓' : '')+'</span>')
+      + '<span>'+linkify(esc(s.t))+(s.done && s.by ? ' <span class="by">· '+esc(s.by)+', '+esc(s.at)+'</span>' : '')+'</span></li>';
+  }).join('')+'</ul>';
+}
+
 function bulletsPlain(text){
   var items = text.indexOf('\n') >= 0 ? text.split('\n') : text.split(/\d+\.\s+/);
   items = items.map(function(s){ return s.trim().replace(/[;,]$/,''); }).filter(Boolean);

@@ -161,6 +161,18 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .txt{font-size:14px;color:var(--ink-2);line-height:1.55}
 .txt ul{padding-left:18px;display:flex;flex-direction:column;gap:3px}
 .txt li::marker{color:var(--ink-3)}
+.txt ul.todo{list-style:none;padding-left:0;gap:2px}
+.todo li{display:flex;gap:6px;align-items:flex-start}
+.todo li+li{margin-top:0}
+.tick{position:relative;flex-shrink:0;width:24px;height:24px;margin-top:-2px;display:flex;align-items:center;justify-content:center;color:var(--ink-3);font-weight:700}
+.tick input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.tick input+span{width:17px;height:17px;border:1.5px solid var(--ink);border-radius:5px;background:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:background .15s}
+.tick input:checked+span{background:var(--ink)}
+.tick input:checked+span::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.tick input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.tick input:disabled{cursor:progress}
+.todo li.done>span:last-child{color:var(--ink-2)}
+.todo .by{font-size:12px;color:var(--ink-3)}
 .txt a,.quote a{color:var(--blue);text-underline-offset:2px;word-break:break-all}
 .helpbox{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--open-bg);border-radius:10px;padding:10px 12px;font-size:14px;color:#5f1610;font-weight:500}
 .helpbox a,.helpbox button{font-size:13px;border:none;cursor:pointer;font-weight:700;background:#fff;color:var(--open);border-radius:999px;padding:7px 14px;text-decoration:none;white-space:nowrap}
@@ -345,14 +357,14 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">💡</span><span><b>Neue Idee</b> anlegen, auch <b>anonym</b>. Dann reicht der Code, dein Name wird nicht gespeichert.</span></li>
       <li><span class="ic">▲</span><span><b>Hochvoten:</b> eine Stimme pro Person. Nochmal tippen nimmt sie zurück.</span></li>
       <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen:</b> Dein Name erscheint an der Idee.</span></li>
-      <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten und <b>Notizen</b> schreiben.</span></li>
+      <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten, <b>abhaken</b> (sie wandern dann nach „Bisher passiert“) und <b>Notizen</b> schreiben.</span></li>
       <li><span class="ic">🗑️</span><span><b>Löschen:</b> Ideen und Kommentare liegen danach 30&nbsp;Tage im Papierkorb unten auf der Seite und lassen sich wiederherstellen.</span></li>
       <li><span class="ic">📱</span><span><b>Mein Kontakt:</b> Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
     </ul>
     <h3>Orientierung</h3>
     <ul class="hl">
       <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
-      <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen.</span></li>
+      <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen. Innerhalb eines Status stehen Ideen mit mehr Stimmen weiter oben.</span></li>
       <li><span class="ic">🙋</span><span><b>Für mich</b> zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Darunter filterst du nach Thema und Sektion.</span></li>
       <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
     </ul>

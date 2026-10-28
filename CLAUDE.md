@@ -30,6 +30,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - Name und Code merkt sich der Browser (`localStorage` `adc-me`, dazu `token` für die eigenen Kontaktdaten).
 - **Kontaktdaten** (`contacts`): E-Mail und/oder WhatsApp-Nummer, nicht öffentlich lesbar, nur über `get_contacts` mit Code. Ändern/Löschen nur mit dem Browser-Token. Auf den Karten stehen ✉️/💬-Links bei Owner und Mitmachenden. Beim Hovern bzw. Antippen eines Namens erscheinen ✉️/💬-Icons direkt im Namens-Chip. Zuordnung über den vollen Namen, akzent- und großschreibungsunabhängig (André = Andre), sonst über einen eindeutigen Vornamen. Der Login-Dialog verlangt Vor- und Nachnamen.
 - **Nächste Schritte online** (`step_edits`): Die neueste Bearbeitung gilt nur, solange `base` gleich dem `x` im Code ist. **Bevor Claude `x` im Code ändert, die neueste Bearbeitung lesen** (öffentlich: `GET /rest/v1/step_edits?ticket=eq.<id>&order=created_at.desc&limit=1` mit Publishable Key von `/api/config`) und in den neuen Text übernehmen, sonst geht sie verloren.
+- **Abhaken** (seit 2.26): Jeder Nächste Schritt hat bei festen Ideen eine Checkbox. Abhaken speichert über `set_next_steps` einen neuen Text, in dem die Zeile `✓ Schritt (erledigt: Name, TT.MM.JJJJ)` heißt; die Karte zeigt sie dann unter „Bisher passiert“ (Haken entfernen macht sie wieder offen). Keine eigene Tabelle. **Ändert Claude `x`, erledigte `✓`-Zeilen aus der neuesten Bearbeitung als Eintrag in `bisher` übernehmen** und nur die offenen Schritte in `x` lassen. `✓`-Zeilen dürfen auch direkt in `x` stehen.
 - Verknüpfung über die Ticket-ID (Slug aus `n`). **Wird ein Titel umbenannt, die alte ID als `id:"alter-slug"` am Ticket festhalten**, sonst verlieren Mitmachende und Kommentare ihre Zuordnung.
 - **Online-Tickets** (`tickets`): „💡 Neues Ticket“ ersetzt „Idee vorschlagen“. Alle mit Code dürfen anlegen, bearbeiten, löschen (Löschen = `deleted=true`, endgültig nur im Table Editor). Mit „Anonym einreichen“ wird `created_by = 'Anonym'` gespeichert und nur der Code abgefragt, kein Name. Im Board erscheinen sie mit ID `neu-<id>`, Status `idea`, ohne Aufwand, mit Badge „🆕 Neu“ (14 Tage). Für sie gibt es keinen separaten „Nächste Schritte bearbeiten“-Button, das läuft über „Ticket bearbeiten“.
 - **Übernahme ins feste Board:** Soll ein Online-Ticket in `D`, dort mit `id:"neu-<id>"` anlegen (sonst verliert es Stimmen, Kommentare, Mitmachende) und das Online-Ticket löschen (André über die Seite oder Table Editor).
@@ -84,7 +85,7 @@ Jedes Ticket ist ein Objekt:
 
 Status-Labels: 💡 Idee · 📋 Geplant · ⚡ In Arbeit · 📝 Entwurf vorbereitet · 🔍 Prüfung abgeschlossen · ✅ Wird gemacht! · 🟢 Live, wird getestet · ✅ Abgeschlossen
 
-Sortierung: zuerst Prio, dann Status (done > doing > live > active > draft > checked > planned > idea), dann „hat Owner“, dann Stimmen.
+Sortierung: zuerst Prio, dann Status (done > doing > live > active > draft > checked > planned > idea), dann Stimmen, dann „hat Owner“.
 In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `idea`) und „💡 Ideen – suchen Mitstreiter:innen“.
 
 ## Design (seit Okt. 2026)
