@@ -11,8 +11,11 @@ var TG = {events:"intern", members:"intern", verein:"intern", network:"extern", 
 var GL = {intern:"🏠 Intern", extern:"🌍 Extern", jury:"⚖️ Jury"};
 function groups(i){ var g = []; (i.t || []).forEach(function(t){ var x = TG[t]; if (x && g.indexOf(x) < 0) g.push(x); }); return ['intern','extern','jury'].filter(function(x){ return g.indexOf(x) >= 0; }); }
 var FL = {easy:"🟢 Leicht umsetzbar",medium:"🟡 Mittlerer Aufwand",complex:"🔴 Komplex / langfristig"};
-var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ In Arbeit",draft:"📝 Entwurf vorbereitet",checked:"🔍 Prüfung abgeschlossen",doing:"✅ Wird gemacht!",live:"🟢 Live, wird getestet",done:"✅ Abgeschlossen"};
-var SW = {done:8, doing:7, live:6, active:5, draft:4, checked:3, planned:2, idea:1};
+var SL = {idea:"💡 Idee",planned:"📋 Geplant",active:"⚡ Läuft",done:"✅ Erledigt"};
+var SW = {done:4, active:3, planned:2, idea:1};
+// Alte Status (vor 2.30) auf die vier neuen abbilden, falls sie noch irgendwo stehen
+var SA = {draft:"active", checked:"planned", doing:"active", live:"active"};
+D.forEach(function(i){ if (SA[i.status]) i.status = SA[i.status]; });
 var CHEV = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>';
 var active = 'all';
 var mineOn = false;  // Filter „Für mich“, lässt sich mit den Themen-Filtern kombinieren; Zustand pro Browser in localStorage „adc-mine“

@@ -74,7 +74,7 @@ Jedes Ticket ist ein Objekt:
 | `v` | Stimmen aus der Sli.do-Sammlung (Zahl oder `null`); Online-Stimmen kommen dazu |
 | `t` | Themen: `events` (🎤 Events), `members` (👥 Mitglieder: Angebote & Austausch für Mitglieder), `network` (🌍 Partner & Öffentlichkeit: Kooperationen, Nachwuchs, Sponsoren, Stadt), `verein` (🏛️ Verein & Struktur: Satzung, Wahlen, Beiträge, Transparenz, Tools), `jury` (⚖️ Jury/Wettbewerb). Möglichst 1–2 pro Ticket. **Auf der Seite** (Filter, Karten, Formular) erscheinen sie seit 2.30 nur als drei Gruppen (`TG` in `app.js`): 🏠 Intern = `events`/`members`/`verein`, 🌍 Extern = `network`, ⚖️ Jury = `jury` |
 | `f` | Aufwand: `easy`, `medium`, `complex` |
-| `status` | `idea`, `planned`, `active`, `draft`, `checked`, `doing`, `live`, `done` |
+| `status` | `idea`, `planned`, `active`, `done` (seit 2.30; alte Werte `draft`/`checked`/`doing`/`live` bildet `SA` in `app.js` noch ab) |
 | `prio` | `true` für Prio-Tickets (stehen ganz oben) |
 | `owner` | Verantwortliche:r, **immer mit vollem Namen** (für die Kontakt-Zuordnung), mehrere mit ` & `; fehlt er, zeigt die Karte „Noch offen“ und einen Mitmach-Hinweis |
 | `x` | Nächste Schritte (`1. … 2. …` oder mit `;` getrennt, wird zu Bullets) |
@@ -83,9 +83,9 @@ Jedes Ticket ist ein Objekt:
 | `antrag` | JHV-Antragstext (im Dashboard mit Kopierbutton) |
 | `orig` | Originalidee(n) aus der Sammlung, wörtlich |
 
-Status-Labels: 💡 Idee · 📋 Geplant · ⚡ In Arbeit · 📝 Entwurf vorbereitet · 🔍 Prüfung abgeschlossen · ✅ Wird gemacht! · 🟢 Live, wird getestet · ✅ Abgeschlossen
+Status-Labels: 💡 Idee · 📋 Geplant · ⚡ Läuft · ✅ Erledigt
 
-Sortierung: zuerst Prio, dann Status (done > doing > live > active > draft > checked > planned > idea), dann Stimmen, dann „hat Owner“.
+Sortierung: zuerst Prio, dann Status (done > active > planned > idea), dann Stimmen, dann „hat Owner“.
 In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `idea`) und „💡 Ideen – suchen Mitstreiter:innen“.
 
 ## Design (seit Okt. 2026)
