@@ -19,6 +19,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 - **Speicherfunktion (seit 1.10.2026, Supabase):** Mitglieder können online Tickets anlegen/bearbeiten/löschen, Tickets hochvoten, sich als „Mach mit“ eintragen, Kontaktdaten hinterlegen, Nächste Schritte bearbeiten und kommentieren. Siehe Abschnitt „Speicher (Supabase)“.
 - Vor jeder Änderung logisch und auf UX prüfen. Bei Unklarheit **erst fragen**, dann bauen. Offene Fragen immer im Chat als klickbare Auswahl stellen (AskUserQuestion), nicht als Fließtext.
 - **Modellwahl:** Vor dem Start komplexerer Aufgaben prüfen, welches Modell am besten passt (z. B. Opus für Architektur, große Umbauten, knifflige Fehler; Sonnet für Routine-Änderungen; Haiku für Kleinkram). Läuft es schon, weitermachen. Wenn nicht, stoppen und den Wechsel vorschlagen (klickbar im Chat).
+- **Notion und ClickUp in diesem Repo niemals nutzen** (weder lesen noch schreiben, auch nicht als Speicher oder Notizablage).
 - Nach jeder Änderung prüfen, ob `var D = [...]` in `data.js` noch parst (z. B. mit Node per Regex extrahieren und `eval`) und ob die Seite ohne JS-Fehler rendert.
 - Beim Entfernen von Tickets auf verwaiste Kommas achten (`,\s*,`).
 - **Leitlinien** (`rahmen`) sind getroffene Entscheidungen und Ziele, keine nächsten Schritte.
