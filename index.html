@@ -236,7 +236,7 @@ ol.changelog{list-style:none;text-align:left;max-width:640px;margin:12px auto 16
 .by{font-size:12px;color:var(--ink-3)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;background:var(--green-bg);color:var(--green);border-radius:999px;padding:3px 10px}
-.chip button{background:none;border:none;color:inherit;cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px}
+.chip button{background:none;border:none;color:inherit;cursor:pointer;font-size:14px;line-height:1;padding:0;min-width:24px;min-height:24px;margin:-5px -8px -5px -4px;display:inline-flex;align-items:center;justify-content:center}
 .minibtn{font-size:13px;font-weight:700;background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:3px 11px;cursor:pointer;color:var(--ink)}
 .minibtn:hover{background:var(--ink);color:#fff}
 .clist{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
@@ -259,6 +259,11 @@ dialog.who h2{font-size:17px;font-weight:800;margin-bottom:4px}
 dialog.who p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
 #inst-txt{line-height:1.55;margin-bottom:0}
 .chip.own{background:var(--ink);color:#fff}
+.stsel{display:flex;flex-wrap:wrap;gap:6px}
+.stsel button{font:inherit;font-size:13px;font-weight:600;line-height:1.3;padding:5px 11px;border-radius:999px;border:1.5px solid transparent;cursor:pointer}
+.stsel button:not(.on){border-color:var(--line-strong);background:#fff;color:var(--ink-2)}
+.stsel button.on{border-color:transparent;cursor:default}
+.stsel button:disabled{opacity:.6}
 .opts{display:flex;gap:6px;flex-wrap:wrap}
 .opt{position:relative;cursor:pointer}
 .opt input{position:absolute;opacity:0;pointer-events:none}
@@ -382,6 +387,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">💡</span><span><b>Neue Idee</b> anlegen, auch <b>anonym</b>. Dann reicht der Code, dein Name wird nicht gespeichert.</span></li>
       <li><span class="ic">▲</span><span><b>Hochvoten:</b> eine Stimme pro Person. Nochmal tippen nimmt sie zurück.</span></li>
       <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen:</b> Dein Name erscheint an der Idee.</span></li>
+      <li><span class="ic">📌</span><span>Den <b>Status</b> einer Idee ändern (in der offenen Karte antippen) und Verantwortliche mit <b>×</b> entfernen.</span></li>
       <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten, <b>abhaken</b> (sie wandern dann nach „Bisher passiert“) und <b>Notizen</b> schreiben.</span></li>
       <li><span class="ic">🗑️</span><span><b>Löschen:</b> Ideen und Kommentare liegen danach 30&nbsp;Tage im Papierkorb unten auf der Seite und lassen sich wiederherstellen.</span></li>
       <li><span class="ic">👤</span><span><b>Mein Kontakt</b> (👤 oben rechts): Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>

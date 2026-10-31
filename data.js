@@ -48,6 +48,7 @@ var UP = [
 ];
 
 var CL = [
+  ["2.31", "31. Okt. 2026", "Status einer Idee direkt in der Karte ändern und Verantwortliche mit × entfernen. Doppelt gespeicherte Kontaktdaten werden wieder erkannt."],
   ["2.30", "29. Okt. 2026", "Einfacher: nur noch vier Status (Idee, Geplant, Läuft, Erledigt), Filter Intern, Extern, Jury und die Städte. Das Kommentarfeld öffnet sich erst auf „Kommentieren“."],
   ["2.29", "29. Okt. 2026", "Kontaktdaten und „Neue Idee“ öffnen als Fenster direkt am Knopf, die Seite springt nicht mehr nach oben. Kontaktdaten schließen sich nach dem Speichern. Aufgeräumtere Karten: Namen nicht doppelt, Aufwand und Themen in einer Zeile, Originalidee eingeklappt."],
   ["2.28", "28. Okt. 2026", "Aufgeräumter Einstieg: kürzeres Intro, „Mein Kontakt“ oben rechts im Header, „Für mich“ als Filter, „Zuletzt passiert“ einzeilig, kompaktere Spaltenköpfe. Auf dem Handy ist die erste Idee jetzt nach einem Bildschirm zu sehen."],

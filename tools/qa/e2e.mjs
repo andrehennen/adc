@@ -9,7 +9,7 @@ const ok = (name, cond, extra) => { results.push((cond ? 'OK   ' : 'FEHLER ') + 
 
 function fakeStore(seedXss) {
   const now = () => new Date().toISOString();
-  const db = { helpers: [], comments: [], tickets: [], step_edits: [], votes: [], contacts: [], trash: [], jury_locations: [], seq: 10 };
+  const db = { helpers: [], comments: [], tickets: [], step_edits: [], ticket_edits: [], votes: [], contacts: [], trash: [], jury_locations: [], seq: 10 };
   if (seedXss) {
     db.tickets.push({ id: 1, s: 'hh', sektion: XSS, emoji: XSS, title: 'XSS-Titel ' + XSS, body: XSS + ' https://example.com/"onmouseover="window.__xss=1', x: XSS, tags: ['events', XSS], created_by: XSS, created_at: now(), updated_by: XSS, updated_at: now(), deleted: false });
     db.helpers.push({ ticket: 'neu-1', name: XSS, created_at: now() });
@@ -44,6 +44,7 @@ function fakeStore(seedXss) {
       case 'update_ticket': { const tk = db.tickets.find(t => t.id === a.p_id); Object.assign(tk, { title: a.p_title, body: a.p_body, x: a.p_x, updated_by: a.p_name, updated_at: now() }); return json(null); }
       case 'delete_ticket': { const tk = db.tickets.find(t => t.id === a.p_id); tk.deleted = true; tk.deleted_by = a.p_name; tk.deleted_at = now(); return json(null); }
       case 'restore_ticket': db.tickets.find(t => t.id === a.p_id).deleted = false; return json(null);
+      case 'set_ticket_meta': db.ticket_edits.unshift({ ticket: a.p_ticket, status: a.p_status, owner: a.p_owner, base_status: a.p_base_status, base_owner: a.p_base_owner, name: a.p_name, created_at: now() }); return json(null);
       case 'set_next_steps': db.step_edits.unshift({ ticket: a.p_ticket, body: a.p_body, base: a.p_base, name: a.p_name, created_at: now() }); return json(null);
       case 'save_contact': db.contacts = db.contacts.filter(c => c.name !== a.p_name).concat({ name: a.p_name, email: a.p_email, phone: a.p_phone }); return json(null);
       case 'save_jury_location': {
@@ -132,6 +133,19 @@ const browser = await chromium.launch({ channel: 'chromium' });
     ok('Abgehakter Schritt steht unter „Bisher passiert“', !(await card.locator('[data-steps]').textContent()).includes('Schritt eins') && await card.locator('.todo li.done', { hasText: 'Schritt eins' }).count() === 1);
     await card.locator('.todo li.done [data-tick]').first().uncheck({ force: true }); await page.waitForTimeout(700);
     ok('Haken entfernen macht ihn wieder offen', store.db.step_edits[0].body === 'Schritt eins\nSchritt zwei' && (await card.locator('[data-steps]').textContent()).includes('Schritt eins'), store.db.step_edits[0].body);
+  }
+  // Status online ändern
+  await card.locator('[data-st=done]').click(); await page.waitForTimeout(700);
+  ok('Status online ändern', store.db.ticket_edits[0]?.status === 'done' && (await card.locator('.chead .st-done').count()) === 1 && (await card.textContent()).includes('geändert von Qa Testerin'), JSON.stringify(store.db.ticket_edits[0]));
+  ok('Statuswechsel steht unter „Zuletzt passiert“', (await page.textContent('#news-list')).includes('Erledigt (Qa Testerin)'));
+  // Owner entfernen (erste Karte mit Owner)
+  const oc = page.locator('.card:has(.chip.own)').first();
+  if (await oc.count()) {
+    const oid = await oc.getAttribute('id');
+    if (!(await oc.evaluate(c => c.classList.contains('open')))) { await oc.locator('.chead').click(); await page.waitForTimeout(800); }
+    const n0 = await page.locator('#' + oid + ' .chip.own').count();
+    await page.locator('#' + oid + ' [data-unown]').first().click(); await page.waitForTimeout(700);
+    ok('Owner entfernen fragt nach und entfernt ihn', dialogs.some(d => d.includes('als verantwortlich entfernen')) && await page.locator('#' + oid + ' .chip.own').count() === n0 - 1 && store.db.ticket_edits[0].ticket === oid, store.db.ticket_edits[0] && store.db.ticket_edits[0].owner);
   }
   // Kommentar löschen → Papierkorb → wiederherstellen
   await card.locator('.cdel').first().click(); await page.waitForTimeout(700);

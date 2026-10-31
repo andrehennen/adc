@@ -29,7 +29,7 @@ D.forEach(function(i){ i.id = i.id || slug(i.n); });
 
 // --- Speicher ---
 var SB_ON = false; // erst an, wenn der Speicher erreichbar ist
-var bumpId = null, HELP = {}, COMM = {}, STEPS = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
+var bumpId = null, HELP = {}, COMM = {}, STEPS = {}, META = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
 var ME = {};
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -61,19 +61,36 @@ function load(){
     sbFetch('tickets?select=*&order=created_at').catch(function(){ return []; }),
     sbFetch('step_edits?select=ticket,body,base,name,created_at&order=created_at.desc').catch(function(){ return []; }),
     ME.code ? sbFetch('rpc/get_contacts', {method:'POST', body:JSON.stringify({p_code:ME.code})}).catch(function(){ return null; }) : Promise.resolve(null),
-    sbFetch('votes?select=ticket,name').catch(function(){ return []; })
+    sbFetch('votes?select=ticket,name').catch(function(){ return []; }),
+    sbFetch('ticket_edits?select=ticket,status,owner,base_status,base_owner,name,created_at&order=created_at.desc').catch(function(){ return []; })
   ]).then(function(r){
     HELP = group(r[0]); COMM = group(r[1].filter(function(c){ return !c.deleted; })); VOTES = group(r[5]);
     ONLINE = r[2].filter(function(t){ return !t.deleted; }).map(function(t){
       return {s:t.s, sektion:t.sektion, e:t.emoji || '💡', n:t.title, v:null, t:t.tags || [], status:'idea', x:t.x || '', body:t.body, id:'neu-'+t.id, online:t};
     });
     STEPS = {}; r[3].forEach(function(e){ if (!STEPS[e.ticket]) STEPS[e.ticket] = e; });
+    META = {}; (r[6] || []).forEach(function(e){ if (!META[e.ticket]) META[e.ticket] = e; });
+    applyMeta();
     CONTACTS = r[4];
     if (!SB_ON) { SB_ON = true; initStore(); }
     render(); renderSugg(); bumpId = null;
     if (pendingOpen) { var po = pendingOpen; pendingOpen = null; openTicket(po); }
     return true;
   }).catch(function(e){ console.warn('Speicher nicht erreichbar', e); return false; });
+}
+
+// Status und Owner online geändert (ticket_edits): Die neueste Änderung gilt nur, solange der Stand im Code
+// (bzw. bei Online-Ideen „Idee, ohne Owner“) noch derselbe ist wie beim Ändern. _s0/_o0 = Stand im Code.
+function applyMeta(){
+  all().forEach(function(i){
+    if (i._s0 === undefined) { i._s0 = i.status || 'idea'; i._o0 = i.owner || ''; }
+    var m = META[i.id];
+    if (m && m.base_status === i._s0 && m.base_owner === i._o0 && SL[m.status]) { i.status = m.status; i.owner = m.owner || ''; i.meta = m; }
+    else { i.status = i._s0; i.owner = i._o0; delete i.meta; }
+  });
+}
+function setMeta(i, status, owner){
+  return api('set_ticket_meta', {p_ticket:i.id, p_name:ME.name, p_status:status, p_owner:owner, p_base_status:i._s0 || 'idea', p_base_owner:i._o0 || ''});
 }
 
 // Kontakt zu einem Namen finden: exakter Name, sonst eindeutiger Vorname
@@ -273,12 +290,15 @@ function mkcard(i){
   var tags = groups(i).map(function(g){ return GL[g]; }).join(' · ');
 
   var body = '';
+  if (SB_ON) body += '<div class="sec"><div class="lbl">📌 Status</div><div class="stsel" role="group" aria-label="Status ändern">'
+    + ['idea','planned','active','done'].map(function(s){ return '<button type="button" class="'+(s === st ? 'on st-'+s : '')+'" data-st="'+s+'" aria-pressed="'+(s === st)+'">'+SL[s]+'</button>'; }).join('')
+    + '</div>' + (i.meta ? '<div class="edited">Status/Verantwortung geändert von '+esc(i.meta.name)+' · '+fmtDate(i.meta.created_at)+'</div>' : '') + '</div>';
   if (!i.owner && !hl.length) body += '<div class="sec"><div class="helpbox"><span>Noch niemand verantwortlich. Lust, das zu übernehmen?</span>'+(SB_ON ? '<button data-join="1">🙋 Ich übernehme</button>' : '<a href="'+WA+'" target="_blank" rel="noopener">💬 Melde dich</a>')+'</div></div>';
   else if (SB_ON) {
     var me = norm(ME.name);
     var mine = hl.some(function(h){ return norm(h.name) === me; });
     body += '<div class="sec"><div class="lbl">🙋 Wer kümmert sich</div><div class="chips">'
-      + ownerNames(i.owner).map(function(n){ return nameChip(n, 'own'); }).join('')
+      + ownerNames(i.owner).map(function(n){ return nameChip(n, 'own', '<button data-unown="'+esc(n)+'" title="Nicht mehr verantwortlich" aria-label="'+esc(n)+' als verantwortlich entfernen">×</button>'); }).join('')
       + hl.map(function(h){ return nameChip(h.name, '', norm(h.name) === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : ''); }).join('')
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
       + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
@@ -340,6 +360,31 @@ function mkcard(i){
   if (lb) lb.addEventListener('click', function(){
     if (!confirm('Bei „'+i.n+'“ austragen?')) return;
     api('remove_helper', {p_ticket:i.id, p_name:ME.name}).then(load, alertErr);
+  });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-st]'), function(b){
+    b.addEventListener('click', function(){
+      var s = b.dataset.st;
+      if (s === st) return;
+      whoami(function(){
+        Array.prototype.forEach.call(el.querySelectorAll('[data-st]'), function(x){ x.disabled = true; });
+        setMeta(i, s, i.owner || '').then(load, function(err){
+          Array.prototype.forEach.call(el.querySelectorAll('[data-st]'), function(x){ x.disabled = false; });
+          alertErr(err);
+        });
+      });
+    });
+  });
+  Array.prototype.forEach.call(el.querySelectorAll('[data-unown]'), function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var n = b.dataset.unown;
+      if (!confirm('„'+n+'“ bei „'+i.n+'“ als verantwortlich entfernen?')) return;
+      whoami(function(){
+        b.disabled = true;
+        var rest = ownerNames(i.owner).filter(function(x){ return x !== n; }).join(' & ');
+        setMeta(i, st, rest).then(load, function(err){ b.disabled = false; alertErr(err); });
+      });
+    });
   });
   var vb = el.querySelector('[data-vote]');
   if (vb) vb.addEventListener('click', function(){
@@ -494,6 +539,7 @@ function newsItems(){
   all().forEach(function(i){ byId[i.id] = i; });
   (typeof UP !== 'undefined' ? UP : []).forEach(function(u){ if (byId[u.id]) r.push({at:new Date(u.d+'T12:00:00'), i:byId[u.id], t:u.t, k:u.k}); });
   ONLINE.forEach(function(i){ r.push({at:new Date(i.online.created_at), i:i, t:'Neue Idee von '+i.online.created_by}); });
+  all().forEach(function(i){ if (i.meta && i.meta.status !== i._s0) r.push({at:new Date(i.meta.created_at), i:i, t:'Jetzt '+SL[i.meta.status]+' ('+i.meta.name+')'}); });
   D.forEach(function(i){
     var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null;
     if (se) stepItems(se.body).forEach(function(s){
