@@ -83,6 +83,8 @@ function contactFor(name){
   if (!CONTACTS) return null;
   var k = norm(name);
   var hit = CONTACTS.filter(function(c){ return norm(c.name) === k; });
+  // Gleicher Name mehrfach gespeichert (z. B. „André“ und „Andre“ oder von zwei Geräten): zusammenführen
+  if (hit.length > 1) return hit.reduce(function(a, c){ return {name:a.name, email:a.email || c.email, phone:a.phone || c.phone}; });
   // Fallback: nur Vorname auf einer Seite, z. B. Owner „André“ ↔ Kontakt „André Hennen“ oder umgekehrt
   if (!hit.length) hit = CONTACTS.filter(function(c){
     var cn = norm(c.name);
