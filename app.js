@@ -29,7 +29,7 @@ D.forEach(function(i){ i.id = i.id || slug(i.n); });
 
 // --- Speicher ---
 var SB_ON = false; // erst an, wenn der Speicher erreichbar ist
-var bumpId = null, HELP = {}, COMM = {}, STEPS = {}, META = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null;
+var bumpId = null, HELP = {}, COMM = {}, STEPS = {}, META = {}, CONTACTS = null, ONLINE = [], VOTES = {}, pendingOpen = null, hashJump = null;
 var ME = {};
 try { ME = JSON.parse(localStorage.getItem('adc-me') || '{}') || {}; } catch(e) {}
 function saveMe(){ try { localStorage.setItem('adc-me', JSON.stringify(ME)); } catch(e) {} }
@@ -75,6 +75,9 @@ function load(){
     if (!SB_ON) { SB_ON = true; initStore(); }
     render(); renderSugg(); bumpId = null;
     if (pendingOpen) { var po = pendingOpen; pendingOpen = null; openTicket(po); }
+    // Nach dem ersten Laden verschiebt sich die Seite (Stimmen, Namen): frisch per Link geöffnete Idee nochmal anfahren
+    else if (hashJump && Date.now() - hashJump.at < 4000) { var hj = document.getElementById(hashJump.id); if (hj) setTimeout(function(){ scrollToEl(hj); }, 50); }
+    hashJump = null;
     return true;
   }).catch(function(e){ console.warn('Speicher nicht erreichbar', e); return false; });
 }
@@ -169,9 +172,12 @@ if (!REDUCED && window.Lenis && window.HTMLDialogElement) {
   var sm = HTMLDialogElement.prototype.showModal;
   HTMLDialogElement.prototype.showModal = function(){ lenis.stop(); this.addEventListener('close', function(){ lenis.start(); }, {once:true}); return sm.apply(this, arguments); };
 }
-function headerH(){ return document.querySelector('header').offsetHeight; }
+// Höhe der klebenden Leisten oben (Kopf + Filterzeile)
+function headerH(){ var f = document.querySelector('.filters'); return document.querySelector('header').offsetHeight + (f && getComputedStyle(f).position === 'sticky' ? f.offsetHeight : 0); }
 function scrollToEl(el){
-  if (lenis) lenis.scrollTo(el, {offset: -(headerH() + 12), duration: 1.1});
+  // resize(): Lenis misst die Seitenhöhe sonst verzögert und kappt das Ziel (z. B. direkt nach dem ersten Rendern bei #Link)
+  // Lenis zieht scroll-margin-top (CSS, für den Fallback) schon selbst ab: hier wieder herausrechnen
+  if (lenis) { lenis.resize(); var sm = parseFloat(getComputedStyle(el).scrollMarginTop) || 0; lenis.scrollTo(el, {offset: sm - headerH() - 12, duration: 1.1}); }
   else el.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block: 'start'});
 }
 function scrollByY(dy){
@@ -617,6 +623,7 @@ function openTicket(id){
   render();
   var el = document.getElementById(id);
   if (el) setTimeout(function(){ scrollToEl(el); }, 50);
+  hashJump = {id:id, at:Date.now()};
   // Anker wieder aus der URL nehmen, sonst startet das Ticket bei Reload, Lesezeichen oder Homescreen-App immer aufgeklappt
   if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
 }
