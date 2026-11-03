@@ -112,9 +112,11 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .news{padding-top:40px}
 .news+.board{padding-top:56px}
 #termine+.news{padding-top:44px}
-#te-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.45}
-#te-list li{display:flex;gap:10px;align-items:center;min-width:0}
-#te-list .news-t a{color:var(--ink);text-decoration:none;display:block;line-height:24px;overflow:hidden;text-overflow:ellipsis}
+#te-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.45}
+#te-list li{display:flex;gap:10px;align-items:flex-start;min-width:0}
+#te-list .news-t a{color:var(--ink);text-decoration:none;display:block;padding:2px 0}
+#te-list .news-d{padding-top:3px}
+#te-list .news-t{flex:1}
 #te-list .news-t a:hover b{text-decoration:underline}
 #te-list .news-t a:focus-visible,#te-abo:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
 .te-today{display:inline-block;font-size:12px;font-weight:700;background:var(--ink);color:#fff;border-radius:999px;padding:0 7px;margin-right:4px}
@@ -127,10 +129,10 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .news-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 16px;margin:0 0 8px}
 .news-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0}
 .news-up{font-size:12px;color:var(--ink-3)}
-#news-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.45}
-#news-list a{display:flex;gap:10px;min-width:0;min-height:24px;align-items:center;color:var(--ink);text-decoration:none}
+#news-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.45}
+#news-list a{display:flex;gap:10px;min-width:0;min-height:24px;align-items:flex-start;color:var(--ink);text-decoration:none}
 .news-d{flex-shrink:0;width:42px;color:var(--ink-3);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
-.news-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.news-t{min-width:0;overflow-wrap:anywhere}
 .news-t b{font-weight:700}
 #news-list a:hover b{text-decoration:underline}
 #news-list a:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}

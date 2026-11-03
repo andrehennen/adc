@@ -137,7 +137,7 @@ Feste Links:
 
 ## Zuletzt passiert (`UP` in `data.js`)
 
-- Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", k:"Kurztitel", t:"Ein kurzer Satz ohne Punkt"}`; jeder Eintrag ist eine Zeile, auf dem Handy wird abgeschnitten, also kurz halten), neue Online-Ideen und online abgehakte Schritte (automatisch).
+- Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", k:"Kurztitel", t:"Ein kurzer Satz ohne Punkt"}`; auf dem Handy bricht der Text um, trotzdem kurz halten), neue Online-Ideen und online abgehakte Schritte (automatisch).
 - **Bei jeder inhaltlichen Änderung an einer Idee (Status, Termin, Beschluss, neue Idee im Board) einen `UP`-Eintrag ergänzen**, neueste zuerst, höchstens 5 behalten. Keine Software-/Plattform-Updates, die gehören in den Changelog. Die `id` muss eine bestehende Ticket-ID sein (Slug, max. 60 Zeichen), sonst wird der Eintrag nicht angezeigt.
 
 ## Changelog & Versionen
