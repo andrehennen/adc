@@ -561,16 +561,26 @@ function hm(t){ return t.replace(/:00$/,'').replace(/^0/,''); }
 function renderTermine(){
   var box = document.getElementById('termine'); if (!box || typeof TE === 'undefined') return;
   var today = ymd(new Date());
-  var n = TE.filter(function(e){ return (e.bis_d || e.d) >= today; }).sort(function(a,b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }).slice(0,3);
+  var n = TE.filter(function(e){ return (e.bis_d || e.d) >= today; }).sort(function(a,b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
   box.hidden = !n.length;
   var dm = function(d){ var p = d.split('-'); return p[2]+'.'+p[1]+'.'; };
-  document.getElementById('te-list').innerHTML = n.map(function(e){
+  document.getElementById('te-list').innerHTML = n.map(function(e, k){
     var when = e.von ? (e.bis ? hm(e.von)+'–'+hm(e.bis)+' Uhr' : 'ab '+hm(e.von)+' Uhr') : '';
     var now = e.d <= today;
     var txt = (now ? '<span class="te-today">'+(e.d === today ? 'Heute' : 'Läuft')+'</span>' : '')+'<b>'+esc(e.k || e.n)+'</b>'+[when, e.ort].filter(Boolean).map(function(x){ return ' · '+esc(x); }).join('');
-    return '<li><span class="news-d">'+esc(dm(e.d))+'</span><span class="news-t">'+(e.url ? '<a href="'+esc(e.url)+'" target="_blank" rel="noopener" title="'+esc(e.info || 'Infos und Tickets')+'">'+txt+'</a>' : txt)+'</span>'
-      + '<a class="te-cal" href="/api/termin?id='+encodeURIComponent(e.id)+'" aria-label="'+esc(e.n)+' in den Kalender eintragen">📅<span class="te-cal-t"> Kalender</span></a></li>';
+    return '<li'+(k >= 3 ? ' class="te-x" hidden' : '')+'><span class="news-d">'+esc(dm(e.d))+'</span><span class="news-t">'+(e.url ? '<a href="'+esc(e.url)+'" target="_blank" rel="noopener" title="'+esc(e.info || 'Infos und Tickets')+'">'+txt+'</a>' : txt)+'</span>'
+      + '<a class="te-cal" href="/api/termin?id='+encodeURIComponent(e.id)+'" aria-label="'+esc(e.n)+' in den Kalender eintragen">📅<span class="te-cal-t">Kalender</span></a></li>';
   }).join('');
+  // Ab dem 4. Termin eingeklappt
+  var more = document.getElementById('te-more'), extra = n.length - 3;
+  more.hidden = extra < 1;
+  var label = function(o){ more.textContent = o ? 'Weniger anzeigen' : '+ ' + extra + (extra === 1 ? ' weiterer Termin' : ' weitere Termine'); more.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+  label(false);
+  more.onclick = function(){
+    var o = more.getAttribute('aria-expanded') !== 'true';
+    Array.prototype.forEach.call(document.querySelectorAll('#te-list .te-x'), function(li){ li.hidden = !o; });
+    label(o);
+  };
   var abo = document.getElementById('te-abo');
   if (/^https?:$/.test(location.protocol) && location.hostname !== 'localhost') abo.href = 'webcal://' + location.host + '/api/termin';
 }

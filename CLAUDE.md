@@ -131,7 +131,7 @@ Feste Links:
 ## Nächste Termine (`termine.js`, seit 2.32)
 
 - Liste `var TE = [...]` in `termine.js` (eigene Datei, weil auch `api/termin.js` sie per `require` liest). Felder stehen oben in der Datei: `id`, `d`, optional `bis_d`, `von`/`bis` (ohne `von` = ganztägig), `n`, `ort`, `url`, `sektion`, `info`.
-- Die Seite zeigt oben die nächsten 3 kommenden Termine (heutige mit Badge „Heute“), vergangene verschwinden von selbst. Titel verlinkt auf `url` (Infos/Tickets).
+- Die Seite zeigt oben die nächsten 3 kommenden Termine (heutige mit Badge „Heute“), weitere klappen über „+ n weitere Termine“ auf (`#te-more`). Vergangene verschwinden von selbst. Titel verlinkt auf `url` (Infos/Tickets).
 - „📅 Kalender“ lädt `/api/termin?id=<id>` (.ics, Zeiten in Europe/Berlin nach UTC umgerechnet, ohne `bis` 6 Stunden). „Alle abonnieren“ ist `webcal://…/api/termin` mit allen kommenden Terminen.
 - **Quellen:** Termine aus dem Dashboard (Ideen) und von adc.de (`/events/…`). Keine Zeiten oder Orte erfinden; was nicht feststeht, weglassen.
 

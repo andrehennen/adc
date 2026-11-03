@@ -83,8 +83,14 @@ const browser = await chromium.launch({ channel: 'chromium' });
   ok('Speicher an: „Neue Idee" und „Mein Kontakt" sichtbar', await page.locator('#profile-btn').isVisible() && (await page.textContent('#suggest-btn')).includes('Neue Idee'));
   // Nächste Termine
   const upcoming = await page.evaluate(() => { const t = new Date(); const d = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); return TE.filter(e => (e.bis_d || e.d) >= d).length; });
-  const teN = await page.locator('#te-list li').count();
-  ok('Nächste Termine: höchstens 3, mit Kalender-Knopf', upcoming ? (!(await page.locator('#termine').isHidden()) && teN === Math.min(3, upcoming) && (await page.locator('#te-list .te-cal').first().getAttribute('href')).startsWith('/api/termin?id=')) : await page.locator('#termine').isHidden(), 'Anzahl ' + teN);
+  const teN = await page.locator('#te-list li:visible').count();
+  ok('Nächste Termine: höchstens 3 sichtbar, mit Kalender-Knopf', upcoming ? (!(await page.locator('#termine').isHidden()) && teN === Math.min(3, upcoming) && (await page.locator('#te-list .te-cal').first().getAttribute('href')).startsWith('/api/termin?id=')) : await page.locator('#termine').isHidden(), 'Anzahl ' + teN);
+  if (upcoming > 3) {
+    await page.click('#te-more'); await page.waitForTimeout(200);
+    ok('Weitere Termine ausklappbar', await page.locator('#te-list li:visible').count() === upcoming && await page.getAttribute('#te-more', 'aria-expanded') === 'true');
+    await page.click('#te-more'); await page.waitForTimeout(200);
+    ok('Und wieder einklappbar', await page.locator('#te-list li:visible').count() === 3);
+  }
   const v0 = parseInt((await first.locator('.vote').textContent()).replace(/\D/g, '')) || 0;
   await first.locator('.vote').click();
   ok('Voten ohne Anmeldung öffnet Login-Dialog', await page.locator('#who').evaluate(d => d.open));
@@ -306,7 +312,8 @@ for (const mode of ['down', 'noConfig']) {
   ok('Hilfe per Tastatur: Fokus im Dialog', await page.evaluate(() => document.getElementById('help').open && document.getElementById('help').contains(document.activeElement)));
   for (let i = 0; i < 6; i++) await page.keyboard.press('Tab');
   ok('Fokus bleibt im Dialog (Fokusfalle)', await page.evaluate(() => document.getElementById('help').contains(document.activeElement) || document.activeElement === document.body));
-  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.getElementById('help').open && document.activeElement.id === 'help-btn', null, { timeout: 3000 }).catch(() => {});
   ok('Escape schließt, Fokus zurück am Hilfe-Knopf', await page.evaluate(() => !document.getElementById('help').open && document.activeElement.id === 'help-btn'));
   const c = page.locator('.card .chead').first(); await c.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(700);
   ok('Karte per Enter aufklappbar, aria-expanded stimmt', await c.getAttribute('aria-expanded') === 'true');
