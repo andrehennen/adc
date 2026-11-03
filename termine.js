@@ -6,6 +6,7 @@
 var TE = [
   {id:"creative-club-hamburg-2026", d:"2026-11-03", von:"16:00", n:"ADC Creative Club Hamburg", k:"Creative Club Hamburg", ort:"Design Zentrum Hamburg", sektion:"Hamburg", url:"https://www.adc.de/events/creative-club-hamburg-2026/", info:"Einlass und Mappencheck ab 16 Uhr, Bühne ab 18 Uhr, danach Get-together"},
   {id:"creative-club-muenchen-2026", d:"2026-11-12", von:"16:00", bis:"22:00", n:"ADC Creative Club München", k:"Creative Club München", ort:"ZIRKA, München", url:"https://www.adc.de/events/creative-club-muenchen-2026/", info:"Mappencheck ab 16:30 Uhr, Präsentationen ab 18 Uhr"},
+  {id:"kombi-treffen-digital-hamburg-2026", d:"2026-12-17", n:"ADC Kombi-Treffen: Fachbereich Digital & Sektion Hamburg", k:"Kombi-Treffen Digital & Hamburg", ort:"Curious Company, Hamburg", sektion:"Hamburg", info:"Erstes gemeinsames Treffen von Fachbereich Digital und Sektion Hamburg: Glühwein, News aus dem Präsidium, zwei Bewerber:innen. Uhrzeit folgt, Umfrage in der WhatsApp-Gruppe"},
   {id:"adc-digital-conference-2026", d:"2026-11-30", n:"ADC Digital Conference 2026", k:"Digital Conference", ort:"Kunstpalast Düsseldorf", url:"https://www.adc.de/events/adc-digital-conference-2026/"}
 ];
 if (typeof module !== 'undefined') module.exports = TE;
