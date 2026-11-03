@@ -81,6 +81,10 @@ const browser = await chromium.launch({ channel: 'chromium' });
   const { ctx, page, log, store, dialogs } = await setup(browser);
   const first = page.locator('.card').first(); const id = await first.getAttribute('id');
   ok('Speicher an: „Neue Idee" und „Mein Kontakt" sichtbar', await page.locator('#profile-btn').isVisible() && (await page.textContent('#suggest-btn')).includes('Neue Idee'));
+  // Nächste Termine
+  const upcoming = await page.evaluate(() => { const t = new Date(); const d = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); return TE.filter(e => (e.bis_d || e.d) >= d).length; });
+  const teN = await page.locator('#te-list li').count();
+  ok('Nächste Termine: höchstens 3, mit Kalender-Knopf', upcoming ? (!(await page.locator('#termine').isHidden()) && teN === Math.min(3, upcoming) && (await page.locator('#te-list .te-cal').first().getAttribute('href')).startsWith('/api/termin?id=')) : await page.locator('#termine').isHidden(), 'Anzahl ' + teN);
   const v0 = parseInt((await first.locator('.vote').textContent()).replace(/\D/g, '')) || 0;
   await first.locator('.vote').click();
   ok('Voten ohne Anmeldung öffnet Login-Dialog', await page.locator('#who').evaluate(d => d.open));

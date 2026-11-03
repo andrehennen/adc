@@ -128,6 +128,13 @@ Feste Links:
 - Pins zeigen „Jury 2: Film“, ohne Jury „Ort 2“ (`pinLabel`).
 - Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
 
+## Nächste Termine (`termine.js`, seit 2.32)
+
+- Liste `var TE = [...]` in `termine.js` (eigene Datei, weil auch `api/termin.js` sie per `require` liest). Felder stehen oben in der Datei: `id`, `d`, optional `bis_d`, `von`/`bis` (ohne `von` = ganztägig), `n`, `ort`, `url`, `sektion`, `info`.
+- Die Seite zeigt oben die nächsten 3 kommenden Termine (heutige mit Badge „Heute“), vergangene verschwinden von selbst. Titel verlinkt auf `url` (Infos/Tickets).
+- „📅 Kalender“ lädt `/api/termin?id=<id>` (.ics, Zeiten in Europe/Berlin nach UTC umgerechnet, ohne `bis` 6 Stunden). „Alle abonnieren“ ist `webcal://…/api/termin` mit allen kommenden Terminen.
+- **Quellen:** Termine aus dem Dashboard (Ideen) und von adc.de (`/events/…`). Keine Zeiten oder Orte erfinden; was nicht feststeht, weglassen.
+
 ## Zuletzt passiert (`UP` in `data.js`)
 
 - Unter den Filtern zeigt „🆕 Zuletzt passiert“ die drei neuesten **inhaltlichen** Updates. Quellen: die Liste `var UP = [...]` (`{d:"JJJJ-MM-TT", id:"ticket-id", k:"Kurztitel", t:"Ein kurzer Satz ohne Punkt"}`; jeder Eintrag ist eine Zeile, auf dem Handy wird abgeschnitten, also kurz halten), neue Online-Ideen und online abgehakte Schritte (automatisch).
