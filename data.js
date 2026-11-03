@@ -49,6 +49,7 @@ var UP = [
 ];
 
 var CL = [
+  ["2.34", "3. Nov. 2026", "Mehr Freude beim Mitmachen: Konfetti und ein kurzer Satz beim Abhaken, Mitmachen und Erledigen, Fortschritt je Idee, „Diese Woche im ADC“ und wie viele Ideen je Bereich laufen, „Noch 2 gesucht“ an neuen Ideen, Nägel in Holz, Bronze, Silber und Gold im Profil."],
   ["2.33", "3. Nov. 2026", "Aufgeräumt: „Zuletzt passiert“ eingeklappt, Termine einzeilig (Details per Tipp), Sektion als Auswahlmenü, erledigte Ideen in einer eingeklappten Gruppe, auf dem Handy Tabs für Sektionen und Gesamtverein."],
   ["2.32", "3. Nov. 2026", "Neu: „Nächste Termine“ oben, mit Knopf zum Eintragen in den eigenen Kalender und Kalender-Abo für alle Termine. Links zu einer Idee springen wieder direkt zur Karte."],
   ["2.31", "31. Okt. 2026", "Status einer Idee direkt in der Karte ändern und Verantwortliche mit × entfernen. Doppelt gespeicherte Kontaktdaten werden wieder erkannt."],

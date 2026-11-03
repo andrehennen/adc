@@ -403,6 +403,35 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 .skip:focus{left:12px}
 .linkbtn,.permalink,.copy{min-height:24px}
 .antrag:focus-visible,.quote:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* Freude beim Mitmachen (2.34) */
+.prog{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.bar{display:inline-block;width:52px;height:6px;border-radius:99px;background:var(--line);overflow:hidden;vertical-align:middle}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0a0a0a,#3d3d3d);position:relative;transition:width .6s cubic-bezier(.3,1.3,.5,1)}
+.need{font-weight:700;color:var(--ink)}
+.needline{font-weight:600;color:var(--ink-2)}
+.pulse{margin-top:18px;display:flex;flex-direction:column;gap:12px;max-width:760px}
+.pulse-t{font-size:14px;color:var(--ink-2);margin:0}
+.pulse-k{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:var(--ink);color:#fff;border-radius:99px;padding:2px 9px;margin-right:6px;vertical-align:1px}
+.pulse-g{display:flex;flex-wrap:wrap;gap:8px 18px}
+.pg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.pg-k{font-weight:700;color:var(--ink)}
+.pg .bar{width:80px}
+.pg-n{font-variant-numeric:tabular-nums}
+.joy{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px) scale(.96);opacity:0;pointer-events:none;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:300;max-width:calc(100% - 32px);text-align:center;transition:opacity .25s,transform .45s cubic-bezier(.34,1.56,.64,1)}
+.joy.in{opacity:1;transform:translate(-50%,0) scale(1)}
+@media(max-width:860px){.joy{bottom:calc(92px + env(safe-area-inset-bottom,0px))}}
+.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:299}
+.haptic{position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none}
+.nails{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin:8px 0 10px}
+.nl{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.nl b{display:block;font-size:14px}
+.nl-t{display:block;font-size:12px;color:var(--ink-2)}
+.nl-n{display:block;font-size:12px;color:var(--ink-3)}
+.nl.off{background:var(--soft);border-color:var(--soft)}
+.nail{width:22px;height:30px;flex:none}
+.n-holz{fill:#b08a5a}.n-bronze{fill:#A07462}.n-silber{fill:#A4A6A8}.n-gold{fill:#A39771}.n-off{fill:none;stroke:var(--line-strong);stroke-width:1.5}
+.nl:not(.off) .nail{filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))}
+#naegel{margin-bottom:18px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after,*::backdrop{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -441,7 +470,9 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">📌</span><span>Den <b>Status</b> einer Idee ändern (in der offenen Karte antippen) und Verantwortliche mit <b>×</b> entfernen.</span></li>
       <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten, <b>abhaken</b> (sie wandern dann nach „Bisher passiert“) und <b>Notizen</b> schreiben.</span></li>
       <li><span class="ic">🗑️</span><span><b>Löschen:</b> Ideen und Kommentare liegen danach 30&nbsp;Tage im Papierkorb unten auf der Seite und lassen sich wiederherstellen.</span></li>
-      <li><span class="ic">👤</span><span><b>Mein Kontakt</b> (👤 oben rechts): Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
+      <li><span class="ic">👤</span><span><b>Mein Profil</b> (👤 oben rechts): Mail oder WhatsApp hinterlegen, nur für Mitglieder sichtbar. Tipp auf einen Namen, um jemanden zu erreichen.</span></li>
+      <li><span class="ic">🔨</span><span><b>Nägel:</b> Fürs Mitmachen gibt es kleine Nägel in Holz, Bronze, Silber und Gold, etwa fürs Abhaken von Schritten oder wenn eine Idee ins Ziel kommt. Nur du siehst sie, in deinem Profil.</span></li>
+      <li><span class="ic">📊</span><span><b>Fortschritt:</b> Jede Idee zeigt, wie viele Schritte erledigt sind. Oben steht, was diese Woche im ADC passiert ist und wie viele Ideen je Bereich laufen. „Noch 2 gesucht“ heißt: Ab 3 Leuten kann eine Idee starten.</span></li>
     </ul>
     <h3>Orientierung</h3>
     <ul class="hl">
@@ -458,10 +489,12 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 
 <dialog data-lenis-prevent class="who help anim dlg-s" id="profile" aria-labelledby="p-h">
   <div class="help-head">
-    <h2 id="p-h">👤 Meine Kontaktdaten</h2>
+    <h2 id="p-h">👤 Mein Profil</h2>
     <button class="help-x" type="button" id="p-close" aria-label="Kontaktdaten schließen">×</button>
   </div>
   <div class="help-body">
+    <div id="naegel"></div>
+    <div class="lbl">✉️ Kontaktdaten</div>
     <p class="by" style="margin-bottom:12px">Damit dich andere bei deinen Ideen erreichen. Sichtbar nur für Mitglieder mit Code, nicht öffentlich. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" aria-label="E-Mail" autocomplete="email">
@@ -510,6 +543,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
   </div>
+  <div class="pulse" id="pulse" hidden></div>
 </section>
 
 <dialog data-lenis-prevent class="who" id="install" aria-labelledby="inst-h">

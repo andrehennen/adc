@@ -79,6 +79,7 @@ function load(){
     CONTACTS = r[4];
     if (!SB_ON) { SB_ON = true; initStore(); }
     render(); renderSugg(); bumpId = null;
+    if (ME.name) { try { if (!localStorage.getItem('adc-naegel')) newNails(); } catch(e) {} }
     if (pendingOpen) { var po = pendingOpen; pendingOpen = null; openTicket(po); }
     // Nach dem ersten Laden verschiebt sich die Seite (Stimmen, Namen): frisch per Link geöffnete Idee nochmal anfahren
     else if (hashJump && Date.now() - hashJump.at < 4000) { var hj = document.getElementById(hashJump.id); if (hj) setTimeout(function(){ scrollToEl(hj); }, 50); }
@@ -298,12 +299,15 @@ function mkcard(i){
   if (cl.length) owner += '<span>💬 '+cl.length+'</span>';
   var sek = i.sektion ? '<span>📍 '+esc(i.sektion)+'</span>' : '';
   var tags = groups(i).map(function(g){ return GL[g]; }).join(' · ');
+  var pr = progress(i), people = peopleOf(i), need = st === 'idea' ? Math.max(0, NEED - people.length) : 0;
+  if (pr.n) owner += '<span class="prog" title="'+pr.d+' von '+pr.n+' Schritten erledigt"><span class="bar"><i style="width:'+Math.round(100*pr.d/pr.n)+'%"></i></span>'+pr.d+'/'+pr.n+'</span>';
+  if (need) owner += '<span class="need mo">🙋 Noch '+need+' gesucht</span>';
 
   var body = '';
   if (SB_ON) body += '<div class="sec"><div class="lbl">📌 Status</div><div class="stsel" role="group" aria-label="Status ändern">'
     + ['idea','planned','active','done'].map(function(s){ return '<button type="button" class="'+(s === st ? 'on st-'+s : '')+'" data-st="'+s+'" aria-pressed="'+(s === st)+'">'+SL[s]+'</button>'; }).join('')
     + '</div>' + (i.meta ? '<div class="edited">Status/Verantwortung geändert von '+esc(i.meta.name)+' · '+fmtDate(i.meta.created_at)+'</div>' : '') + '</div>';
-  if (!i.owner && !hl.length) body += '<div class="sec"><div class="helpbox"><span>Noch niemand verantwortlich. Lust, das zu übernehmen?</span>'+(SB_ON ? '<button data-join="1">🙋 Ich übernehme</button>' : '<a href="'+WA+'" target="_blank" rel="noopener">💬 Melde dich</a>')+'</div></div>';
+  if (!i.owner && !hl.length) body += '<div class="sec"><div class="helpbox"><span>Noch niemand dabei. Ab '+NEED+' Leuten kann es losgehen. Lust, das zu übernehmen?</span>'+(SB_ON ? '<button data-join="1">🙋 Ich übernehme</button>' : '<a href="'+WA+'" target="_blank" rel="noopener">💬 Melde dich</a>')+'</div></div>';
   else if (SB_ON) {
     var me = norm(ME.name);
     var mine = hl.some(function(h){ return norm(h.name) === me; });
@@ -312,6 +316,7 @@ function mkcard(i){
       + hl.map(function(h){ return nameChip(h.name, '', norm(h.name) === me ? '<button data-leave="1" title="Austragen" aria-label="Austragen">×</button>' : ''); }).join('')
       + (mine ? '' : '<button class="minibtn" data-join="1">🙋 Ich mach mit</button>')
       + (CONTACTS ? '' : '<button class="linkbtn" data-unlock="1">🔒 Kontakte anzeigen</button>') + '</div>'
+      + (need ? '<div class="edited needline">'+esc(namesSentence(people))+' '+(people.length === 1 ? 'ist' : 'sind')+' schon dabei. Noch '+need+(need === 1 ? ' Person' : ' Leute')+', dann kann es losgehen.</div>' : '')
       + (CONTACTS && ME.name && ownerNames(i.owner).concat(hl.map(function(h){ return h.name; })).some(function(n){ return norm(n) === me; }) && !contactFor(ME.name)
           ? '<div class="edited">Du hast noch keine Kontaktdaten hinterlegt. Trag sie oben rechts über 👤 ein, damit dich andere erreichen.</div>' : '')
       + '</div>';
@@ -364,7 +369,7 @@ function mkcard(i){
   });
   var jb = el.querySelector('[data-join]');
   if (jb) jb.addEventListener('click', function(){
-    whoami(function(){ jb.disabled = true; api('add_helper', {p_ticket:i.id, p_name:ME.name}).then(load, function(err){ jb.disabled = false; alertErr(err); }); });
+    whoami(function(){ jb.disabled = true; var from = jb.getBoundingClientRect(); api('add_helper', {p_ticket:i.id, p_name:ME.name}).then(load).then(function(){ joyJoin(i, from); }, function(err){ jb.disabled = false; alertErr(err); }); });
   });
   var lb = el.querySelector('[data-leave]');
   if (lb) lb.addEventListener('click', function(){
@@ -377,7 +382,8 @@ function mkcard(i){
       if (s === st) return;
       whoami(function(){
         Array.prototype.forEach.call(el.querySelectorAll('[data-st]'), function(x){ x.disabled = true; });
-        setMeta(i, s, i.owner || '').then(load, function(err){
+        var at = b.getBoundingClientRect();
+        setMeta(i, s, i.owner || '').then(load).then(function(){ joyStatus(s, at); }, function(err){
           Array.prototype.forEach.call(el.querySelectorAll('[data-st]'), function(x){ x.disabled = false; });
           alertErr(err);
         });
@@ -398,7 +404,7 @@ function mkcard(i){
   });
   var vb = el.querySelector('[data-vote]');
   if (vb) vb.addEventListener('click', function(){
-    whoami(function(){ vb.disabled = true; bumpId = i.id; api('toggle_vote', {p_ticket:i.id, p_name:ME.name}).then(load, function(err){ vb.disabled = false; alertErr(err); }); });
+    whoami(function(){ var on = vb.getAttribute('aria-pressed') !== 'true', at = vb.getBoundingClientRect(); vb.disabled = true; bumpId = i.id; haptic(); api('toggle_vote', {p_ticket:i.id, p_name:ME.name}).then(load).then(function(){ if (on) { burst(at, 14); newNails(); } }, function(err){ vb.disabled = false; alertErr(err); }); });
   });
   var te = el.querySelector('[data-tedit]');
   if (te) te.addEventListener('click', function(){ openForm(i); });
@@ -429,7 +435,8 @@ function mkcard(i){
         var it = stepItems(steps), s = it[+cb.dataset.tick]; if (!s) return;
         s.done = want; s.by = want ? ME.name : ''; s.at = want ? new Date().toLocaleDateString('de-DE') : '';
         cb.checked = want; cb.disabled = true;
-        api('set_next_steps', {p_ticket:i.id, p_name:ME.name, p_body:it.map(stepLine).join('\n'), p_base:i.x}).then(load, function(err){ cb.checked = !want; cb.disabled = false; alertErr(err); });
+        var at = cb.getBoundingClientRect(), left = it.filter(function(x){ return !x.done; }).length;
+        api('set_next_steps', {p_ticket:i.id, p_name:ME.name, p_body:it.map(stepLine).join('\n'), p_base:i.x}).then(load).then(function(){ if (want) joyTick(at, left); }, function(err){ cb.checked = !want; cb.disabled = false; alertErr(err); });
       });
     });
   });
@@ -453,7 +460,7 @@ function mkcard(i){
     if (!txt) return;
     whoami(function(){
       cf.querySelector('button').disabled = true;
-      api('add_comment', {p_ticket:i.id, p_name:ME.name, p_body:txt}).then(function(){ ta.value = ''; return load(); }, function(err){ cf.querySelector('button').disabled = false; alertErr(err); });
+      api('add_comment', {p_ticket:i.id, p_name:ME.name, p_body:txt}).then(function(){ ta.value = ''; return load(); }).then(newNails, function(err){ cf.querySelector('button').disabled = false; alertErr(err); });
     });
   });
   var pl = el.querySelector('[data-link]');
@@ -617,6 +624,7 @@ function renderNews(){
 function render(){
   var restore = keepDrafts();
   renderNews();
+  renderPulse();
   var v = filtered();
   var hh = v.filter(function(i){ return i.s === 'hh'; });
   var jhv = v.filter(function(i){ return i.s === 'jhv'; });
@@ -708,6 +716,159 @@ function renderSugg(){
   w.innerHTML = ME.name ? 'Du schreibst als <b>'+esc(ME.name)+'</b> · <button type="button" id="w-reset">Nicht du?</button>' : '';
   var rb = document.getElementById('w-reset');
   if (rb) rb.addEventListener('click', function(){ ME = {}; saveMe(); renderSugg(); render(); });
+}
+
+// --- Freude beim Mitmachen (2.34) --------------------------------------------
+// Dosiert: Konfetti und ein kurzer Satz nur bei echtem Erfolg (abhaken, erledigt, mitmachen, neue Idee, neuer Nagel).
+var NEED = 3;   // ab so vielen Leuten (Owner + Mitmachende) gilt eine Idee als startklar
+function first(n){ return String(n || '').trim().split(/\s+/)[0] || ''; }
+function peopleOf(i){
+  var l = ownerNames(i.owner); (HELP[i.id] || []).forEach(function(h){ if (!l.some(function(x){ return norm(x) === norm(h.name); })) l.push(h.name); });
+  return l;
+}
+function namesSentence(l){ var f = l.map(first); return f.length < 2 ? f.join('') : f.slice(0, -1).join(', ') + ' und ' + f[f.length - 1]; }
+function stepsOf(i){ var se = STEPS[i.id] && STEPS[i.id].base === i.x ? STEPS[i.id] : null; return stepItems(se ? se.body : i.x); }
+function progress(i){ var it = stepsOf(i); return {n: it.length, d: it.filter(function(x){ return x.done; }).length}; }
+function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+
+var hapticEl = null;
+function haptic(){
+  try {
+    if (navigator.vibrate) { navigator.vibrate(8); return; }
+    if (!hapticEl) { hapticEl = document.createElement('label'); hapticEl.className = 'haptic'; hapticEl.setAttribute('aria-hidden', 'true'); hapticEl.innerHTML = '<input type="checkbox" switch tabindex="-1">'; document.body.appendChild(hapticEl); }
+    hapticEl.click();
+  } catch(e) {}
+}
+var sayT = null;
+function say(t){
+  var el = document.getElementById('joy');
+  if (!el) { el = document.createElement('div'); el.id = 'joy'; el.className = 'joy'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+  el.textContent = t; el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+  clearTimeout(sayT); sayT = setTimeout(function(){ el.classList.remove('in'); }, 2600);
+}
+// Konfetti in den ADC-Farben (Schwarz, Gold, Silber, Kupfer) plus etwas Gelb. at = Ausgangspunkt (DOMRect) oder Mitte oben.
+function confetti(at, big){
+  if (REDUCED) return;
+  var cv = document.createElement('canvas'), dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.className = 'confetti'; cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; document.body.appendChild(cv);
+  var c = cv.getContext('2d'); c.scale(dpr, dpr);
+  var x0 = at ? at.left + at.width / 2 : innerWidth / 2, y0 = at ? at.top + at.height / 2 : innerHeight * 0.35;
+  var cols = ['#0a0a0a', '#A39771', '#A4A6A8', '#A07462', '#ffd21f'], n = big ? 140 : 46, ps = [];
+  for (var k = 0; k < n; k++) {
+    var a = (big ? Math.random() * Math.PI * 2 : -Math.PI / 2 + (Math.random() - .5) * 2.2), v = (big ? 7 : 5) + Math.random() * (big ? 9 : 6);
+    ps.push({x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v - (big ? 4 : 2), r: Math.random() * 6.28, vr: (Math.random() - .5) * .4, w: 5 + Math.random() * 5, h: 3 + Math.random() * 4, col: cols[k % cols.length]});
+  }
+  var t0 = performance.now(), dur = big ? 2200 : 1300;
+  (function frame(t){
+    var p = (t - t0) / dur; c.clearRect(0, 0, innerWidth, innerHeight);
+    ps.forEach(function(q){ q.vy += .32; q.vx *= .985; q.x += q.vx; q.y += q.vy; q.r += q.vr;
+      c.save(); c.globalAlpha = Math.max(0, 1 - p * p); c.translate(q.x, q.y); c.rotate(q.r); c.fillStyle = q.col; c.fillRect(-q.w / 2, -q.h / 2, q.w, q.h); c.restore(); });
+    if (p < 1) requestAnimationFrame(frame); else cv.remove();
+  })(t0);
+  setTimeout(function(){ if (cv.parentNode) cv.remove(); }, dur + 500);
+}
+function burst(at, n){ if (!REDUCED && at) confetti(at, 0); }
+function joyTick(at, left){
+  haptic(); confetti(at, left <= 1 ? 1 : 0);
+  say(left <= 1 ? pick(['Alle Schritte erledigt. Stark, ' + first(ME.name) + '!', 'Alles abgehakt. Das ging schnell!']) : pick(['Abgehakt. Ein Schritt weiter.', 'Erledigt, danke ' + first(ME.name) + '!', 'Läuft. Noch ' + (left - 1) + ' offen.']));
+  newNails();
+}
+function joyStatus(s, at){
+  haptic();
+  if (s === 'done') { confetti(null, 1); say(pick(['Erledigt! Danke, ' + first(ME.name) + '.', 'Ins Ziel gebracht. 🎉', 'Das ist durch. Stark!'])); }
+  else if (s === 'active') { confetti(at, 0); say('Es läuft! 🚀'); }
+  else if (s === 'planned') say('Geplant. Jetzt fehlt nur noch der Start.');
+  newNails();
+}
+// „Mach mit“: der eigene Name fliegt vom Knopf an seinen Platz bei „Wer kümmert sich“
+function joyJoin(i, from){
+  haptic(); say(pick(['Willkommen an Bord, ' + first(ME.name) + '!', 'Schön, dass du dabei bist, ' + first(ME.name) + '!']));
+  var card = document.getElementById(i.id), chip = null;
+  if (card) Array.prototype.forEach.call(card.querySelectorAll('.chips .chip'), function(c){ if (norm(c.firstChild && c.firstChild.textContent) === norm(ME.name)) chip = c; });
+  if (chip && from && !REDUCED && chip.animate) {
+    var to = chip.getBoundingClientRect();
+    chip.animate([{transform: 'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px) scale(1.15)', background: '#0a0a0a', color: '#fff'}, {transform: 'none'}], {duration: 650, easing: 'cubic-bezier(.3,1.35,.5,1)'});
+    setTimeout(function(){ confetti(to, 0); }, 560);
+  } else confetti(from, 0);
+  newNails();
+}
+
+// „Diese Woche im ADC“ und wie weit die Bereiche sind
+function renderPulse(){
+  var box = document.getElementById('pulse'); if (!box) return;
+  var since = Date.now() - 7 * 864e5, steps = 0, ideas = 0, joined = 0, started = 0;
+  function dmy(s){ var m = String(s || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); return m ? new Date(+m[3], m[2] - 1, +m[1]).getTime() : 0; }
+  all().forEach(function(i){
+    stepsOf(i).forEach(function(x){ if (x.done && dmy(x.at) >= since - 864e5) steps++; });
+    (HELP[i.id] || []).forEach(function(h){ if (new Date(h.created_at).getTime() >= since) joined++; });
+    if (i.meta && i.meta.status !== i._s0 && (i.meta.status === 'active' || i.meta.status === 'done') && new Date(i.meta.created_at).getTime() >= since) started++;
+  });
+  ONLINE.forEach(function(i){ if (new Date(i.online.created_at).getTime() >= since) ideas++; });
+  var bits = [];
+  if (steps) bits.push('<b>' + steps + '</b> ' + (steps === 1 ? 'Schritt' : 'Schritte') + ' erledigt');
+  if (started) bits.push('<b>' + started + '</b> ' + (started === 1 ? 'Idee gestartet oder erledigt' : 'Ideen gestartet oder erledigt'));
+  if (ideas) bits.push('<b>' + ideas + '</b> neue ' + (ideas === 1 ? 'Idee' : 'Ideen'));
+  if (joined) bits.push('<b>' + joined + '</b> ' + (joined === 1 ? 'Person neu dabei' : 'Leute neu dabei'));
+  var groupsP = {}, order = [];
+  all().forEach(function(i){
+    var keys = i.s === 'jhv' ? ['🏛️ Gesamtverein'] : (i.sektion ? i.sektion.split(' & ').map(function(x){ return '📍 ' + x.trim(); }) : []);
+    keys.forEach(function(k){ if (!groupsP[k]) { groupsP[k] = {n: 0, go: 0}; order.push(k); } groupsP[k].n++; if (i.status !== 'idea') groupsP[k].go++; });
+  });
+  box.innerHTML = '<p class="pulse-t">' + (bits.length ? '<span class="pulse-k">Diese Woche im ADC</span> ' + bits.join(' · ') : '<span class="pulse-k">Diese Woche im ADC</span> Noch ruhig. Hak einen Schritt ab oder mach bei einer Idee mit.') + '</p>'
+    + '<div class="pulse-g">' + order.map(function(k){ var g = groupsP[k], pc = Math.round(100 * g.go / g.n);
+        return '<div class="pg" title="' + g.go + ' von ' + g.n + ' Ideen laufen oder sind erledigt"><span class="pg-k">' + esc(k) + '</span><span class="bar"><i style="width:' + pc + '%"></i></span><span class="pg-n">' + g.go + '/' + g.n + ' laufen</span></div>'; }).join('') + '</div>';
+  box.hidden = false;
+}
+
+// Nägel: kleine Auszeichnungen fürs Mitmachen, nur im eigenen Profil, keine Rangliste
+var TIERS = [['holz', 'Holz'], ['bronze', 'Bronze'], ['silber', 'Silber'], ['gold', 'Gold']];
+var NAILS = [
+  {k: 'stimme', n: 'Stimme', d: 'Ideen hochgevotet', at: [1, 5, 15, 30], e: ['Stimme', 'Stimmen']},
+  {k: 'dabei', n: 'Mitmacher:in', d: 'Bei Ideen dabei', at: [1, 3, 6, 10], e: ['Idee', 'Ideen']},
+  {k: 'macher', n: 'Macher:in', d: 'Schritte abgehakt', at: [1, 5, 15, 30], e: ['Schritt', 'Schritte']},
+  {k: 'idee', n: 'Ideengeber:in', d: 'Eigene Ideen eingebracht', at: [1, 2, 4, 8], e: ['Idee', 'Ideen']},
+  {k: 'denker', n: 'Mitdenker:in', d: 'Notizen und Kommentare', at: [1, 5, 15, 30], e: ['Kommentar', 'Kommentare']},
+  {k: 'ziel', n: 'Ins Ziel gebracht', d: 'Ideen erledigt, bei denen du dabei warst', at: [1, 2, 4, 6], e: ['Idee', 'Ideen']},
+  {k: 'bruecke', n: 'Brückenbauer:in', d: 'In verschiedenen Sektionen und im Gesamtverein aktiv', at: [2, 3, 4, 5], e: ['Bereich', 'Bereiche']}
+];
+function myStats(){
+  var me = norm(ME.name), r = {stimme: 0, dabei: 0, macher: 0, idee: 0, denker: 0, ziel: 0, bruecke: 0}, areas = {};
+  if (!me) return r;
+  all().forEach(function(i){
+    var mine = false;
+    if ((VOTES[i.id] || []).some(function(v){ return norm(v.name) === me; })) r.stimme++;
+    if (peopleOf(i).some(function(n){ return norm(n) === me; })) { r.dabei++; mine = true; if (i.status === 'done') r.ziel++; }
+    stepsOf(i).forEach(function(x){ if (x.done && norm(x.by) === me) { r.macher++; mine = true; } });
+    (COMM[i.id] || []).forEach(function(c){ if (norm(c.name) === me) { r.denker++; mine = true; } });
+    if (i.online && norm(i.online.created_by) === me) { r.idee++; mine = true; }
+    if (mine) (i.s === 'jhv' ? ['jhv'] : (i.sektion ? i.sektion.split(' & ') : ['sektion'])).forEach(function(a){ areas[a.trim()] = 1; });
+  });
+  r.bruecke = Object.keys(areas).length;
+  return r;
+}
+function tierOf(nail, v){ var t = -1; nail.at.forEach(function(x, k){ if (v >= x) t = k; }); return t; }
+function nailSvg(tier){ return '<svg class="nail n-' + (tier < 0 ? 'off' : TIERS[tier][0]) + '" viewBox="0 0 24 32" aria-hidden="true"><rect x="3" y="2" width="18" height="4.5" rx="2"/><path d="M10.2 6.5h3.6v17l-1.8 6.5-1.8-6.5z"/></svg>'; }
+function renderNails(){
+  var box = document.getElementById('naegel'); if (!box) return;
+  var st = myStats();
+  box.innerHTML = '<div class="lbl">🔨 Deine Nägel</div><div class="nails">' + NAILS.map(function(n){
+    var v = st[n.k], t = tierOf(n, v), next = n.at[t + 1], left = next ? next - v : 0;
+    return '<div class="nl' + (t < 0 ? ' off' : '') + '">' + nailSvg(t) + '<div><b>' + esc(n.n) + '</b>'
+      + '<span class="nl-t">' + (t < 0 ? 'Noch nicht' : TIERS[t][1]) + ' · ' + v + ' ' + (v === 1 ? n.e[0] : n.e[1]) + '</span>'
+      + '<span class="nl-n">' + (next ? 'Noch ' + left + ' bis ' + TIERS[t + 1][1] : 'Höchste Stufe erreicht') + '</span></div></div>';
+  }).join('') + '</div><p class="by">Nur du siehst deine Nägel. Gezählt wird, was du unter deinem Namen beigetragen hast.</p>';
+}
+// Neue Nägel feiern: Vergleich mit dem letzten Stand in diesem Browser
+function newNails(){
+  if (!ME.name) return;
+  var st = myStats(), now = {}, key = 'adc-naegel', old = null;
+  NAILS.forEach(function(n){ now[n.k] = tierOf(n, st[n.k]); });
+  try { old = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
+  try { localStorage.setItem(key, JSON.stringify({name: norm(ME.name), t: now})); } catch(e) {}
+  if (!old || old.name !== norm(ME.name)) return;
+  NAILS.forEach(function(n){
+    if (now[n.k] > (old.t[n.k] == null ? -1 : old.t[n.k])) setTimeout(function(){ confetti(null, 1); say('Neuer Nagel: ' + n.n + ' in ' + TIERS[now[n.k]][1] + ' 🔨'); }, 900);
+  });
 }
 
 // Papierkorb: nur mit Mitglieder-Code lesbar, 30 Tage, wiederherstellbar
@@ -826,7 +987,7 @@ function initStore(){
         sbm.disabled = false;
         closeForm();
         m.textContent = '';
-        return load().then(function(){ openTicket(id); });
+        return load().then(function(){ openTicket(id); if (!isEdit) { confetti(null, 1); say('Danke für deine Idee' + (anon ? '!' : ', ' + first(ME.name) + '!')); newNails(); } });
       }, function(err){ sbm.disabled = false; m.className = 'msg err'; m.textContent = err.message; });
     }, anon);
   });
@@ -850,6 +1011,7 @@ function initStore(){
       document.getElementById('p-phone').value = c && c.phone || '';
       document.getElementById('p-del').hidden = !c;
       document.getElementById('p-msg').textContent = 'Gespeichert unter: ' + ME.name;
+      renderNails();
       document.getElementById('p-msg').className = 'msg';
       profDlg.open(pb);
     });

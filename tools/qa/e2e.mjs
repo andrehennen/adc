@@ -432,11 +432,37 @@ for (const mode of ['down', 'noConfig']) {
   await ctx.close();
 }
 
+// 8. Freude beim Mitmachen (2.34): Fortschritt, Wochenzeile, Konfetti und Satz beim Abhaken, Nägel im Profil
+{
+  const { ctx, page, log, store } = await setup(browser);
+  ok('Wochenzeile und Fortschritt der Bereiche sichtbar', await page.locator('#pulse').isVisible() && await page.locator('#pulse .pg').count() > 0);
+  ok('Fortschrittsbalken an Ideen mit Schritten', await page.locator('.card .prog').count() > 0);
+  ok('„Noch … gesucht“ an Ideen ohne genug Leute', await page.locator('.card .need').count() > 0);
+  const card = page.locator('.card').filter({ has: page.locator('.prog') }).first(); const cid = await card.getAttribute('id');
+  await page.locator('#' + cid + ' .vote').click(); await login(page); await page.waitForTimeout(900);
+  await page.locator('#' + cid + ' .chead').click(); await page.waitForTimeout(800);
+  await page.locator('#' + cid + ' [data-steps] [data-tick]').first().check({ force: true }); await page.waitForTimeout(300);
+  ok('Abhaken: Konfetti und kurzer Satz', await page.locator('canvas.confetti').count() > 0 && /\S/.test(await page.textContent('#joy')), await page.textContent('#joy').catch(() => '-'));
+  await page.waitForTimeout(1500);
+  await page.click('#profile-btn'); await page.waitForTimeout(700);
+  ok('Profil zeigt Nägel (Stimme und Macher:in erreicht)', await page.locator('#naegel .nl:not(.off)').count() >= 2 && await page.locator('#naegel .nl').count() === 7);
+  ok('Keine JS-Fehler mit den neuen Effekten', !log.some(l => /JS-Fehler/.test(l)), log.join(' | '));
+  await ctx.close();
+}
+{
+  const { ctx, page, log } = await setup(browser, { reduced: true });
+  await page.locator('.card .vote').first().click(); await login(page); await page.waitForTimeout(900);
+  ok('Reduzierte Bewegung: kein Konfetti', await page.locator('canvas.confetti').count() === 0 && !log.some(l => /JS-Fehler/.test(l)));
+  await ctx.close();
+}
+
 await browser.close();
 
 // 7. Safari/iPhone: Kernablauf einmal in WebKit
 {
-  const wk = await webkit.launch();
+  let wk = null;
+  try { wk = await webkit.launch(); } catch (e) { results.push('HINWEIS WebKit nicht installiert, Safari-Ablauf übersprungen (npm run setup)'); }
+  if (wk) {
   const { ctx, page, log, store } = await setup(wk, { viewport: { width: 375, height: 812 } });
   await page.locator('.card').first().locator('.vote').click();
   await login(page); await page.waitForTimeout(900);
@@ -452,6 +478,7 @@ await browser.close();
   ok('Handy: Link zu einer Idee wechselt den Tab', await page.locator('#' + hhId).isVisible() && await page.getAttribute('.tab[data-tab=hh]', 'aria-pressed') === 'true');
   ok('WebKit (iPhone-Breite): Anmelden, Voten, Kommentieren', store.db.votes.length === 1 && store.db.comments.length === 1 && !log.some(l => /JS-Fehler/.test(l)), log.join(' | '));
   await ctx.close(); await wk.close();
+  }
 }
 
 console.log(results.join('\n'));
