@@ -18,6 +18,11 @@ var SA = {draft:"active", checked:"planned", doing:"active", live:"active"};
 D.forEach(function(i){ if (SA[i.status]) i.status = SA[i.status]; });
 var CHEV = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>';
 var active = 'all';
+var city = '';      // Sektionsfilter (Auswahlmenü), kombinierbar mit den Themen
+var doneOpen = false; // Gruppe „Erledigt“ aufgeklappt?
+var tab = 'hh';      // Handy: angezeigte Spalte
+try { if (localStorage.getItem('adc-tab') === 'jhv') tab = 'jhv'; } catch(e) {}
+var FOLD = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>';
 var mineOn = false;  // Filter „Für mich“, lässt sich mit den Themen-Filtern kombinieren; Zustand pro Browser in localStorage „adc-mine“
 function saveMine(){ try { if (mineOn) localStorage.setItem('adc-mine', '1'); else localStorage.removeItem('adc-mine'); } catch(e) {} }
 var openSet = {};
@@ -250,9 +255,8 @@ function syncMine(){
 function votes(i){ return (i.v || 0) + (VOTES[i.id] || []).length; }
 function filtered(){
   var A = all();
-  var r = active === 'all' ? A :
-          (active === 'Hamburg' || active === 'Berlin') ? A.filter(function(i){ return (i.sektion || '').split(' & ').indexOf(active) >= 0; }) :
-          A.filter(function(i){ return groups(i).indexOf(active) >= 0; });
+  var r = active === 'all' ? A : A.filter(function(i){ return groups(i).indexOf(active) >= 0; });
+  if (city) r = r.filter(function(i){ return (i.sektion || '').split(' & ').indexOf(city) >= 0; });
   if (mineOn) r = r.filter(isMine);
   return r.sort(function(a,b){
     if (a.prio && !b.prio) return -1;
@@ -507,14 +511,24 @@ function fallback(text){
 function fill(container, list){
   container.innerHTML = '';
   if (!list.length) { container.innerHTML = '<div class="empty">' + (mineOn ? 'Hier bist du noch bei keiner Idee dabei.' : 'Keine Ideen für diesen Filter.') + '</div>'; return; }
-  var moving = list.filter(function(i){ return (i.status||'idea') !== 'idea'; });
-  var ideas = list.filter(function(i){ return (i.status||'idea') === 'idea'; });
-  [['🚀 Läuft schon', moving], ['💡 Ideen – suchen Mitstreiter:innen', ideas]].forEach(function(g){
+  var st = function(i){ return i.status || 'idea'; };
+  var moving = list.filter(function(i){ return st(i) === 'planned' || st(i) === 'active'; });
+  var ideas = list.filter(function(i){ return st(i) === 'idea'; });
+  var done = list.filter(function(i){ return st(i) === 'done'; });
+  // „Erledigt“ ist eingeklappt, außer eine erledigte Idee ist gerade offen (Link, Statuswechsel)
+  var dOpen = doneOpen || done.some(function(i){ return openSet[i.id]; });
+  [['🚀 Läuft schon', moving], ['💡 Ideen – suchen Mitstreiter:innen', ideas], ['✅ Erledigt', done, true]].forEach(function(g){
     if (!g[1].length) return;
-    var h = document.createElement('h3'); h.className = 'group-title'; h.textContent = g[0] + ' (' + g[1].length + ')';
+    var h = document.createElement('h3'); h.className = 'group-title';
+    if (g[2]) {
+      h.innerHTML = '<button type="button" class="gfold" aria-expanded="'+dOpen+'">'+g[0]+' ('+g[1].length+')'+FOLD+'</button>';
+      h.firstChild.addEventListener('click', function(){ doneOpen = !dOpen; if (!doneOpen) g[1].forEach(function(i){ delete openSet[i.id]; }); render(); });
+      container.appendChild(h);
+      if (!dOpen) return;
+    } else { h.textContent = g[0] + ' (' + g[1].length + ')'; container.appendChild(h); }
     var wrap = document.createElement('div'); wrap.className = 'cards';
     g[1].forEach(function(i){ wrap.appendChild(mkcard(i)); });
-    container.appendChild(h); container.appendChild(wrap);
+    container.appendChild(wrap);
   });
 }
 
@@ -567,10 +581,15 @@ function renderTermine(){
   document.getElementById('te-list').innerHTML = n.map(function(e, k){
     var when = e.von ? (e.bis ? hm(e.von)+'–'+hm(e.bis)+' Uhr' : 'ab '+hm(e.von)+' Uhr') : '';
     var now = e.d <= today;
-    var txt = (now ? '<span class="te-today">'+(e.d === today ? 'Heute' : 'Läuft')+'</span>' : '')+'<b>'+esc(e.k || e.n)+'</b>'+[when, e.ort].filter(Boolean).map(function(x){ return ' · '+esc(x); }).join('');
-    return '<li'+(k >= 3 ? ' class="te-x" hidden' : '')+'><span class="news-d">'+esc(dm(e.d))+'</span><span class="news-t">'+(e.url ? '<a href="'+esc(e.url)+'" target="_blank" rel="noopener" title="'+esc(e.info || 'Infos und Tickets')+'">'+txt+'</a>' : txt)+'</span>'
-      + '<a class="te-cal" href="/api/termin?id='+encodeURIComponent(e.id)+'" aria-label="'+esc(e.n)+' in den Kalender eintragen">📅<span class="te-cal-t">Kalender</span></a></li>';
+    var info = [when, e.ort].filter(Boolean).map(esc).join(' · ') + (e.info ? '<br>'+esc(e.info) : '') + (e.url ? '<br><a href="'+esc(e.url)+'" target="_blank" rel="noopener">Infos und Tickets ↗</a>' : '');
+    var iid = 'te-i-' + k;
+    return '<li'+(k >= 3 ? ' class="te-x" hidden' : '')+'><button type="button" class="te-row" aria-expanded="false" aria-controls="'+iid+'"><span class="news-d">'+esc(dm(e.d))+'</span><span class="news-t">'+(now ? '<span class="te-today">'+(e.d === today ? 'Heute' : 'Läuft')+'</span>' : '')+'<b>'+esc(e.k || e.n)+'</b></span>'+FOLD+'</button>'
+      + '<a class="te-cal" href="/api/termin?id='+encodeURIComponent(e.id)+'" aria-label="'+esc(e.n)+' in den Kalender eintragen">📅<span class="te-cal-t">Kalender</span></a>'
+      + '<div class="te-info" id="'+iid+'" hidden>'+info+'</div></li>';
   }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#te-list .te-row'), function(b){
+    b.addEventListener('click', function(){ var o = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', o ? 'true' : 'false'); document.getElementById(b.getAttribute('aria-controls')).hidden = !o; });
+  });
   // Ab dem 4. Termin eingeklappt
   var more = document.getElementById('te-more'), extra = n.length - 3;
   more.hidden = extra < 1;
@@ -589,6 +608,7 @@ renderTermine();
 function renderNews(){
   var n = newsItems(), box = document.getElementById('news');
   box.hidden = !n.length && !document.getElementById('last-update').textContent;
+  document.getElementById('news-n').textContent = n.length ? '· ' + n.length : '';
   document.getElementById('news-list').innerHTML = n.map(function(x){
     return '<li><a href="#'+esc(x.i.id)+'"><span class="news-d">'+esc(x.at.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}))+'</span><span class="news-t"><b>'+esc(x.i.e+' '+(x.k || x.i.n.replace(/\s*\(.*\)\s*$/,'').replace(/\s*[–:].*$/,'')))+'</b> · '+esc(x.t)+'</span></a></li>';
   }).join('');
@@ -602,6 +622,9 @@ function render(){
   var jhv = v.filter(function(i){ return i.s === 'jhv'; });
   document.getElementById('hc').textContent = hh.length + (hh.length === 1 ? ' Idee' : ' Ideen');
   document.getElementById('jc').textContent = jhv.length + (jhv.length === 1 ? ' Idee' : ' Ideen');
+  document.getElementById('tn-hh').textContent = hh.length;
+  document.getElementById('tn-jhv').textContent = jhv.length;
+  syncTab();
   fill(document.getElementById('chh'), hh);
   fill(document.getElementById('cjhv'), jhv);
   Array.prototype.forEach.call(document.querySelectorAll('.card.open'), markScroll);
@@ -637,6 +660,24 @@ document.getElementById('frow').addEventListener('click', function(e){
   flipRender();
 });
 
+// Sektion (Auswahlmenü)
+var citySel = document.getElementById('city');
+citySel.addEventListener('change', function(){ city = citySel.value; citySel.classList.toggle('on', !!city); flipRender(); });
+// Handy: Tabs Sektionen / Gesamtverein
+function syncTab(){
+  document.getElementById('board').dataset.tab = tab;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){ var on = b.dataset.tab === tab; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+}
+Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){
+  b.addEventListener('click', function(){ tab = b.dataset.tab; try { localStorage.setItem('adc-tab', tab); } catch(e) {} syncTab(); });
+});
+// „Zuletzt passiert“ ist eingeklappt
+document.getElementById('news-btn').addEventListener('click', function(){
+  var b = this, o = b.getAttribute('aria-expanded') !== 'true';
+  b.setAttribute('aria-expanded', o ? 'true' : 'false');
+  document.getElementById('news-list').hidden = !o;
+});
+
 document.getElementById('mine-btn').addEventListener('click', function(){
   if (mineOn) { mineOn = false; saveMine(); return flipRender(); }
   whoami(function(){ mineOn = true; saveMine(); flipRender(); });
@@ -651,6 +692,7 @@ function openTicket(id){
   var t = all().filter(function(i){ return i.id === id; })[0];
   if (!t) { if (/^neu-/.test(id)) pendingOpen = id; return; }
   openSet[id] = 1;
+  tab = t.s === 'jhv' ? 'jhv' : 'hh';
   render();
   var el = document.getElementById(id);
   if (el) setTimeout(function(){ scrollToEl(el); }, 50);

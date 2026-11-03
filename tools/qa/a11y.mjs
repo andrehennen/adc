@@ -51,7 +51,7 @@ for (const [vp, w, h] of [['handy', 375, 812], ['desktop', 1440, 900]]) {
     await run(page, vp + '/wer');
     await page.click('#w-cancel'); await page.click('#s-cancel');
   }
-  await page.click('#cl-btn'); await page.waitForTimeout(300);
+  await page.click('#cl-btn'); await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(1200);
   await run(page, vp + '/changelog');
   // Installations-Hinweis
   await page.evaluate(() => { document.getElementById('inst-txt').textContent = 'Test'; document.getElementById('install').showModal(); }); await page.waitForTimeout(700);

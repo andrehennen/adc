@@ -89,7 +89,7 @@ Jedes Ticket ist ein Objekt:
 Status-Labels: 💡 Idee · 📋 Geplant · ⚡ Läuft · ✅ Erledigt
 
 Sortierung: zuerst Prio, dann Status (done > active > planned > idea), dann Stimmen, dann „hat Owner“.
-In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `idea`) und „💡 Ideen – suchen Mitstreiter:innen“.
+In jeder Spalte gibt es drei Gruppen: „🚀 Läuft schon“ (`planned`/`active`), „💡 Ideen – suchen Mitstreiter:innen“ und „✅ Erledigt“ (seit 2.33 eingeklappt, `doneOpen`; klappt automatisch auf, wenn eine erledigte Idee offen ist, z. B. per Link).
 
 ## Design (seit Okt. 2026)
 
@@ -98,6 +98,7 @@ In jeder Spalte gibt es zwei Gruppen: „🚀 Läuft schon“ (alles außer `ide
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
 - Header rechts: Profil-Symbol (`#profile-btn`, SVG-Person, Kontaktdaten, nur mit Speicher) und „?“. „💬 WhatsApp-Gruppe“ steht nur noch im Footer und in der Hilfe. „Für mich“ ist der erste Chip in der Filterzeile (`.fb.mine`, ohne `data-t`; der Filter-Handler reagiert nur auf `.fb[data-t]`); der Zustand bleibt pro Browser gespeichert, `localStorage` `adc-mine`, gilt erst, wenn der Speicher läuft).
+- **Aufräumen (2.33):** „Zuletzt passiert“ ist eingeklappt (`#news-btn`). Sektionen filtert ein Auswahlmenü `#city` (Variable `city`, kombinierbar mit den Themen-Chips). Bis 900 px zeigen Tabs (`.tabs`, `tab`, `localStorage` `adc-tab`) nur eine Spalte; `openTicket` wechselt den Tab.
 - Hilfe-Button „?“ im Header öffnet das Modal `#help` mit den wichtigsten Funktionen. **Bei neuen Funktionen dort mitpflegen.** Es wächst animiert aus dem „?“ und schrumpft beim Schließen dorthin zurück. Seit 2.29 gilt das für alle großen Fenster: Hilfe, Kontaktdaten (`#profile`) und „Neue Idee“/„Idee bearbeiten“ (`#suggest`) sind `<dialog>`s mit `dlgAnim(d)` → `open(ursprungsKnopf)`/`close()`; alle Schließwege inkl. Escape laufen über `close()`. Kontaktdaten schließen sich nach dem Speichern von selbst. Beim ersten Besuch öffnet es sich automatisch als Tutorial (`localStorage` `adc-help` = `seen`).
 - Installations-Hinweis (Modal `#install`): ab dem zweiten Besuch (beim ersten läuft das Tutorial), je nach Gerät mit Install-Button (Chrome/Android), Anleitung für iOS/Android oder Lesezeichen-Tipp (Desktop). Status in `localStorage` `adc-install` (`installed`/`done` = nie wieder, `later` = nach 14 Tagen erneut). In der installierten App erscheint er nie.
 - Bewegung (seit 2.14/2.15): Akkordeon per JS (`setOpen`, Web Animations auf Höhe, Inhalt in `.cbody > .cin > .cpad`), Filter per FLIP (`flipRender`), weiches Scrollen mit Lenis (lokal in `vendor/lenis.min.js`, Version 1.3.26, MIT; eigene Scrollbereiche mit `data-lenis-prevent`, Scrollen per `scrollToEl`/`scrollByY`, nie direkt `scrollIntoView`). Tasten skalieren beim Drücken, Dialoge/Panels blenden ein, Header mit Milchglas. `prefers-reduced-motion` schaltet alles ab. Animationen haben Timeout-Fallbacks, falls der Browser sie nicht abspielt.
@@ -131,6 +132,7 @@ Feste Links:
 ## Nächste Termine (`termine.js`, seit 2.32)
 
 - Liste `var TE = [...]` in `termine.js` (eigene Datei, weil auch `api/termin.js` sie per `require` liest). Felder stehen oben in der Datei: `id`, `d`, optional `bis_d`, `von`/`bis` (ohne `von` = ganztägig), `n`, `ort`, `url`, `sektion`, `info`.
+- Jede Zeile zeigt nur Datum und Kurztitel (`k`), ein Tipp klappt Uhrzeit, Ort, `info` und den Link auf (`.te-row`/`.te-info`).
 - Die Seite zeigt oben die nächsten 3 kommenden Termine (heutige mit Badge „Heute“), weitere klappen über „+ n weitere Termine“ auf (`#te-more`). Vergangene verschwinden von selbst. Titel verlinkt auf `url` (Infos/Tickets).
 - „📅 Kalender“ lädt `/api/termin?id=<id>` (.ics, Zeiten in Europe/Berlin nach UTC umgerechnet, ohne `bis` 6 Stunden). „Alle abonnieren“ ist `webcal://…/api/termin` mit allen kommenden Terminen.
 - **Quellen:** Termine aus dem Dashboard (Ideen) und von adc.de (`/events/…`). Keine Zeiten oder Orte erfinden; was nicht feststeht, weglassen.

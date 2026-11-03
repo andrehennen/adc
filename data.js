@@ -49,6 +49,7 @@ var UP = [
 ];
 
 var CL = [
+  ["2.33", "3. Nov. 2026", "Aufgeräumt: „Zuletzt passiert“ eingeklappt, Termine einzeilig (Details per Tipp), Sektion als Auswahlmenü, erledigte Ideen in einer eingeklappten Gruppe, auf dem Handy Tabs für Sektionen und Gesamtverein."],
   ["2.32", "3. Nov. 2026", "Neu: „Nächste Termine“ oben, mit Knopf zum Eintragen in den eigenen Kalender und Kalender-Abo für alle Termine. Links zu einer Idee springen wieder direkt zur Karte."],
   ["2.31", "31. Okt. 2026", "Status einer Idee direkt in der Karte ändern und Verantwortliche mit × entfernen. Doppelt gespeicherte Kontaktdaten werden wieder erkannt."],
   ["2.30", "29. Okt. 2026", "Einfacher: nur noch vier Status (Idee, Geplant, Läuft, Erledigt), Filter Intern, Extern, Jury und die Städte. Das Kommentarfeld öffnet sich erst auf „Kommentieren“."],

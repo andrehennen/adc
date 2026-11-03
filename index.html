@@ -103,6 +103,29 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .fb{flex-shrink:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .12s;white-space:nowrap}
 .fb:hover{border-color:var(--ink);color:var(--ink)}
 .fb.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.fsel{appearance:none;-webkit-appearance:none;font-family:inherit;padding-right:28px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%233d3d3d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 6l4.5 4.5L12.5 6'/%3E%3C/svg%3E") no-repeat right 10px center/12px}
+.fsel.on{background-color:var(--ink);color:#fff;border-color:var(--ink);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 6l4.5 4.5L12.5 6'/%3E%3C/svg%3E")}
+.fsel option{color:var(--ink);background:#fff}
+.fold{display:inline-flex;align-items:center;gap:6px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;min-height:24px}
+.fold svg{width:13px;height:13px;transition:transform .25s var(--ease-out)}
+.fold[aria-expanded=true] svg{transform:rotate(180deg)}
+.fold:hover{color:var(--ink)}
+.fold:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
+#news-list{margin-top:4px}
+.te-row{display:flex;gap:10px;align-items:center;flex:1;min-width:0;font:inherit;text-align:left;color:var(--ink);background:none;border:none;padding:0;cursor:pointer;min-height:26px}
+.te-row .news-t{flex:0 1 auto}
+.te-row svg{flex-shrink:0;width:13px;height:13px;color:var(--ink-3);transition:transform .25s var(--ease-out)}
+.te-row[aria-expanded=true] svg{transform:rotate(180deg)}
+.te-row:hover b{text-decoration:underline}
+.te-row:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
+.te-info{flex-basis:100%;padding:2px 0 6px 52px;font-size:14px;color:var(--ink-2);line-height:1.5}
+.te-info a{color:var(--ink);font-weight:600}
+.gfold{display:inline-flex;align-items:center;gap:6px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:pointer;background:none;border:none;padding:0;min-height:24px}
+.gfold svg{width:13px;height:13px;flex-shrink:0;transition:transform .25s var(--ease-out)}
+.gfold[aria-expanded=true] svg{transform:rotate(180deg)}
+.gfold:hover{color:var(--ink)}
+.gfold:focus-visible{outline:2px solid var(--blue);outline-offset:4px;border-radius:3px}
+.tabs{display:none}
 .fsep{flex-shrink:0;width:1px;height:24px;background:var(--line-strong);margin:0 4px}
 .toggle-all{flex-shrink:0;margin-left:auto;font-size:13px;font-weight:600;background:none;border:none;color:var(--ink-2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:9px 4px;white-space:nowrap}
 .toggle-all:hover{color:var(--ink)}
@@ -113,10 +136,10 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .news+.board{padding-top:56px}
 #termine+.news{padding-top:44px}
 #te-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.45}
-#te-list li{display:flex;gap:10px;align-items:flex-start;min-width:0}
+#te-list li{display:flex;flex-wrap:wrap;gap:0 10px;align-items:center;min-width:0}
 #te-list .news-t a{color:var(--ink);text-decoration:none;display:block;padding:2px 0}
 #te-list .news-d{padding-top:3px}
-#te-list .news-t{flex:1}
+#te-list .news-t{min-width:0}
 #te-list .news-t a:hover b{text-decoration:underline}
 #te-list .news-t a:focus-visible,#te-abo:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
 .te-today{display:inline-block;font-size:12px;font-weight:700;background:var(--ink);color:#fff;border-radius:999px;padding:0 7px;margin-right:4px}
@@ -309,7 +332,15 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
 .whoami button{background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:12px;padding:0}
 
 @media(max-width:900px){
-  .board{grid-template-columns:1fr;gap:48px}
+  .board{grid-template-columns:1fr;gap:0}
+  .tabs{display:flex;gap:6px;margin-bottom:18px;padding:4px;background:var(--soft);border-radius:999px}
+  .tab{flex:1;font:inherit;font-size:14px;font-weight:700;color:var(--ink-2);background:none;border:none;border-radius:999px;padding:8px 10px;cursor:pointer;min-height:36px}
+  .tab span{font-weight:600;color:var(--ink-3)}
+  .tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+  .tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .board[data-tab=hh] .col[data-col=jhv],.board[data-tab=jhv] .col[data-col=hh]{display:none}
+  .col-title{display:none}
+  .col-head{justify-content:flex-end}
 }
 @media(max-width:600px){
   .hide-s{display:none}
@@ -332,6 +363,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .news+.board{padding-top:40px}
   #news .news-up{display:none}
   .te-cal-t{display:none}
+  .te-info{padding-left:0}
   .te-cal{padding:2px 8px}
   #termine+.news{padding-top:32px}
   .col-sub{display:none}
@@ -405,7 +437,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
       <li><span class="ic">💡</span><span><b>Neue Idee</b> anlegen, auch <b>anonym</b>. Dann reicht der Code, dein Name wird nicht gespeichert.</span></li>
       <li><span class="ic">▲</span><span><b>Hochvoten:</b> eine Stimme pro Person. Nochmal tippen nimmt sie zurück.</span></li>
       <li><span class="ic">🙋</span><span><b>Übernehmen oder mitmachen:</b> Dein Name erscheint an der Idee.</span></li>
-      <li><span class="ic">📅</span><span><b>Nächste Termine</b> stehen oben. Mit „Kalender“ trägst du einen Termin in deinen Kalender ein, mit „Alle abonnieren“ kommen neue Termine automatisch dazu.</span></li>
+      <li><span class="ic">📅</span><span><b>Nächste Termine</b> stehen oben. Ein Tipp auf einen Termin zeigt Uhrzeit, Ort und Link. Mit „Kalender“ trägst du einen Termin in deinen Kalender ein, mit „Alle abonnieren“ kommen neue Termine automatisch dazu.</span></li>
       <li><span class="ic">📌</span><span>Den <b>Status</b> einer Idee ändern (in der offenen Karte antippen) und Verantwortliche mit <b>×</b> entfernen.</span></li>
       <li><span class="ic">👉</span><span><b>Nächste Schritte</b> bearbeiten, <b>abhaken</b> (sie wandern dann nach „Bisher passiert“) und <b>Notizen</b> schreiben.</span></li>
       <li><span class="ic">🗑️</span><span><b>Löschen:</b> Ideen und Kommentare liegen danach 30&nbsp;Tage im Papierkorb unten auf der Seite und lassen sich wiederherstellen.</span></li>
@@ -415,8 +447,8 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <ul class="hl">
       <li><span class="ic">📍</span><span><b>Sektionen:</b> was Sektionen selbst umsetzen können. <b>Gesamtverein:</b> was Präsidium oder JHV entscheiden.</span></li>
       <li><span class="ic">🚀</span><span>Oben steht, was <b>schon läuft</b>, darunter Ideen, die <span class="nw">Mitstreiter:innen</span> suchen. Innerhalb eines Status stehen Ideen mit mehr Stimmen weiter oben.</span></li>
-      <li><span class="ic">🆕</span><span><b>Zuletzt passiert</b> unter den Filtern zeigt die drei neuesten inhaltlichen Updates. Ein Tipp öffnet die Idee.</span></li>
-      <li><span class="ic">🙋</span><span><b>Für mich</b> (erster Filter) zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Daneben filterst du nach Intern, Extern, Jury und Sektion.</span></li>
+      <li><span class="ic">🆕</span><span><b>Zuletzt passiert</b> ist eingeklappt und zeigt aufgeklappt die drei neuesten inhaltlichen Updates. Ein Tipp öffnet die Idee.</span></li>
+      <li><span class="ic">🙋</span><span><b>Für mich</b> (erster Filter) zeigt nur die Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast. Daneben filterst du nach Intern, Extern und Jury, im Menü „📍 Ort“ nach Sektion. Auf dem Handy wechselst du oben zwischen Sektionen und Gesamtverein. Erledigte Ideen sind unten in jeder Spalte eingeklappt.</span></li>
       <li><span class="ic">🔗</span><span><b>Link kopieren</b> unten in jeder Idee: So teilst du eine einzelne Idee.</span></li>
     </ul>
     <p class="trust"><span class="ic">🤝</span><span>Wir halten den Zugang bewusst einfach und vertrauen darauf, dass hier niemand Quatsch schreibt. Passiert doch zu viel Mist, bauen wir einen Login ein.</span></p>
@@ -510,25 +542,25 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <button type="button" class="fb" aria-pressed="false" data-t="extern" title="Nach außen: Partner, Sponsoren, Stadt, Nachwuchs">🌍 Extern</button>
     <button type="button" class="fb" aria-pressed="false" data-t="jury">⚖️ Jury</button>
     <span class="fsep"></span>
-    <button type="button" class="fb" aria-pressed="false" data-t="Hamburg">📍 Hamburg</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="Berlin">📍 Berlin</button>
+    <select class="fb fsel" id="city" aria-label="Sektion auswählen"><option value="">📍 Ort</option><option value="Hamburg">📍 Hamburg</option><option value="Berlin">📍 Berlin</option></select>
     </div>
   </div>
 </div>
 
 <div class="wrap news" id="termine" hidden><div class="news-top"><h2 class="news-h">📅 Nächste Termine</h2><a class="news-up" id="te-abo" href="/api/termin">Alle abonnieren</a></div><ul id="te-list"></ul><button type="button" class="te-more" id="te-more" aria-controls="te-list" aria-expanded="false" hidden></button></div>
 
-<div class="wrap news" id="news" hidden><div class="news-top"><h2 class="news-h">🆕 Zuletzt passiert</h2><span class="news-up" id="last-update"></span></div><ul id="news-list"></ul></div>
+<div class="wrap news" id="news" hidden><div class="news-top"><h2 class="news-h"><button type="button" class="fold" id="news-btn" aria-expanded="false" aria-controls="news-list">🆕 Zuletzt passiert <span id="news-n"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg></button></h2><span class="news-up" id="last-update"></span></div><ul id="news-list" hidden></ul></div>
 
-<div class="wrap board">
-  <section>
+<div class="wrap board" id="board" data-tab="hh">
+  <div class="tabs" role="group" aria-label="Bereich"><button type="button" class="tab on" data-tab="hh" aria-pressed="true">📍 Sektionen <span id="tn-hh"></span></button><button type="button" class="tab" data-tab="jhv" aria-pressed="false">🏛️ Gesamtverein <span id="tn-jhv"></span></button></div>
+  <section class="col" data-col="hh">
     <div class="col-head">
       <h2 class="col-title">📍 Sektionen <span class="col-sub">Können Sektionen selbst umsetzen</span></h2>
       <div class="col-tools"><span class="count" id="hc"></span><button type="button" class="toggle-all" data-col="hh" aria-controls="chh">Alle aufklappen</button></div>
     </div>
     <div id="chh"></div>
   </section>
-  <section>
+  <section class="col" data-col="jhv">
     <div class="col-head">
       <h2 class="col-title">🏛️ Gesamtverein <span class="col-sub">Entscheidet Präsidium oder JHV</span></h2>
       <div class="col-tools"><span class="count" id="jc"></span><button type="button" class="toggle-all" data-col="jhv" aria-controls="cjhv">Alle aufklappen</button></div>

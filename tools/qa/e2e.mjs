@@ -72,6 +72,8 @@ async function setup(browser, { seedXss = false, viewport = { width: 1280, heigh
   await page.waitForSelector('.card');
   return { ctx, page, log, store, dialogs };
 }
+// Anzahl Ideen inkl. der eingeklappten Gruppe „Erledigt“
+const ideaCount = page => page.evaluate(() => document.querySelectorAll('.card').length + [...document.querySelectorAll('.gfold[aria-expanded=false]')].reduce((s, b) => s + +((b.textContent.match(/\((\d+)\)/) || [0, 0])[1]), 0));
 const login = async (page, name = 'Qa Testerin', code = CODE) => { await page.fill('#w-name', name); await page.fill('#w-code', code); await page.click('#wform button[type=submit]'); };
 
 const browser = await chromium.launch({ channel: 'chromium' });
@@ -90,6 +92,31 @@ const browser = await chromium.launch({ channel: 'chromium' });
     ok('Weitere Termine ausklappbar', await page.locator('#te-list li:visible').count() === upcoming && await page.getAttribute('#te-more', 'aria-expanded') === 'true');
     await page.click('#te-more'); await page.waitForTimeout(200);
     ok('Und wieder einklappbar', await page.locator('#te-list li:visible').count() === 3);
+  }
+  // Zuletzt passiert eingeklappt, Termin-Details per Tipp
+  ok('„Zuletzt passiert“ ist eingeklappt', await page.locator('#news-list').isHidden() && await page.getAttribute('#news-btn', 'aria-expanded') === 'false');
+  await page.click('#news-btn'); await page.waitForTimeout(150);
+  ok('„Zuletzt passiert“ klappt auf', await page.locator('#news-list').isVisible());
+  await page.click('#news-btn');
+  if (upcoming) {
+    const tr = page.locator('#te-list .te-row').first();
+    ok('Termin-Details erst nach Tipp', await page.locator('#te-list .te-info').first().isHidden());
+    await tr.click(); await page.waitForTimeout(150);
+    ok('Tipp auf Termin zeigt Details', await page.locator('#te-list .te-info').first().isVisible() && await tr.getAttribute('aria-expanded') === 'true');
+    await tr.click();
+  }
+  // Sektion per Auswahlmenü, kombiniert mit Themen
+  await page.selectOption('#city', 'Berlin'); await page.waitForTimeout(900);
+  const berlin = await page.evaluate(() => [...document.querySelectorAll('.card .cmeta')].map(m => m.textContent));
+  ok('Sektion „Berlin“ filtert', berlin.length > 0 && berlin.every(t => /Berlin/.test(t)), berlin.length + ' Karten');
+  await page.selectOption('#city', ''); await page.waitForTimeout(900);
+  // Erledigt eingeklappt
+  const gf = page.locator('.gfold').first();
+  if (await gf.count()) {
+    const c0 = await page.locator('.card').count();
+    await gf.click(); await page.waitForTimeout(600);
+    ok('„Erledigt“ klappt auf', await page.locator('.card').count() > c0);
+    await page.locator('.gfold').first().click(); await page.waitForTimeout(600);
   }
   const v0 = parseInt((await first.locator('.vote').textContent()).replace(/\D/g, '')) || 0;
   await first.locator('.vote').click();
@@ -254,7 +281,7 @@ for (const mode of ['down', 'noConfig']) {
   await noInstallHint(ctx);
   const page = await ctx.newPage(); const log = watch(page);
   await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
-  const n = await page.locator('.card').count();
+  const n = await ideaCount(page);
   ok(`Speicher weg (${mode}): Seite zeigt alle festen Ideen, Sli.do-Link statt Formular, keine JS-Fehler`, n >= 30 && (await page.getAttribute('#suggest-btn', 'href')).includes('sli.do') && await page.locator('#profile-btn').isHidden() && await page.locator('#mine-btn').isHidden() && !log.some(l => /JS-Fehler/.test(l)), n + ' Karten; ' + log.join(' | '));
   await page.locator('.card .chead').first().click(); await page.waitForTimeout(700);
   ok(`Speicher weg (${mode}): Karte ohne Schreib-Knöpfe, mit WhatsApp-Hinweis wo nötig`, await page.locator('.card.open [data-cform], .card.open [data-cwrite], .card.open [data-edit]').count() === 0);
@@ -270,19 +297,19 @@ for (const mode of ['down', 'noConfig']) {
   await login(page, 'Andre Hennen'); await page.waitForTimeout(1400);
   const r = await page.evaluate(() => [...document.querySelectorAll('.card')].map(c => c.querySelector('.cmeta').textContent));
   ok('„Für mich“ zeigt nur eigene Ideen (Owner, akzentunabhängig)', r.length > 0 && r.every(t => /André Hennen/.test(t)), r.length + ' Karten');
-  ok('„Für mich“ ist gedrückt und zeigt die Anzahl', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && (await page.textContent('#mine-btn')).includes('· ' + r.length));
+  ok('„Für mich“ ist gedrückt und zeigt die Anzahl', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && (await page.textContent('#mine-btn')).includes('· ' + await ideaCount(page)));
   await page.click('.fb[data-t=jury]'); await page.waitForTimeout(900);
   const j = await page.locator('.card').count();
   ok('„Für mich“ kombiniert sich mit Themen-Filter', j < r.length, j + ' von ' + r.length);
   await page.click('.fb[data-t=all]'); await page.waitForTimeout(900);
   await page.click('#mine-btn'); await page.waitForTimeout(900);
-  ok('Zweiter Klick zeigt wieder alle', await page.locator('.card').count() >= 30);
+  ok('Zweiter Klick zeigt wieder alle', await ideaCount(page) >= 30);
   await page.click('#mine-btn'); await page.waitForTimeout(600);
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible'); await page.waitForTimeout(600);
-  ok('„Für mich“ bleibt nach Neuladen aktiv', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && await page.locator('.card').count() < 30);
+  ok('„Für mich“ bleibt nach Neuladen aktiv', await page.getAttribute('#mine-btn', 'aria-pressed') === 'true' && await ideaCount(page) < 30);
   await page.click('#mine-btn'); await page.waitForTimeout(600);
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForSelector('#mine-btn:visible'); await page.waitForTimeout(600);
-  ok('„Für mich“ bleibt nach Neuladen aus', await page.getAttribute('#mine-btn', 'aria-pressed') === 'false' && await page.locator('.card').count() >= 30);
+  ok('„Für mich“ bleibt nach Neuladen aus', await page.getAttribute('#mine-btn', 'aria-pressed') === 'false' && await ideaCount(page) >= 30);
   // Mitmachen landet in „Für mich“
   const other = page.locator('.card:not(:has-text("André Hennen")) .chead').first();
   const oid = await other.evaluate(e => e.parentElement.id); await other.click(); await page.waitForTimeout(800);
@@ -417,6 +444,12 @@ await browser.close();
   await page.locator('.card.open [data-cwrite]').click();
   await page.locator('.card.open [data-cform] textarea').fill('WebKit-Kommentar');
   await page.locator('.card.open [data-cform] button[type=submit]').click(); await page.waitForTimeout(900);
+  // Handy: Tabs statt Spalten
+  await page.click('.tab[data-tab=jhv]'); await page.waitForTimeout(300);
+  ok('Handy: Tab „Gesamtverein“ zeigt nur diese Spalte', await page.locator('#cjhv .card').first().isVisible() && await page.locator('#chh').isHidden());
+  const hhId = await page.locator('#chh .card').first().getAttribute('id');
+  await page.evaluate(i => { location.hash = i; }, hhId); await page.waitForTimeout(900);
+  ok('Handy: Link zu einer Idee wechselt den Tab', await page.locator('#' + hhId).isVisible() && await page.getAttribute('.tab[data-tab=hh]', 'aria-pressed') === 'true');
   ok('WebKit (iPhone-Breite): Anmelden, Voten, Kommentieren', store.db.votes.length === 1 && store.db.comments.length === 1 && !log.some(l => /JS-Fehler/.test(l)), log.join(' | '));
   await ctx.close(); await wk.close();
 }
