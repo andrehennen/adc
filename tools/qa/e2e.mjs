@@ -435,7 +435,6 @@ for (const mode of ['down', 'noConfig']) {
 // 8. Freude beim Mitmachen (2.34): Fortschritt, Wochenzeile, Konfetti und Satz beim Abhaken, Nägel im Profil
 {
   const { ctx, page, log, store } = await setup(browser);
-  ok('Wochenzeile und Fortschritt der Bereiche sichtbar', await page.locator('#pulse').isVisible() && await page.locator('#pulse .pg').count() > 0);
   ok('Fortschrittsbalken an Ideen mit Schritten', await page.locator('.card .prog').count() > 0);
   ok('„Noch … gesucht“ an Ideen ohne genug Leute', await page.locator('.card .need').count() > 0);
   const card = page.locator('.card').filter({ has: page.locator('.prog') }).first(); const cid = await card.getAttribute('id');

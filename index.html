@@ -362,7 +362,7 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .hero h1{font-size:30px}
   .hero p{font-size:15px}
   .cta{margin-top:14px}
-  .hero{padding-top:24px}
+  .hero{padding-top:24px;padding-bottom:var(--sp-block)}
   #news .news-up{display:none}
   .te-cal-t{display:none}
   .te-info{padding-left:0}
@@ -410,14 +410,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0a0a0a,#3d3d3d);position:relative;transition:width .6s cubic-bezier(.3,1.3,.5,1)}
 .need{font-weight:700;color:var(--ink)}
 .needline{font-weight:600;color:var(--ink-2)}
-.pulse{margin-top:var(--sp-block);display:flex;flex-direction:column;gap:12px;max-width:760px}
-.pulse-t{font-size:14px;color:var(--ink-2);margin:0}
-.pulse-k{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:var(--ink);color:#fff;border-radius:99px;padding:2px 9px;margin-right:6px;vertical-align:1px}
-.pulse-g{display:flex;flex-wrap:wrap;gap:8px 18px}
-.pg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
-.pg-k{font-weight:700;color:var(--ink)}
-.pg .bar{width:80px}
-.pg-n{font-variant-numeric:tabular-nums}
 .joy{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px) scale(.96);opacity:0;pointer-events:none;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:300;max-width:calc(100% - 32px);text-align:center;transition:opacity .25s,transform .45s cubic-bezier(.34,1.56,.64,1)}
 .joy.in{opacity:1;transform:translate(-50%,0) scale(1)}
 @media(max-width:860px){.joy{bottom:calc(92px + env(safe-area-inset-bottom,0px))}}
@@ -544,7 +536,6 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
   <div class="cta">
     <a class="btn btn-dark" id="suggest-btn" href="https://app.sli.do/event/9tSaEJk3TA4ixbnNpB3LAU/live/polls" target="_blank" rel="noopener">💡 Idee vorschlagen!</a>
   </div>
-  <div class="pulse" id="pulse" hidden></div>
 </section>
 
 <dialog data-lenis-prevent class="who" id="install" aria-labelledby="inst-h">

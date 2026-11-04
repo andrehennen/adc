@@ -624,7 +624,6 @@ function renderNews(){
 function render(){
   var restore = keepDrafts();
   renderNews();
-  renderPulse();
   var v = filtered();
   var hh = v.filter(function(i){ return i.s === 'hh'; });
   var jhv = v.filter(function(i){ return i.s === 'jhv'; });
@@ -791,33 +790,6 @@ function joyJoin(i, from){
     setTimeout(function(){ confetti(to, 0); }, 560);
   } else confetti(from, 0);
   newNails();
-}
-
-// „Diese Woche im ADC“ und wie weit die Bereiche sind
-function renderPulse(){
-  var box = document.getElementById('pulse'); if (!box) return;
-  var since = Date.now() - 7 * 864e5, steps = 0, ideas = 0, joined = 0, started = 0;
-  function dmy(s){ var m = String(s || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); return m ? new Date(+m[3], m[2] - 1, +m[1]).getTime() : 0; }
-  all().forEach(function(i){
-    stepsOf(i).forEach(function(x){ if (x.done && dmy(x.at) >= since - 864e5) steps++; });
-    (HELP[i.id] || []).forEach(function(h){ if (new Date(h.created_at).getTime() >= since) joined++; });
-    if (i.meta && i.meta.status !== i._s0 && (i.meta.status === 'active' || i.meta.status === 'done') && new Date(i.meta.created_at).getTime() >= since) started++;
-  });
-  ONLINE.forEach(function(i){ if (new Date(i.online.created_at).getTime() >= since) ideas++; });
-  var bits = [];
-  if (steps) bits.push('<b>' + steps + '</b> ' + (steps === 1 ? 'Schritt' : 'Schritte') + ' erledigt');
-  if (started) bits.push('<b>' + started + '</b> ' + (started === 1 ? 'Idee gestartet oder erledigt' : 'Ideen gestartet oder erledigt'));
-  if (ideas) bits.push('<b>' + ideas + '</b> neue ' + (ideas === 1 ? 'Idee' : 'Ideen'));
-  if (joined) bits.push('<b>' + joined + '</b> ' + (joined === 1 ? 'Person neu dabei' : 'Leute neu dabei'));
-  var groupsP = {}, order = [];
-  all().forEach(function(i){
-    var keys = i.s === 'jhv' ? ['🏛️ Gesamtverein'] : (i.sektion ? i.sektion.split(' & ').map(function(x){ return '📍 ' + x.trim(); }) : []);
-    keys.forEach(function(k){ if (!groupsP[k]) { groupsP[k] = {n: 0, go: 0}; order.push(k); } groupsP[k].n++; if (i.status !== 'idea') groupsP[k].go++; });
-  });
-  box.innerHTML = '<p class="pulse-t">' + (bits.length ? '<span class="pulse-k">Diese Woche im ADC</span> ' + bits.join(' · ') : '<span class="pulse-k">Diese Woche im ADC</span> Noch ruhig. Hak einen Schritt ab oder mach bei einer Idee mit.') + '</p>'
-    + '<div class="pulse-g">' + order.map(function(k){ var g = groupsP[k], pc = Math.round(100 * g.go / g.n);
-        return '<div class="pg" title="' + g.go + ' von ' + g.n + ' Ideen laufen oder sind erledigt"><span class="pg-k">' + esc(k) + '</span><span class="bar"><i style="width:' + pc + '%"></i></span><span class="pg-n">' + g.go + '/' + g.n + ' laufen</span></div>'; }).join('') + '</div>';
-  box.hidden = false;
 }
 
 // Nägel: kleine Auszeichnungen fürs Mitmachen, nur im eigenen Profil, keine Rangliste
