@@ -95,6 +95,7 @@ In jeder Spalte gibt es drei Gruppen: „🚀 Läuft schon“ (`planned`/`active
 
 - Hell, orientiert an adc.de: weißer Hintergrund, schwarze Typo, Inter (lokal in `fonts/`, nicht von Google), große fette Headlines, ADC-Logo schwarz (als base64 eingebettet).
 - Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
+- **Abstände (seit 2.35):** nur über die Tokens `--sp-row` (6), `--sp-head` (Überschrift → Inhalt, 10/8), `--sp-block` (zwischen Blöcken, 28/22), `--sp-section` (zwischen Bereichen, 48/36) in `:root` (Handy-Werte im 600-px-Media-Query). Regel: innerhalb < zwischen Blöcken < zwischen Bereichen. Keine neuen festen px-Abstände zwischen Bereichen.
 - Die Tickets sind einklappbar (Accordion, kein Modal), dazu gibt es „Alle aufklappen“ und pro Ticket „Link zu dieser Idee kopieren“.
 - Muss auf dem iPhone funktionieren (kein horizontales Scrollen) und ist als Homescreen-App nutzbar (Manifest, Apple-Meta-Tags, Auto-Reload nach mehr als 2 Minuten im Hintergrund).
 - Header rechts: Profil-Symbol (`#profile-btn`, SVG-Person, Kontaktdaten, nur mit Speicher) und „?“. „💬 WhatsApp-Gruppe“ steht nur noch im Footer und in der Hilfe. „Für mich“ ist der erste Chip in der Filterzeile (`.fb.mine`, ohne `data-t`; der Filter-Handler reagiert nur auf `.fb[data-t]`); der Zustand bleibt pro Browser gespeichert, `localStorage` `adc-mine`, gilt erst, wenn der Speicher läuft).
