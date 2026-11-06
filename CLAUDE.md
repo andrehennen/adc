@@ -12,6 +12,7 @@ Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand 
 
 ## Grundsätze (wichtig, hart erarbeitet)
 
+- **Grundregel: einfach und zugänglich vor Funktionsfülle** (André, 6.11.2026, hohe Priorität): Lieber weniger anbieten als Screens überladen, sonst verlieren wir die Mitglieder. Vor jeder neuen Funktion fragen: Braucht das die Mehrheit? Was fällt dafür weg oder wandert eine Ebene tiefer (eingeklappt, Unterseite)? Pro Screen eine Hauptaufgabe. Gute Ideen dürfen warten.
 - **Sprache auf der Seite: „Ideen“, nie „Tickets“** (klingt weniger nach Arbeit). Intern im Code und in dieser Datei heißen sie weiter Tickets.
 
 - **Das Dashboard ist die Single Source of Truth.** Trello wird nicht mehr genutzt.
