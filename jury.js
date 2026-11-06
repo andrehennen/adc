@@ -199,8 +199,9 @@ function renderPins(){
   if (!map) return;
   Object.keys(markers).forEach(function(k){ markers[k].remove(); });
   markers = {};
-  LOCS.forEach(function(l){
+  LOCS.forEach(function(l, i){
     var el = pinEl(pinLabel(l), (l.id === selId ? 'sel ' : '') + (l.demo ? 'demo' : ''));
+    el.style.setProperty('--n', Math.min(i, 6));   // Pins fallen gestaffelt ein
     el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', pinLabel(l) + ', ' + l.ort);
     function go(e){ e.stopPropagation(); select(l.id, true); showPopup(l); }
     el.addEventListener('click', go);

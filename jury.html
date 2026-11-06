@@ -19,7 +19,7 @@
   --bg:#ffffff;--soft:#f3f1ec;--line:#e2e2df;--line-strong:#c9c9c5;
   --ink:#0a0a0a;--ink-2:#3d3d3d;--ink-3:#6b6b6b;
   --open:#b42318;--green:#12703f;--green-bg:#e2f5ea;--blue:#1d4fbf;--amber:#875400;--amber-bg:#fdf1d8;
-  --radius:12px;--ease:cubic-bezier(.32,.72,0,1);--ease-out:cubic-bezier(.22,1,.36,1);
+  --radius:12px;--ease:cubic-bezier(.32,.72,0,1);--ease-out:cubic-bezier(.22,1,.36,1);--ease-spring:cubic-bezier(.3,1.5,.5,1);
   --side:430px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -39,13 +39,13 @@ header{flex-shrink:0;border-bottom:1px solid var(--line);background:#fff;z-index
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}
 .brand img{height:30px;width:auto;display:block}
 .brand span{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;padding:8px 15px;border:1.5px solid var(--ink);white-space:nowrap;cursor:pointer;line-height:1.2;transition:background .2s var(--ease-out),color .2s,transform .25s var(--ease)}
-.btn:active{transform:scale(.95)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;padding:8px 15px;border:1.5px solid var(--ink);white-space:nowrap;cursor:pointer;line-height:1.2;transition:background .2s var(--ease-out),color .2s,transform .34s var(--ease-spring)}
+.btn:active{transform:scale(.93);transition-duration:80ms}
 .btn:disabled{opacity:.5;cursor:default}
 .btn-dark{background:var(--ink);color:#fff}
-.btn-dark:hover{background:#333;border-color:#333}
+@media(hover:hover){.btn-dark:hover{background:#333;border-color:#333}}
 .btn-light{background:#fff;color:var(--ink)}
-.btn-light:hover{background:var(--soft)}
+@media(hover:hover){.btn-light:hover{background:var(--soft)}}
 
 .app{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
 .mapbox{position:relative;min-height:0;background:#d4d4d0}
@@ -65,8 +65,9 @@ header{flex-shrink:0;border-bottom:1px solid var(--line);background:#fff;z-index
 .about{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
 .about summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--ink-2);list-style:none;display:flex;align-items:center;gap:6px;min-height:28px}
 .about summary::-webkit-details-marker{display:none}
-.about summary::after{content:"▾";font-size:12px;transition:transform .2s}
+.about summary::after{content:"▾";font-size:12px;transition:transform .34s var(--ease-spring)}
 .about[open] summary::after{transform:rotate(180deg)}
+.about[open] .facts{animation:drop .35s var(--ease-out)}
 .about summary:hover{color:var(--ink)}
 .about summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
 .facts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px;font-size:13px;color:var(--ink-2);line-height:1.5}
@@ -77,7 +78,9 @@ header{flex-shrink:0;border-bottom:1px solid var(--line);background:#fff;z-index
 .list-head h2{font-size:17px;font-weight:800;letter-spacing:-.01em}
 .count{font-size:13px;font-weight:600;color:var(--ink-3)}
 .locs{list-style:none;display:flex;flex-direction:column;gap:10px}
-.loc{border:1.5px solid var(--ink);border-radius:var(--radius);padding:12px 14px;background:#fff;scroll-margin:12px;transition:box-shadow .2s}
+.loc{border:1.5px solid var(--ink);border-radius:var(--radius);padding:12px 14px;background:#fff;scroll-margin:12px;transition:box-shadow .2s,transform .34s var(--ease-spring);animation:rise .5s var(--ease-out) backwards}
+.loc:nth-child(2){animation-delay:40ms}.loc:nth-child(3){animation-delay:80ms}.loc:nth-child(4){animation-delay:120ms}.loc:nth-child(5){animation-delay:160ms}.loc:nth-child(6){animation-delay:200ms}.loc:nth-child(n+7){animation-delay:240ms}
+.loc:has(.lhead:active){transform:scale(.985);transition-duration:80ms}
 .loc.sel{box-shadow:0 0 0 3px var(--ink)}
 .loc.treff{background:var(--ink);color:#fff}
 .loc.treff .sub,.loc.treff .near{color:#c9c9c5}
@@ -142,10 +145,14 @@ header{flex-shrink:0;border-bottom:1px solid var(--line);background:#fff;z-index
 /* Pins: äußeres Element gehört MapLibre (setzt die Position per transform), das Label sitzt innen.
    padding-bottom = Höhe der Spitze, damit sie genau auf dem Ort steht */
 .pin{cursor:pointer;padding-bottom:7px;display:flex;justify-content:center}
-.pin i{position:relative;display:block;font:normal 700 12px/1 'Inter',sans-serif;white-space:nowrap;background:var(--ink);color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s var(--ease)}
+.pin i{position:relative;display:block;font:normal 700 12px/1 'Inter',sans-serif;white-space:nowrap;background:var(--ink);color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.3);transform-origin:50% 100%;transition:transform .34s var(--ease-spring),background .2s,color .2s;animation:pin-in .5s var(--ease-spring) backwards;animation-delay:calc(var(--n,0) * 40ms)}
+@keyframes pin-in{from{opacity:0;transform:translateY(-10px) scale(.8)}}
 .pin i::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top:7px solid var(--ink);border-bottom:0}
 .pin:hover,.pin.sel{z-index:3}
-.pin:hover i,.pin:focus-visible i{transform:scale(1.06)}
+@media(hover:hover){.pin:hover i{transform:scale(1.06)}}
+.pin:focus-visible i{transform:scale(1.06)}
+.pin:active i{transform:scale(.93);transition-duration:80ms}
+.pin.sel i{transform:scale(1.1)}
 .pin:focus-visible{outline:none}
 .pin:focus-visible i{outline:2px solid var(--blue);outline-offset:2px}
 .pin.sel i{background:#fff;color:var(--ink);border-color:var(--ink)}
@@ -160,7 +167,13 @@ header{flex-shrink:0;border-bottom:1px solid var(--line);background:#fff;z-index
 .pin.draft i{background:var(--blue);animation:bob 1.4s var(--ease) infinite}
 .pin.draft i::after{border-top-color:var(--blue)}
 @keyframes bob{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 8px rgba(29,79,191,.2)}}
-.maplibregl-popup-content{font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:10px 14px;box-shadow:0 6px 22px rgba(0,0,0,.18)}
+.maplibregl-popup-content{font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:10px 14px;box-shadow:0 6px 22px rgba(0,0,0,.18);transform-origin:50% 100%;animation:pop-in .32s var(--ease-spring)}
+@keyframes pop-in{from{opacity:0;transform:translateY(6px) scale(.94)}}
+.maplibregl-popup-tip{animation:fade .2s var(--ease-out)}
+@keyframes fade{from{opacity:0}}
+/* Zoom-Knöpfe rund wie die übrigen Knöpfe */
+.maplibregl-ctrl-group{border-radius:999px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.12)!important}
+.maplibregl-ctrl-group button{width:36px;height:36px}
 .maplibregl-popup-content b{font-size:14px}
 .maplibregl-ctrl-attrib{font-size:11px}
 
@@ -173,6 +186,7 @@ dialog[open]{animation:pop .38s var(--ease)}
 .view:not([hidden]){animation:drop .35s var(--ease)}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
 
 /* Handy und Tablet hochkant: Karte oben, Seitenleiste darunter, beide fest im Bild */
 @media(max-width:900px){
@@ -211,8 +225,8 @@ dialog[open]{animation:pop .38s var(--ease)}
   <aside class="side" id="side" tabindex="-1" aria-label="Jury-Orte">
     <div class="side-in">
       <div class="intro view" id="view-intro">
-        <div class="kicker">⚖️ ADC Wettbewerb 2027</div>
-        <h1>Hamburg ADC Jury Map</h1>
+        <div class="kicker">⚖️ Jury 2027 · Hamburg</div>
+        <h1>Orte für die Jurys</h1>
         <p>Die Jurys 2027 tagen dezentral in Hamburg. Hier siehst du, welche Jury wo sitzt und wer in der Pause um die Ecke ist. Und du kannst einen Raum anbieten.</p>
         <div class="cta"><button class="btn btn-dark" id="add-btn" type="button">📍 Ort anbieten</button></div>
         <details class="about" id="about">
