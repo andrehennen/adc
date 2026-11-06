@@ -131,6 +131,7 @@ Feste Links:
 - **Aufbau (seit 16.10.2026):** App-Layout ohne Seiten-Scroll. Karte links (Handy: oben), Seitenleiste rechts (Handy: unten) mit eigenem Scrollbereich. Formular „Ort anbieten“ öffnet in der Seitenleiste, die Karte bleibt sichtbar zum Pin-Setzen. Infotexte stecken eingeklappt unter „Wie läuft das ab?“.
 - Pins zeigen „Jury 2: Film“, ohne Jury „Ort 2“ (`pinLabel`).
 - Fußwege sind grob geschätzt (Luftlinie × 1,3 bei 5 km/h).
+- **In der ADC Lounge** (seit 6.11.2026): `andrehennen.com/adc-lounge/jury/`, alle zwei Stunden automatisch übernommen von `adc_lounge_jury.py` im Repo `andrehennen.com` (Lounge-Kopf, relative Pfade). Die Adresssuche ruft dort `/api/geocode` des Dashboards auf, deshalb erlaubt `api/geocode.js` per CORS `https://andrehennen.com`. Änderungen an `jury.html`/`jury.js` hier machen; bricht die Übernahme ab (Stelle geändert), das Skript anpassen.
 
 ## Nächste Termine (`termine.js`, seit 2.32)
 

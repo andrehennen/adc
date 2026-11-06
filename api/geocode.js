@@ -3,6 +3,7 @@
 // Nominatim-Regeln: eigener User-Agent, keine Suche bei jedem Tastendruck (die Seite sucht nur per Button).
 module.exports = async function (req, res) {
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', 'https://andrehennen.com');   // Jury Map in der ADC Lounge
   var q = String((req.query && req.query.q) || '').trim().slice(0, 160);
   if (q.length < 3) { res.statusCode = 400; return res.end('[]'); }
   try {
