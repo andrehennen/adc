@@ -113,7 +113,7 @@ function tags(l){
   if (l.internet === true) t.push('<span class="tag ok">📶 Internet</span>');
   if (l.internet === false) t.push('<span class="tag warn">📶 Kein stabiles Internet</span>');
   if (l.catering === 'ja') t.push('<span class="tag ok">🍽️ Catering</span>');
-  if (l.catering === 'teilweise') t.push('<span class="tag warn">🍽️ Catering teilweise</span>');
+  if (l.catering === 'teilweise') t.push('<span class="tag">🍽️ Catering teilweise</span>');
   if (l.catering === 'nein') t.push('<span class="tag warn">🍽️ Kein Catering</span>');
   return t.length ? '<div class="tags">' + t.join('') + '</div>' : '';
 }
