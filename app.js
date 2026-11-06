@@ -982,6 +982,7 @@ function initStore(){
       document.getElementById('p-email').value = c && c.email || '';
       document.getElementById('p-phone').value = c && c.phone || '';
       document.getElementById('p-del').hidden = !c;
+      document.getElementById('p-ok').checked = !!c;   // gespeicherte Kontaktdaten = Einwilligung schon gegeben
       document.getElementById('p-msg').textContent = 'Gespeichert unter: ' + ME.name;
       renderNails();
       document.getElementById('p-msg').className = 'msg';
@@ -1007,7 +1008,7 @@ function initStore(){
   document.getElementById('p-del').addEventListener('click', function(){
     if (!confirm('Deine Kontaktdaten löschen?')) return;
     api('delete_contact', {p_name:ME.name, p_token:ME.token || ''}).then(function(){
-      document.getElementById('p-email').value = ''; document.getElementById('p-phone').value = '';
+      document.getElementById('p-email').value = ''; document.getElementById('p-phone').value = ''; document.getElementById('p-ok').checked = false;
       var m = document.getElementById('p-msg'); m.className = 'msg ok'; m.textContent = '✓ Gelöscht'; document.getElementById('p-del').hidden = true; load();
     }, alertErr);
   });

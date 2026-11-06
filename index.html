@@ -492,6 +492,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
     <form class="form" id="pform">
       <input id="p-email" type="email" maxlength="120" placeholder="E-Mail (z. B. ADC-Adresse)" aria-label="E-Mail" autocomplete="email">
       <input id="p-phone" type="tel" maxlength="25" placeholder="WhatsApp-Nummer, z. B. +49 170 1234567" aria-label="WhatsApp-Nummer" autocomplete="tel">
+      <label class="anon"><input type="checkbox" id="p-ok" required><span>Ich bin einverstanden, dass andere Mitglieder mit Code diese Kontaktdaten sehen.<span class="anon-hint">Freiwillig. Widerruf jederzeit, indem du die Daten hier löschst.</span></span></label>
       <div class="form-row"><button class="btn btn-dark" type="submit">Speichern</button><button class="btn btn-light" type="button" id="p-del" hidden>Löschen</button><span class="msg" id="p-msg"></span></div>
     </form>
   </div>
