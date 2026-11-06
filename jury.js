@@ -135,7 +135,7 @@ function card(l){
     + '</div></li>';
 }
 function treffCard(){
-  if (!TREFF) return '<li class="loc empty">🌙 <b>Abend-Treffpunkt:</b> steht noch nicht fest. Sobald es ihn gibt, erscheint er hier und auf der Karte.</li>';
+  if (!TREFF) return '';   // „steht noch nicht fest“ steht in der Hinweiszeile der Liste
   return '<li class="loc treff" id="ort-treff"><button class="lhead" type="button" data-fly="treff" title="Auf der Karte zeigen"><span class="num">★</span><span><span class="lname">🌙 ' + esc(TREFF.name) + '</span>'
     + '<span class="sub" style="display:block">' + esc(TREFF.adresse) + '</span></span></button>'
     + '<div class="lbody">' + (TREFF.info ? '<div>' + esc(TREFF.info) + '</div>' : '') + '<div class="lfoot">' + routeLinks(TREFF) + '</div></div></li>';
@@ -146,7 +146,8 @@ function renderList(err){
   $('count').textContent = LOCS.length ? LOCS.length + (LOCS.length === 1 ? ' Ort' : ' Orte') + (r ? ' · ' + r + ' Räume' : '') : '';
   var h = treffCard();
   if (err) h += '<li class="loc empty">' + esc(err) + '</li>';
-  else if (!LOCS.some(function(l){ return !l.demo; })) h += '<li class="loc empty">Noch keine echten Orte eingetragen. Biete den ersten an: <b>📍 Ort anbieten</b>.' + (DEMO.length ? ' Die Demo-Orte unten zeigen, wie es aussieht.' : '') + '</li>';
+  else if (!LOCS.some(function(l){ return !l.demo; })) h += '<li class="loc empty">Noch keine echten Orte eingetragen.' + (DEMO.length ? ' Die Demo-Orte zeigen, wie es aussieht.' : '') + (TREFF ? '' : ' Der Abend-Treffpunkt steht noch nicht fest.') + '</li>';
+  else if (!TREFF) h += '<li class="loc empty">🌙 Der Abend-Treffpunkt steht noch nicht fest.</li>';
   h += LOCS.map(card).join('');
   ul.innerHTML = h;
   if (selId) select(selId, false);
