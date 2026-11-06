@@ -94,6 +94,7 @@ In jeder Spalte gibt es drei Gruppen: „🚀 Läuft schon“ (`planned`/`active
 
 ## Design (seit Okt. 2026)
 
+- **Farbe (seit 6.11.2026, gilt für Lounge, Mitmachen und Verein):** Schwarz-Weiß plus genau ein warmer Flächenton `--soft: #f3f1ec`, nur als Fläche, nie für Schrift oder Rahmen. Weiß ist Hauptinhalt, getönt heißt „gehört zusammen“ oder „Hinweis“. Höchstens 1–2 getönte Flächen pro Screen, Listen bleiben weiß mit Linien. „Wichtig“ = Fläche plus kleines schwarzes Label, keine eigene Farbe. Einzige Signalfarbe bleibt Gelb für „Heute“.
 - Hell, orientiert an adc.de: weißer Hintergrund, schwarze Typo, Inter (lokal in `fonts/`, nicht von Google), große fette Headlines, ADC-Logo schwarz (als base64 eingebettet).
 - Kompakt (seit 1.10.2026): Fließtext 14–15 px, Ticket-Titel 16 px, H1 max. 44 px, Labels/Pills 12 px als Untergrenze.
 - **Abstände (seit 2.35):** nur über die Tokens `--sp-row` (6), `--sp-head` (Überschrift → Inhalt, 10/8), `--sp-block` (zwischen Blöcken, 28/22), `--sp-section` (zwischen Bereichen, 48/36) in `:root` (Handy-Werte im 600-px-Media-Query). Regel: innerhalb < zwischen Blöcken < zwischen Bereichen. Keine neuen festen px-Abstände zwischen Bereichen.
