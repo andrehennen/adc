@@ -50,7 +50,7 @@ var UP = [
 ];
 
 var CL = [
-  ["2.36", "6. Nov. 2026", "„Mein Kontakt“: Kontaktdaten werden erst nach einem Häkchen für andere Mitglieder sichtbar."],
+  ["2.36", "6. Nov. 2026", "„Mein Kontakt“: Kontaktdaten werden erst nach einem Häkchen für andere Mitglieder sichtbar. Die Jury Map führt zurück zur ADC Lounge."],
   ["2.35", "4. Nov. 2026", "Ruhigere Seite: einheitliche Abstände, eng innerhalb eines Blocks, mehr Luft zwischen den Bereichen. „Diese Woche im ADC“ oben wieder entfernt."],
   ["2.34", "3. Nov. 2026", "Mehr Freude beim Mitmachen: Konfetti und ein kurzer Satz beim Abhaken, Mitmachen und Erledigen, Fortschritt je Idee, „Diese Woche im ADC“ und wie viele Ideen je Bereich laufen, „Noch 2 gesucht“ an neuen Ideen, Nägel in Holz, Bronze, Silber und Gold im Profil."],
   ["2.33", "3. Nov. 2026", "Aufgeräumt: „Zuletzt passiert“ eingeklappt, Termine einzeilig (Details per Tipp), Sektion als Auswahlmenü, erledigte Ideen in einer eingeklappten Gruppe, auf dem Handy Tabs für Sektionen und Gesamtverein."],
