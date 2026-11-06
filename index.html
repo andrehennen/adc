@@ -102,7 +102,6 @@ dialog.help .trust{margin:28px 0 0;background:var(--soft);border-radius:12px;pad
 .frow{display:flex;gap:8px;align-items:center;padding-top:12px;padding-bottom:12px;overflow-x:auto;scrollbar-width:none}
 .frow::-webkit-scrollbar,.fscroll::-webkit-scrollbar{display:none}
 .fscroll{display:flex;gap:8px;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
-.fb.mine{border-color:var(--ink);color:var(--ink);font-weight:700}
 .fb{flex-shrink:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .12s;white-space:nowrap}
 .fb:hover{border-color:var(--ink);color:var(--ink)}
 .fb.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -344,6 +343,10 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .board[data-tab=hh] .col[data-col=jhv],.board[data-tab=jhv] .col[data-col=hh]{display:none}
   .col-title{display:none}
   .col-head{justify-content:flex-end}
+  .col-head{display:none}   /* Handy: Bereich und Anzahl stehen im Tab, „Alle aufklappen“ braucht es hier nicht */
+  .filters{border-bottom:0}
+  .filters+.news{padding-top:var(--sp-block)}
+  .board,.news+.board{padding-top:var(--sp-head)}
 }
 @media(max-width:600px){
   .hide-s{display:none}
@@ -369,7 +372,10 @@ span.vote{cursor:default;border-color:transparent;background:var(--soft)}
   .col-head{margin-bottom:var(--sp-head)}
   .col-tools{min-height:0}
 
-  .fb{padding:4px 9px}
+  .fb{padding:4px 7px}
+  .fsel{padding-right:22px;background-position:right 7px center}
+  .fsel:not(.on){width:58px}   /* „Ort“ statt der Breite der längsten Stadt, damit die Zeile aufs Handy passt */
+  .fscroll{gap:5px}
   .help-head{padding:20px 20px 14px}
   dialog.who.help h2{font-size:19px}
   .help-body{padding:18px 20px 22px}
@@ -561,13 +567,13 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 <div class="filters">
   <div class="wrap frow" id="frow" role="toolbar" aria-label="Filter">
     <div class="fscroll">
-    <button type="button" class="fb mine" id="mine-btn" hidden aria-pressed="false" title="Nur Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast">🙋 Für mich<span id="mine-n"></span></button>
+    <button type="button" class="fb mine" id="mine-btn" hidden aria-pressed="false" title="Nur Ideen, die du verantwortest, bei denen du mitmachst oder die du angelegt hast">Für mich<span id="mine-n"></span></button>
     <button type="button" class="fb on" data-t="all" aria-pressed="true">Alle</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="intern" title="Für Mitglieder und den Verein: Events, Austausch, Struktur">🏠 Intern</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="extern" title="Nach außen: Partner, Sponsoren, Stadt, Nachwuchs">🌍 Extern</button>
-    <button type="button" class="fb" aria-pressed="false" data-t="jury">⚖️ Jury</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="intern" title="Für Mitglieder und den Verein: Events, Austausch, Struktur">Intern</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="extern" title="Nach außen: Partner, Sponsoren, Stadt, Nachwuchs">Extern</button>
+    <button type="button" class="fb" aria-pressed="false" data-t="jury">Jury</button>
     <span class="fsep"></span>
-    <select class="fb fsel" id="city" aria-label="Sektion auswählen"><option value="">📍 Ort</option><option value="Hamburg">📍 Hamburg</option><option value="Berlin">📍 Berlin</option></select>
+    <select class="fb fsel" id="city" aria-label="Sektion auswählen"><option value="">Ort</option><option value="Hamburg">Hamburg</option><option value="Berlin">Berlin</option></select>
     </div>
   </div>
 </div>
@@ -577,7 +583,7 @@ dialog[open]::backdrop{animation:fade .3s var(--ease-out)}
 <div class="wrap news" id="news" hidden><div class="news-top"><h2 class="news-h"><button type="button" class="fold" id="news-btn" aria-expanded="false" aria-controls="news-list">🆕 Zuletzt passiert <span id="news-n"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg></button></h2><span class="news-up" id="last-update"></span></div><ul id="news-list" hidden></ul></div>
 
 <div class="wrap board" id="board" data-tab="hh">
-  <div class="tabs" role="group" aria-label="Bereich"><button type="button" class="tab on" data-tab="hh" aria-pressed="true">📍 Sektionen <span id="tn-hh"></span></button><button type="button" class="tab" data-tab="jhv" aria-pressed="false">🏛️ Gesamtverein <span id="tn-jhv"></span></button></div>
+  <div class="tabs" role="group" aria-label="Bereich"><button type="button" class="tab on" data-tab="hh" aria-pressed="true">Sektionen <span id="tn-hh"></span></button><button type="button" class="tab" data-tab="jhv" aria-pressed="false">Gesamtverein <span id="tn-jhv"></span></button></div>
   <section class="col" data-col="hh">
     <div class="col-head">
       <h2 class="col-title">📍 Sektionen <span class="col-sub">Können Sektionen selbst umsetzen</span></h2>

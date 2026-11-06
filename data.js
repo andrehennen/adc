@@ -50,6 +50,7 @@ var UP = [
 ];
 
 var CL = [
+  ["2.38", "6. Nov. 2026", "Filter und Bereiche aufgeräumt: ohne Emojis, „Für mich“ wie die anderen Filter, auf dem Handy weniger Abstand und keine doppelte Anzahl."],
   ["2.37", "6. Nov. 2026", "Farben mit Bedeutung: Gelb = neu und heute, Grün = läuft und erledigt, Rot = fehlt. „Antrag“ und Aufwand neutral, Links und Fokus schwarz. Jury Map: Pin beim Setzen gelb, Hinweis schwarz, Orte als ruhige Liste mit Linien."],
   ["2.36", "6. Nov. 2026", "„Mein Kontakt“: Kontaktdaten werden erst nach einem Häkchen für andere Mitglieder sichtbar. Die Jury Map führt zurück zur ADC Lounge. Flächen in einem hellen, warmen Ton wie in der Lounge. Jury Map: neuer Titel, sanfte Animationen bei Pins, Liste und Knöpfen, runde Zoom-Knöpfe."],
   ["2.35", "4. Nov. 2026", "Ruhigere Seite: einheitliche Abstände, eng innerhalb eines Blocks, mehr Luft zwischen den Bereichen. „Diese Woche im ADC“ oben wieder entfernt."],
