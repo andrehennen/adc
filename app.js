@@ -692,7 +692,7 @@ document.getElementById('mine-btn').addEventListener('click', function(){
 
 function openFromHash(){
   var id = decodeURIComponent(location.hash.slice(1));
-  if (!id || id === 'vorschlag') return;
+  if (!id || id === 'vorschlag' || id === 'profil') return;
   openTicket(id);
 }
 function openTicket(id){
@@ -1030,6 +1030,7 @@ function initStore(){
   });
   document.getElementById('w-cancel').addEventListener('click', function(){ whoCb = null; document.getElementById('who').close(); });
   if (location.hash === '#vorschlag') openForm(null);
+  if (location.hash === '#profil') pb.click();   // aus der Lounge: „Deine Nägel“ öffnet das Profil mit den Nägeln
 }
 
 document.getElementById('cl-btn').textContent = 'Version ' + CL[0][0] + ' · Changelog';
