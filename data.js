@@ -43,10 +43,11 @@ var D = [
 // k = kurzer Titel fürs Handy (eine Zeile), t = ein kurzer Satz ohne Punkt
 var UP = [
   {d:"2026-11-06", id:"neu-3", k:"ADC Lounge", t:"Präsidium gibt die neue Lounge einstimmig frei"},
-  {d:"2026-11-03", id:"sektionstreffen-interaktiver-gestalten-weniger-frontalunterr", k:"Sektionstreffen", t:"17.12. erstes Kombi-Treffen mit dem Fachbereich Digital"},
+  {d:"2026-11-03", id:"sektionstreffen-interaktiver-gestalten-weniger-frontalunterr", k:"Sektionstreffen", t:"17.12. erstes Kombi-Treffen mit dem Fachbereich Digital", b:1},
   {d:"2026-10-31", id:"jury-map-orte-fuer-die-dezentralen-jurys-2027-in-hamburg", k:"Jury Map", t:"Neue Idee: Orte für die Jurys 2027 in Hamburg sammeln"},
   {d:"2026-10-28", id:"creative-club-wiederbeleben-talents-praesentieren-arbeiten-b", k:"Creative Club", t:"3.11. im Design Zentrum Hamburg"},
-  {d:"2026-10-28", id:"adc-beats-kultur-musik-u-a-reeperbahn-festival", k:"ADC Beats", t:"Kommt auch nach Hamburg"}
+  {d:"2026-10-28", id:"adc-beats-kultur-musik-u-a-reeperbahn-festival", k:"ADC Beats", t:"Kommt auch nach Hamburg"},
+  {d:"2026-10-15", id:"alle-wahlen-digital-remote-nachvollziehbar-dokumentierbar", k:"Alle Wahlen digital", t:"JHV beschließt die Satzungsänderung (§ 7.2, § 7.5.2)", b:1}
 ];
 
 var CL = [
