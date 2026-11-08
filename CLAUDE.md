@@ -1,5 +1,7 @@
 # ADC Dashboard – Arbeitsregeln für Claude
 
+> **Abgelöst am 8.11.2026:** Das Dashboard ist jetzt „Mitmachen“ in der ADC Lounge, gearbeitet wird nur noch im Repo `andrehennen/adc-lounge` (dort `public/mitmachen/`, Ideen in `public/data/ideen.js`, Termine in `public/data/termine.js`). Die Seiten hier leiten zur Lounge weiter (`vercel.json`). **Hier bleibt nur `api/`** (Kalender liest die Termine aus der Lounge, Adresssuche der Jury Map, Keepalive für Supabase), bis die Server-Teile auf den ADC-Server ziehen. `data.js`, `termine.js` und die Seiten hier nicht mehr pflegen. Die Regeln unten gelten sinngemäß in `adc-lounge/docs/dashboard.md`.
+
 Dieses Repo ist das **„Dein ADC Dashboard“**: eine Übersicht der Ideen und Initiativen aus der ADC-Ideensammlung (Sli.do), getrennt nach dem, was Sektionen selbst umsetzen können, und dem, was Gesamtverein, Präsidium oder JHV braucht.
 Verantwortlich ist André Hennen (CCO/Partner Curious Company, Sektionsvorstand ADC Hamburg). Kommunikation auf Deutsch, direkt, knapp, inhaltlich. André gibt kurze, iterative Anweisungen.
 
