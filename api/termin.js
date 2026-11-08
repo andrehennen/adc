@@ -1,6 +1,7 @@
-// Kalenderdatei (.ics) für die Nächsten Termine aus termine.js.
+// Kalenderdatei (.ics) für die Termine der ADC Lounge (seit dem Umzug: data/termine.js der Lounge, nicht mehr termine.js hier).
 // /api/termin?id=<id> → ein Termin (Button „In Kalender“), /api/termin → alle kommenden Termine (Kalender-Abo per webcal://).
-var TE = require('../termine.js');
+var vm = require('vm');
+var QUELLE = 'https://andrehennen.com/adc-lounge/data/termine.js';
 
 var TZ = 'Europe/Berlin';
 // Ortszeit Berlin → UTC (berücksichtigt Sommer-/Winterzeit)
@@ -46,7 +47,8 @@ function vevent(e, now) {
   return l;
 }
 
-module.exports = function (req, res) {
+module.exports = async function (req, res) {
+  var c = {}; vm.runInNewContext(await (await fetch(QUELLE)).text(), c); var TE = c.TE;   // Termine stehen nur noch in der Lounge
   var id = String((req.query && req.query.id) || '').slice(0, 80);
   var today = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
   var list = id ? TE.filter(function (e) { return e.id === id; })

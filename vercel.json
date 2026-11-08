@@ -49,5 +49,37 @@
       "schedule": "17 5 * * *"
     }
   ],
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://andrehennen.com/adc-lounge/mitmachen/",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "destination": "https://andrehennen.com/adc-lounge/mitmachen/",
+      "permanent": false
+    },
+    {
+      "source": "/jury",
+      "destination": "https://andrehennen.com/adc-lounge/jury/",
+      "permanent": false
+    },
+    {
+      "source": "/jury.html",
+      "destination": "https://andrehennen.com/adc-lounge/jury/",
+      "permanent": false
+    },
+    {
+      "source": "/datenschutz",
+      "destination": "https://andrehennen.com/adc-lounge/mitmachen/datenschutz.html",
+      "permanent": false
+    },
+    {
+      "source": "/impressum",
+      "destination": "https://www.adc.de/impressum/",
+      "permanent": false
+    }
+  ]
 }
